@@ -1,0 +1,3525 @@
+{
+  "schema": "tpnil-sdx-vectors@0.1.0",
+  "suite": "VC-SDX-K1",
+  "claim": "LAB_SELF_TEST_ONLY",
+  "status": "PROPOSED",
+  "title": "SDX accounts in a BRC-98 module (`p sdx`), secp256k1 operations: `k1key`, `k1peer`, `k1sign`, account and epoch selection, and rejections",
+  "requirements": [
+    "K1-01",
+    "K1-02",
+    "K1-03",
+    "K1-04",
+    "K1-05"
+  ],
+  "citations": [
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Scheme, operations and carrier methods"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Roots and selection"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Canonical derivation: one root for both curves"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Point validation"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Permissions"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Path scoping"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "clause": "Containment"
+    },
+    {
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/profile.json",
+      "clause": "requirements K1-01, K1-02, K1-03, K1-04, K1-05"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.3.1"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.6.1"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.7"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.8.1"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.8.2"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.8.3"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.8.4"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.10.2"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.11.2"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§1.12"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§2.3"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "§2.14.2"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "§2.1"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "§3.1"
+    },
+    {
+      "path": "https://www.rfc-editor.org/rfc/rfc6979",
+      "clause": "§3.2"
+    },
+    {
+      "brc": 42,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "key-derivation/0042.md",
+      "gitBlob": "5ac0c735f524ccdcd0c2b020a4be0b38981e68db",
+      "clause": "Specification"
+    },
+    {
+      "brc": 43,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "key-derivation/0043.md",
+      "gitBlob": "5eb00be6fe5fca5a982d5c29b99ec5de136fdc5d",
+      "clause": "Specification"
+    },
+    {
+      "brc": 98,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "wallet/0098.md",
+      "gitBlob": "a9696acf05a63c95199f4f90ca733719613e4b48",
+      "clause": "Specification"
+    },
+    {
+      "brc": 229,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "wallet/0229.md",
+      "gitBlob": "d5e9abd0672d53942e2bbbc351419ab2ab7522c0",
+      "clause": "Logical protocol ID; Point validation"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D-PATH",
+      "decision": "`path` is the full SDX derivation identifier `2-<namespace>-<keyPath>`, used byte for byte with no Unicode normalisation. Its security level is 2, and its namespace is one the profile registers for the operation's curve (`wallets.profile.namespaces`). Nothing is derived under the rotation namespace. `decrypt` takes only paths in the encryption namespace, and `sign` and `k1sign` never take one. The key path is 1 to 1,033 bytes. For roles write, read, root and session it follows KEYS §1.6.1 with the profile's keywords and purposes: `account/<id>`, then `runtime/<id>`, then `action/<id>` with an optional `<purpose>/<id>` whose purpose the profile registers, or `session/<id>`. The delegation variant is refused. For role actor the only key path is `actor/<index>` under the delegation namespace, `<index>` decimal with no leading zero. `key` and `k1key` without `path` return the root public key with no derivation, and with `peer` and no `path` they are rejected. Every other operation that derives requires `path`.",
+      "basis": "sdx module draft statement §Scheme, operations and carrier methods (\"Namespace separation\", \"Key paths\") and §Path scoping; KEYS §1.3 (key paths of 1 to 1033 bytes), §1.6.1 (\"A <purpose> the validator does not recognise MUST be rejected at the derivation boundary\"; one shared constant), §1.7 (\"MUST NOT derive under a namespace absent from their deployment's profile\"; the rotation role is reserved where rotation envelopes sign under the signing namespace, as KEYS §1.10.3 step 5 has them), §1.8.1, §1.11.2 (\"The derivation library does not enforce the separation, so implementations MUST\"), §1.12 item 10, §2.14.1."
+    },
+    {
+      "id": "D-OFFSET",
+      "decision": "A child offset of 0 or >= n fails the derivation; it is never reduced mod n. This is a laboratory reading of a clause that contradicts itself.",
+      "basis": "KEYS §1.8.2 computes the scalar as \"int(hmac, big-endian) mod N\" and then requires the derivation to fail when the scalar \"is greater than or equal to N\", which the reduction makes unreachable. KEYS §1.12 item 7 requires a known-answer test in which a scalar equal to N and one greater than N each raise the typed rejection, which only the unreduced value can give. The laboratory and sdx module draft statement §Canonical derivation step 3 apply the rule to the unreduced value."
+    },
+    {
+      "id": "D-SEED",
+      "decision": "A seed outside [1, n - 1] makes the ikm unusable; it is never clamped. Both seeds are checked before either is used.",
+      "basis": "sdx module draft statement §Canonical derivation step 2; KEYS §1.4.3."
+    },
+    {
+      "id": "D-ROOTS",
+      "decision": "Test roots are fixed 64-byte ikm values: 0x00..0x3f (account 3MNQpxFAsp), 0x40..0x7f (recipient account 9VxTqR3mLp), 0x80..0xbf (the actor root), 0xc0..0xff (a session root); plus one searched ikm that is unusable. Account 5QkVr9TzWm has two epochs derived from the wallet root SHA-256 of a published label. They are public test key material, not secrets, never funded. The `wallets` table states which wallet holds which root.",
+      "basis": "Lab decision."
+    },
+    {
+      "id": "D-PROFILE",
+      "decision": "The suite uses the laboratory deployment profile, fixtures/sdx/v1/deployment-profile.json, copied into `profile` and `wallets.profile`: format identifier `tpnil-sdx-lab:v1`, and SDX's example labels, namespaces, key-path keywords and purposes, for the laboratory only. One level-3 keyword, `action`, names a record on both curves: the P-256 signing key and recipient keys (ENV §8.5, §8.6) and the secp256k1 commitment key (ANC §3.1) of one record share the key path `account/<accountId>/runtime/<runtimeId>/action/<actionId>`.",
+      "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), §1.6.1 (a keyword is a profile value, and a profile \"spells it that way everywhere\"), §1.8.4 (the P-256 envelope signature and the secp256k1 transaction signature both use action/<actionId>), §1.11.2 (one key-path grammar on both curves); ANC §3.1; ENV §2.1. Source finding: ENV §8.5 and §8.6 write the record key path account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> and make its segment literals profile parameters, while KEYS writes action; the laboratory reads the ENV literals as example values and fixes them to KEYS's words."
+    },
+    {
+      "id": "D-LOGICAL",
+      "decision": "The protocol name is `p sdx <operation> <role> <h>`. The logical protocol ID is exactly `<role> <h>`: `<role>` is one of write, read, root, actor and session, and `<h>` is the 32-character lowercase hex of the first 16 bytes of SHA-256(UTF-8 accountId). Any other form is rejected.",
+      "basis": "sdx module draft statement §Scheme, operations and carrier methods; BRC-98; BRC-229 Logical protocol ID."
+    },
+    {
+      "id": "D-SELECT",
+      "decision": "Roles write, read and root select the account whose tag is `<h>`, at epoch `ep`, or at the current epoch (the highest the wallet holds) when `ep` is absent; an unknown tag or epoch is rejected once the request is authorized (D-ERRORS). Role actor uses the wallet's actor root and role session the session root named by the `<sessionId>` segment that follows `/session/` in `path`; for both, `<h>` only scopes grants, and `ep` is rejected. A session request whose path names no session is rejected, and so is one without `path`. A path naming a session the wallet does not hold draws a fresh root (behavioural).",
+      "basis": "sdx module draft statement §Roots and selection. The draft does not say what a session request without a session in its path selects; the laboratory rejects it."
+    },
+    {
+      "id": "D-OPEN",
+      "decision": "`open` needs role `root` and a tag equal to tag(acct). For an epoch the wallet holds it returns R || K, 66 bytes, under a standing grant. For an account or epoch the wallet does not hold it derives the epoch from the wallet root with key ID \"<acct> <ep>\" and returns its R || K; creation always prompts, and the vectors mark the approved prompt with `prompt: \"approve\"`. Without `ep`, `open` of an unknown account creates epoch 0.",
+      "basis": "sdx module draft statement §Roots and selection (\"open\"), §Permissions (\"open prompts whenever it creates\"), §Canonical derivation step 1."
+    },
+    {
+      "id": "D-SCOPE",
+      "decision": "Each grant covers one [2, \"p sdx <operation> <role> <h>\"] for one originator and records the derivation-identifier prefixes it covers; the prompt shows them. A request whose `path` does not start with a covered prefix is rejected; a prefix that ends inside a key path ends with \"/\". A request without `path` needs only a grant for its protocol. Requests use security level 2 and counterparty `self`; `privileged: true` is rejected. Each operation and each account is granted separately. The vectors model grants in `wallets.entries.<wallet>.grants`.",
+      "basis": "sdx module draft statement §Permissions (\"Grant scope\", \"Account isolation\", \"Grant independence\") and §Path scoping."
+    },
+    {
+      "id": "D-CALLS",
+      "decision": "Module calls use security level 2 and keyID \"1\". All requests come from one lab originator.",
+      "basis": "Lab decision."
+    },
+    {
+      "id": "D-ERRORS",
+      "decision": "Error codes such as `scalar-rejected` and `point-x-range` are laboratory labels. The draft defines no codes; conformance requires the rejection, not the label. The laboratory checks in this order, so a module that checks in the same order gives the same label: the method and reserved names; the protocol name (scheme, operation, carrier method, security level, privileged, logical protocol ID); counterparty; the CBOR input (encoding, members, types, point validation, `hash` length, and the shape of `jwe` with its ephemeral key); `open`'s role and tag; the path: its form, a namespace registered for the curve, the rotation namespace, the encryption namespace for `decrypt`, `sign` and `k1sign`, the key path's length, then its grammar and purpose; the selection checks that read only the request (`ep` on the actor and session roles, the session a path names); the grant and its prefixes, or the approved prompt, which `open` needs whenever it creates; root selection from what the wallet holds (account, epoch, a tag another account holds, a wallet that cannot create); derivation; then, for `decrypt`, the JOSE steps. Checks that read what the wallet holds come after authorization, so a request with no grant and no approval is refused alike whether or not the wallet holds its account or epoch.",
+      "basis": "Lab decision. The order of authorization and root selection follows sdx module draft statement §Permissions and §Errors."
+    },
+    {
+      "id": "D-K1-DERIVE",
+      "decision": "secp256k1 child keys are BRC-42 on the selected root k = secp256k1_seed: S = compressed(k·Q) with Q = `peer` or k·G for self, h = HMAC-SHA-256(S, UTF-8(path)) read big-endian, rejected when 0 or >= n; `k1key` returns (k + h)·G and `k1peer` Q + h·G. Each result equals stock BRC-100 getPublicKey of a wallet whose root is k, with protocol [s, <namespace>] and key ID <keyPath> read from the derivation identifier, counterparty `self` or the peer's hex, and forSelf true for `k1key`; without `path`, `k1key` equals that wallet's identity key. The generator fails if @bsv/sdk 4.0.1 ProtoWallet gives any other value, and each case records the stock call in `brc100`.",
+      "basis": "sdx module draft statement §Canonical derivation step 3 (\"On secp256k1, SDX's derivation identifier is a BRC-43 invoice number\"); KEYS §1.8.1, §1.8.2; BRC-42; BRC-43."
+    },
+    {
+      "id": "D-K1-SIGN",
+      "decision": "`k1sign` signs the 32 bytes of `hash` as given, with no further hashing, using the own child key, an RFC 6979 nonce (HMAC-SHA-256, h1 = hash mod n) and low-S canonicalisation, and returns the DER encoding with no sighash byte. The result equals stock BRC-100 createSignature with `hashToDirectlySign` on the same derivation, recorded in `brc100`. It signs under the signing namespace (chain tips and top-up outputs) and the handoff namespace (handoff outputs addressed to the account).",
+      "basis": "sdx module draft statement §Canonical derivation step 4 and the `k1sign` row; KEYS §1.6.1, §1.7, §1.8.3; RFC 6979 §3.2."
+    },
+    {
+      "id": "D-K1-POINT",
+      "decision": "`peer` in `k1key`, `k1peer` and `k1sign` is validated on secp256k1 before any multiplication: exactly 33 bytes, prefix 02 or 03, x < p on the encoded integer before any reducing parser, on y² = x³ + 7.",
+      "basis": "sdx module draft statement §Point validation; BRC-229."
+    },
+    {
+      "id": "D-K1-RANGE",
+      "decision": "An offset of 0, n or more cannot be found by search on secp256k1 (probability about 2^-128), so case offset-range-secp256k1 pins KEYS §1.12 item 7 as a computation on injected values: 0, n, n + 1 and 2^256 - 1 are refused and 1 and n - 1 accepted. VC-P256 pins the same rule through module requests with a P-256 offset above n found by search. No case asks a module for a test hook.",
+      "basis": "KEYS §1.8.2, §1.12 item 7; decision D-OFFSET."
+    },
+    {
+      "id": "D-K1-PATHS",
+      "decision": "The commitment key path is `account/<accountId>/runtime/<runtimeId>/action/<actionId>` under the signing namespace, counterparty self (ANC §3.1, KEYS §1.6.1 level 3), the same derivation identifier as the record's P-256 signing key. The handoff lock is level-4 purpose `handoff` with `<refIdHex>` under `sdx handoff`, counterparty the recipient's secp256k1 root. The top-up lock is purpose `topup`, ordinal 0, under the signing namespace.",
+      "basis": "ANC §3.1, §3.4; KEYS §1.6.1, §1.6.2, §1.7, §1.8.4."
+    },
+    {
+      "id": "D-K1-TX",
+      "decision": "Case k1sign-commitment-spend carries synthetic version-1 transactions: `previous` has the record output (ANC §2.1 container with the commitment key, 1 satoshi), and `spending` spends it with lock time 0 and sequence 0xffffffff. `hash` is SHA-256d of the SIGHASH_ALL|FORKID (0x41) preimage of input 0, and the unlocking script pushes the k1sign result followed by 0x41. Nothing is broadcast.",
+      "basis": "ANC §2.1, §3.1; sdx module draft statement §How SDX uses it (\"Spend the chain's tip\")."
+    },
+    {
+      "id": "D-REPLAY",
+      "decision": "A module case is executable: load `wallets.entries[case.wallet]`, send `request.method` with `request.args`, and compare the result with `expected.ciphertext`, or confirm a rejection when `expected.error` is set. `variants` repeat the request with the listed argument overrides. Point-rejection cases list one request per position. No case needs a test hook in the module.",
+      "basis": "Lab decision."
+    }
+  ],
+  "profile": {
+    "note": "The laboratory deployment profile, copied from `file` (KEYS §1.3.1; ENV §2.1), LAB_SELF_TEST_ONLY. The labels, namespaces, key-path keywords, purposes and credential type are SDX's example values, used for the laboratory only; the format identifier is the laboratory's own. One level-3 keyword, `action`, names a record on both curves (decision D-PROFILE). `actor` is also the keyword of the actor's persistent key path `actor/<index>` (module draft, step 1). The credential type is not an input to any case of this suite. The identifiers are the worked example of KEYS §1.8.1.",
+    "file": "fixtures/sdx/v1/deployment-profile.json",
+    "formatIdentifier": "tpnil-sdx-lab:v1",
+    "credentialType": "urn:sdx:Mandate:v1",
+    "labels": {
+      "secp256k1": "sdx-secp256k1",
+      "p256": "sdx-p256"
+    },
+    "namespaces": {
+      "encrypt": "sdx encrypt",
+      "sign": "sdx sign",
+      "delegate": "sdx delegate",
+      "transportAuth": "sdx transport auth",
+      "rotation": "sdx rotation",
+      "handoff": "sdx handoff"
+    },
+    "keywords": {
+      "account": "account",
+      "runtime": "runtime",
+      "action": "action",
+      "session": "session",
+      "delegation": "delegation",
+      "actor": "actor"
+    },
+    "purposes": [
+      "field",
+      "handoff",
+      "topup"
+    ],
+    "identifiers": {
+      "accountId": "3MNQpxFAsp",
+      "secondAccountId": "5QkVr9TzWm",
+      "newAccountId": "7HdWq2KxRb",
+      "recipientAccountId": "9VxTqR3mLp",
+      "runtimeId": "8kRt2wVbZq",
+      "recordId": "01JB8ZK3QN7T4YVX2C9M5RDPWA",
+      "secondRecordId": "01JB8ZK3QP8V2R5W9X3Y6Z1A4C",
+      "fieldName": "photoHash",
+      "delId": "00112233445566778899aabbccddeeff",
+      "sessionId": "ffeeddccbbaa99887766554433221100",
+      "refIdHex": "f2dc7ce614ad2837cc90c0312bac2de2"
+    },
+    "accountTags": {
+      "3MNQpxFAsp": "1f520702ec75fa65f6048ccdf8ce3efe",
+      "5QkVr9TzWm": "d59c74bbba9793428e5470684c4dad73",
+      "7HdWq2KxRb": "bdbab9b708d8601529ff2080e90c93e9",
+      "9VxTqR3mLp": "f17fb4ae2a45aedbcb97445a2a9d1c5f"
+    },
+    "logicalProtocolIDs": {
+      "write": "write 1f520702ec75fa65f6048ccdf8ce3efe",
+      "read": "read 1f520702ec75fa65f6048ccdf8ce3efe",
+      "root": "root 1f520702ec75fa65f6048ccdf8ce3efe",
+      "actor": "actor 1f520702ec75fa65f6048ccdf8ce3efe",
+      "session": "session 1f520702ec75fa65f6048ccdf8ce3efe"
+    }
+  },
+  "testKeys": {
+    "note": "Public test key material, not a secret, never funded. Each root is a fixed 64-byte ikm. LAB_SELF_TEST_ONLY.",
+    "labels": {
+      "secp256k1": "sdx-secp256k1",
+      "p256": "sdx-p256"
+    },
+    "roots": {
+      "account": {
+        "ikm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+        "secp256k1Seed": "47fff5ba7cfed35386a38793328e5a3009f50bc84099ecf42bc6b3181ad25259",
+        "p256Seed": "2518246f999df8d7528d76aedea51a3bff120c901b23246a53bbc4811f8550da",
+        "secp256k1PublicKey": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+        "p256PublicKey": "0298f7b0efc5a8c1ea0657e060f779a2e0186024d46db7e0c82624e6630d265279"
+      },
+      "recipient": {
+        "ikm": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+        "secp256k1Seed": "ce6d4a113639615ae02cb546b3c0eab3f517a63638daf8725fb16536492953d8",
+        "p256Seed": "e81a6645f3fc1175b93110b2fc94d5086ed31d95abfd3e0366a743849518ef83",
+        "secp256k1PublicKey": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+        "p256PublicKey": "022d45cbac92bc5f901121eed7723471b4214bd18c52e13770f0607892a1ef9ad0"
+      },
+      "actor": {
+        "ikm": "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+        "secp256k1Seed": "f041102643b845c1a2b3f6f9b57e7972ae42ab42039a24a161db34ff04a88c07",
+        "p256Seed": "aceb9a8510632165272ee6aa18954e424d4df6c49a4b74da81b1bf845a3cbfda",
+        "secp256k1PublicKey": "0377f6c9c8d79470965f11f3a859a3fd36ad409b40d27629d02f40de5216d398fd",
+        "p256PublicKey": "03a149eec9b66ae5f8feebab8217ef6d47189989fb3cfd798fb36fbf460015133c"
+      },
+      "session": {
+        "ikm": "c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+        "secp256k1Seed": "03869976e80d4ec00919bd81a995c44e6a5468d3327b483a8dec8ec451294aad",
+        "p256Seed": "6599cd228050fb848f417de3832db8facce8a1cd6a3eefaab7869f7559e04137",
+        "secp256k1PublicKey": "03ba0a5d3913e15f619bf4e4be1dd04699cc53f903ebf9d4b598dd2b4609a8cdc9",
+        "p256PublicKey": "03d0f8380ad6a1d794896375baaf3b3b988eddef16eaa79b5d2db151dfe7ebe70a"
+      }
+    }
+  },
+  "wallets": {
+    "note": "Wallet state for replay. Every module case names one wallet and starts from the state below; no case sees another case's effects. An account epoch is either an `ikm` (64 bytes, imported or fixed) or `{walletRoot, derived: true}`: its ikm is derived from that wallet root with `walletRootDerivation` and key ID \"<acct> <ep>\". `current` is the epoch used when a request carries no `ep`. `actor` is the wallet's actor root, and `sessions` maps a session ID (the hex `<sessionId>` segment of a session path) to that session's root. `R` and `K` are the P-256 and secp256k1 root public keys of each root, for checking a loaded state. `grants` are the standing grants of the one laboratory originator: a request reaches derivation only under a grant whose protocolID equals its own and, when it carries `path`, under one of its derivation-identifier prefixes. A case with `prompt: \"approve\"` runs as if the user approved the prompt the request raises.",
+    "profile": {
+      "labels": {
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+      },
+      "namespaces": [
+        {
+          "role": "encryption",
+          "namespace": "sdx encrypt",
+          "curves": [
+            "secp256k1",
+            "P-256"
+          ]
+        },
+        {
+          "role": "signing",
+          "namespace": "sdx sign",
+          "curves": [
+            "secp256k1",
+            "P-256"
+          ]
+        },
+        {
+          "role": "delegation",
+          "namespace": "sdx delegate",
+          "curves": [
+            "secp256k1",
+            "P-256"
+          ]
+        },
+        {
+          "role": "transport authentication",
+          "namespace": "sdx transport auth",
+          "curves": [
+            "secp256k1"
+          ]
+        },
+        {
+          "role": "rotation",
+          "namespace": "sdx rotation",
+          "curves": [
+            "secp256k1",
+            "P-256"
+          ]
+        },
+        {
+          "role": "handoff",
+          "namespace": "sdx handoff",
+          "curves": [
+            "secp256k1"
+          ]
+        }
+      ],
+      "keywords": {
+        "account": "account",
+        "runtime": "runtime",
+        "action": "action",
+        "session": "session",
+        "delegation": "delegation",
+        "actor": "actor"
+      },
+      "purposes": [
+        "field",
+        "handoff",
+        "topup"
+      ]
+    },
+    "walletRootDerivation": {
+      "protocolID": [
+        2,
+        "admin sdx root"
+      ],
+      "keyID": "<acct> <ep>",
+      "counterparty": "self",
+      "salt": "p sdx v1",
+      "info": "sdx root",
+      "length": 64
+    },
+    "entries": {
+      "account": {
+        "walletRoot": "cfdfeff93631f56b213f4b3a25f60629950dd11135376df7fa690330da109edc",
+        "accounts": [
+          {
+            "acct": "3MNQpxFAsp",
+            "tag": "1f520702ec75fa65f6048ccdf8ce3efe",
+            "current": 0,
+            "epochs": [
+              {
+                "ep": 0,
+                "ikm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+                "R": "0298f7b0efc5a8c1ea0657e060f779a2e0186024d46db7e0c82624e6630d265279",
+                "K": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+              }
+            ]
+          },
+          {
+            "acct": "5QkVr9TzWm",
+            "tag": "d59c74bbba9793428e5470684c4dad73",
+            "current": 1,
+            "epochs": [
+              {
+                "ep": 0,
+                "walletRoot": "cfdfeff93631f56b213f4b3a25f60629950dd11135376df7fa690330da109edc",
+                "derived": true,
+                "R": "0225ade8ede999b55cba6cdf6b918c0d8b9fdb2ace82b2882470291098f3f0ed12",
+                "K": "0283da67282a7d79c77df90e09aab369242c8169ee6b326077aef85801492f5450"
+              },
+              {
+                "ep": 1,
+                "walletRoot": "cfdfeff93631f56b213f4b3a25f60629950dd11135376df7fa690330da109edc",
+                "derived": true,
+                "R": "029cf7e9c6baf2dbb1b87dbdda7aeb503b33ab99e2834981d691a4ac68ebc8f74f",
+                "K": "02231449626609f3ddb4b9253ee7925651457cf6d3af9a067025f309d2e73721cb"
+              }
+            ]
+          }
+        ],
+        "grants": [
+          {
+            "protocolID": [
+              2,
+              "p sdx open root 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": []
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx open root d59c74bbba9793428e5470684c4dad73"
+            ],
+            "prefixes": []
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx open root bdbab9b708d8601529ff2080e90c93e9"
+            ],
+            "prefixes": []
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/",
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx key read 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/",
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx key root 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/",
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/",
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx decrypt read 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx key write d59c74bbba9793428e5470684c4dad73"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/5QkVr9TzWm/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx sign write d59c74bbba9793428e5470684c4dad73"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/5QkVr9TzWm/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx key write bdbab9b708d8601529ff2080e90c93e9"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/7HdWq2KxRb/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/",
+              "2-sdx handoff-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key read 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/",
+              "2-sdx handoff-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx handoff-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key write d59c74bbba9793428e5470684c4dad73"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/5QkVr9TzWm/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1sign write d59c74bbba9793428e5470684c4dad73"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/5QkVr9TzWm/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key write bdbab9b708d8601529ff2080e90c93e9"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/7HdWq2KxRb/"
+            ]
+          }
+        ]
+      },
+      "recipient": {
+        "accounts": [
+          {
+            "acct": "9VxTqR3mLp",
+            "tag": "f17fb4ae2a45aedbcb97445a2a9d1c5f",
+            "current": 0,
+            "epochs": [
+              {
+                "ep": 0,
+                "ikm": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+                "R": "022d45cbac92bc5f901121eed7723471b4214bd18c52e13770f0607892a1ef9ad0",
+                "K": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+              }
+            ]
+          }
+        ],
+        "grants": [
+          {
+            "protocolID": [
+              2,
+              "p sdx key read f17fb4ae2a45aedbcb97445a2a9d1c5f"
+            ],
+            "prefixes": [
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx decrypt read f17fb4ae2a45aedbcb97445a2a9d1c5f"
+            ],
+            "prefixes": [
+              "2-sdx encrypt-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key write f17fb4ae2a45aedbcb97445a2a9d1c5f"
+            ],
+            "prefixes": [
+              "2-sdx handoff-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx handoff-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1sign write f17fb4ae2a45aedbcb97445a2a9d1c5f"
+            ],
+            "prefixes": [
+              "2-sdx handoff-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx sign root f17fb4ae2a45aedbcb97445a2a9d1c5f"
+            ],
+            "prefixes": [
+              "2-sdx sign-account/9VxTqR3mLp/"
+            ]
+          }
+        ]
+      },
+      "actor": {
+        "accounts": [],
+        "actor": {
+          "ikm": "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+          "R": "03a149eec9b66ae5f8feebab8217ef6d47189989fb3cfd798fb36fbf460015133c",
+          "K": "0377f6c9c8d79470965f11f3a859a3fd36ad409b40d27629d02f40de5216d398fd"
+        },
+        "sessions": {
+          "ffeeddccbbaa99887766554433221100": {
+            "ikm": "c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+            "R": "03d0f8380ad6a1d794896375baaf3b3b988eddef16eaa79b5d2db151dfe7ebe70a",
+            "K": "03ba0a5d3913e15f619bf4e4be1dd04699cc53f903ebf9d4b598dd2b4609a8cdc9"
+          }
+        },
+        "grants": [
+          {
+            "protocolID": [
+              2,
+              "p sdx key actor 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx delegate-actor/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx sign actor 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx delegate-actor/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx key session 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx delegate-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx sign session 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx delegate-account/3MNQpxFAsp/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key actor 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx delegate-actor/"
+            ]
+          },
+          {
+            "protocolID": [
+              2,
+              "p sdx k1key session 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "prefixes": [
+              "2-sdx delegate-account/3MNQpxFAsp/"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "generator": {
+    "path": "components/sdx/p256/generate.mjs",
+    "package": "components/sdx/p256/package.json",
+    "lockfile": "components/sdx/p256/package-lock.json",
+    "runtime": "node 24.22.1",
+    "dependencies": {
+      "@bsv/sdk": "4.0.1",
+      "@noble/curves": "2.4.0",
+      "@noble/hashes": "2.4.0",
+      "cborg": "6.1.3",
+      "jose": "5.10.0"
+    },
+    "deterministic": "Every value except the JWEs that `decrypt` cases open is regenerated byte for byte by `node generate.mjs --check`.",
+    "frozen": {
+      "path": "components/sdx/p256/frozen.json",
+      "parts": "The JWEs that `decrypt` cases open, made by jose 5.10.0 GeneralEncrypt with a random content-encryption key, IV and ephemeral key per recipient, and stored with the protected header, recipient kids and plaintext they were made for and their content-encryption key. They were generated once and are re-verified by decryption, with jose and with node:crypto, on every run."
+    },
+    "grind": {
+      "tool": "components/sdx/p256/grind/main.go",
+      "seed": {
+        "command": "seed",
+        "prefix": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "label": "sdx-p256",
+        "counter": 1557900713,
+        "tries": 1558038232,
+        "workers": 4,
+        "wallSeconds": 139,
+        "smallest": true,
+        "ikm": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000005cdbada9"
+      },
+      "path": {
+        "command": "path",
+        "prefix": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN",
+        "counter": 6019505901,
+        "tries": 6026497378,
+        "workers": 4,
+        "wallSeconds": 284,
+        "smallest": true,
+        "identifier": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN0000000005KCMQQD",
+        "hmacKey": "02be4bdb55e891f95b60c45c0c2c53ff8b60a9a2e0a2f8d0d664d8abc67ff56d14"
+      }
+    }
+  },
+  "oracles": [
+    {
+      "path": "src/sdx/k1.mjs",
+      "basis": "node:crypto",
+      "coverage": "Every case, through the module semantics of src/sdx/p256.mjs. OpenSSL performs scalar multiplication and HMAC; src/sdx/ec-p256.mjs adds point validation and addition; src/sdx/brc42.mjs independently recomputes every BRC-100 getPublicKey result; src/sdx/tx.mjs recomputes the transaction preimage and evaluates the spend. RFC 6979 nonces are recomputed with node:crypto HMAC."
+    },
+    {
+      "path": "test/sdx_ec.py",
+      "basis": "python stdlib",
+      "coverage": "Every value: child keys, BRC-100 results, RFC 6979 nonces, DER signatures and their verification, injected offsets, request rules and the transaction preimage hash."
+    }
+  ],
+  "cases": [
+    {
+      "id": "k1key-root-public-key",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key` without `path` returns the account's secp256k1 root public key K = secp256k1_seed·G, with no derivation; stock BRC-100 returns it as the identity key of a wallet whose root is that seed",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "ciphertext": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "identityKey": true
+        },
+        "publicKey": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+      }
+    },
+    {
+      "id": "k1key-commitment-key",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key`: the commitment key of a record output, ANC §3.1's self-derivation under the signing namespace on the path `account/<accountId>/runtime/<runtimeId>/action/<actionId>`: the same derivation identifier as the record's P-256 signing key in VC-P256, on the other curve (KEYS §1.8.4, §1.11.2)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "ciphertext": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "66023f6900c0c3f613deed8e38cae7a429feae03799af82690da0d974831967d",
+        "childPrivate": "ae0235237dbf97499a8275216b5941d433f3b9cbba34e51abca0c0af6303e8d6"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c"
+      }
+    },
+    {
+      "id": "k1key-role-invariance",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "The same request with role `read` selects the same account root and returns the same key; keyID selects nothing",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key read 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "ciphertext": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "66023f6900c0c3f613deed8e38cae7a429feae03799af82690da0d974831967d",
+        "childPrivate": "ae0235237dbf97499a8275216b5941d433f3b9cbba34e51abca0c0af6303e8d6"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c"
+      },
+      "variants": [
+        {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ]
+        },
+        {
+          "keyID": "another key id"
+        }
+      ],
+      "sameAs": "k1key-commitment-key"
+    },
+    {
+      "id": "k1key-self-equals-own-root-as-peer",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key` with `peer` set to the account's own secp256k1 root equals `k1key` without `peer` (self)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d35524450574164706565725821029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "peer": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+        }
+      },
+      "expected": {
+        "ciphertext": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "66023f6900c0c3f613deed8e38cae7a429feae03799af82690da0d974831967d",
+        "childPrivate": "ae0235237dbf97499a8275216b5941d433f3b9cbba34e51abca0c0af6303e8d6"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+          "forSelf": true
+        },
+        "publicKey": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c"
+      },
+      "sameAs": "k1key-commitment-key"
+    },
+    {
+      "id": "k1key-topup-lock",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key`: a funding top-up output lock at level-4 purpose `topup`, ordinal 0 (KEYS §1.6.1)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a16470617468785a322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f746f7075702f30"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0"
+        }
+      },
+      "expected": {
+        "ciphertext": "02c2305498f7a0df6a781e8af84b8836bc3bf96ab4f8bca97b6891d8990a5ec938"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "b3627d9adfb2c8002cdd14b484ba18dc4ca389e45a96599ee89cdafaaa774c55",
+        "childPrivate": "fb6273555cb19b53b3809c47b748730c569895ac9b30469314638e12c5499eae"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "02c2305498f7a0df6a781e8af84b8836bc3bf96ab4f8bca97b6891d8990a5ec938"
+      }
+    },
+    {
+      "id": "k1peer-handoff-lock",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1peer`: the writer locks a handoff output to the recipient account's secp256k1 root under `sdx handoff`, so only that recipient can spend it (KEYS §1.6.1, §1.7)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        }
+      },
+      "expected": {
+        "ciphertext": "0331d724a4c8466e3f5729b8617693f68311d12884206479b627e95aef39d35da0"
+      },
+      "intermediate": {
+        "sharedPoint": "033145dd219288244ae4201be3093b9ca746bd99a5df38575893c263039efbac07",
+        "hmac": "cd18ffdb3bdb22fb056561204261d424f82164f1ad43f80a01fe1cd54a1d868c"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx handoff"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "counterparty": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        },
+        "publicKey": "0331d724a4c8466e3f5729b8617693f68311d12884206479b627e95aef39d35da0"
+      }
+    },
+    {
+      "id": "k1key-handoff-recipient-side",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key` with `peer`: the recipient, under its own account tag, derives the same handoff key from its own root and the writer's root (counterparty symmetry, KEYS §1.12 item 5)",
+      "wallet": "recipient",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write f17fb4ae2a45aedbcb97445a2a9d1c5f"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725821029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "peer": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+        }
+      },
+      "expected": {
+        "ciphertext": "0331d724a4c8466e3f5729b8617693f68311d12884206479b627e95aef39d35da0"
+      },
+      "intermediate": {
+        "sharedPoint": "033145dd219288244ae4201be3093b9ca746bd99a5df38575893c263039efbac07",
+        "hmac": "cd18ffdb3bdb22fb056561204261d424f82164f1ad43f80a01fe1cd54a1d868c",
+        "childPrivate": "9b8649ec72148455e5921666f622beda328a2e4136d65040a1dd237ec3109923"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx handoff"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "counterparty": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+          "forSelf": true
+        },
+        "publicKey": "0331d724a4c8466e3f5729b8617693f68311d12884206479b627e95aef39d35da0"
+      },
+      "sameAs": "k1peer-handoff-lock"
+    },
+    {
+      "id": "k1key-actor-root",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key` without `path` and role `actor`: the actor root's secp256k1 public key",
+      "wallet": "actor",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key actor 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "ciphertext": "0377f6c9c8d79470965f11f3a859a3fd36ad409b40d27629d02f40de5216d398fd"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "identityKey": true
+        },
+        "publicKey": "0377f6c9c8d79470965f11f3a859a3fd36ad409b40d27629d02f40de5216d398fd"
+      }
+    },
+    {
+      "id": "k1key-actor-persistent-0",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key` with role `actor`: the secp256k1 key at the actor's persistent path `2-sdx delegate-actor/0`, the key a grant records as `actorPubKey_k1` when the actor publishes one (KEYS §2.3)",
+      "wallet": "actor",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key actor 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a1647061746876322d7364782064656c65676174652d6163746f722f30"
+        },
+        "input": {
+          "path": "2-sdx delegate-actor/0"
+        }
+      },
+      "expected": {
+        "ciphertext": "0253469d4fe2475180ccae5f0645ef6597764b53d460a11c973e7d564101d7d768"
+      },
+      "intermediate": {
+        "sharedPoint": "02605752b7bbf95a1ed6fe53a1053e2effa252b319c6363305f08bd4e59227cc73",
+        "hmac": "abd5e3ffa9f1111ccfd98b682ba7601b13dd9a25c21e3e25c3db165e1c91a554",
+        "childPrivate": "9c16f425eda956de728d8261e125d98f07716881166fc28b65e3ecd05103f01a"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx delegate"
+          ],
+          "keyID": "actor/0",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "0253469d4fe2475180ccae5f0645ef6597764b53d460a11c973e7d564101d7d768"
+      }
+    },
+    {
+      "id": "k1key-session",
+      "requirement": "K1-01",
+      "kind": "module",
+      "title": "`k1key` with role `session`: the session root named by the path's sessionId gives the session's secp256k1 key (KEYS §2.14.2)",
+      "wallet": "actor",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key session 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a16470617468785d322d7364782064656c65676174652d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f73657373696f6e2f6666656564646363626261613939383837373636353534343333323231313030"
+        },
+        "input": {
+          "path": "2-sdx delegate-account/3MNQpxFAsp/runtime/8kRt2wVbZq/session/ffeeddccbbaa99887766554433221100"
+        }
+      },
+      "expected": {
+        "ciphertext": "027585029a6d36b9dbd48497e7be35e4a2efb8526837dc22ea66ba92070e6e00b2"
+      },
+      "intermediate": {
+        "sharedPoint": "03d4b4df591c08aae0d05dbbd44245a4acb052c64b7b6ae037ba3065d55d5c2b15",
+        "hmac": "b5d8235fe5fd2348edcea7dff552e1a6ec908828589895be029392c8164b1bff",
+        "childPrivate": "b95ebcd6ce0a7208f6e865619ee8a5f556e4f0fb8b13ddf89080218c677466ac"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx delegate"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/session/ffeeddccbbaa99887766554433221100",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "027585029a6d36b9dbd48497e7be35e4a2efb8526837dc22ea66ba92070e6e00b2"
+      }
+    },
+    {
+      "id": "k1sign-commitment-spend",
+      "requirement": "K1-02",
+      "kind": "module",
+      "title": "`k1sign`: the account spends its chain tip. `hash` is the SIGHASH_ALL|FORKID signature hash of input 0 of the next record's transaction, and the key is the tip's commitment key (ANC §2.1, §3.1)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "ciphertext": "30440220400acd09ab2bcabfbbe61fca2479ed41d1e5b897840db1aab287c67b04677a1002206aaab0eb8fd30562cf2fd8ac25acbc300f6bc11a890ffc0bf1ef9a9306010f07"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "66023f6900c0c3f613deed8e38cae7a429feae03799af82690da0d974831967d",
+        "childPrivate": "ae0235237dbf97499a8275216b5941d433f3b9cbba34e51abca0c0af6303e8d6",
+        "publicKey": "03058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1c",
+        "rfc6979": "400acd09ab2bcabfbbe61fca2479ed41d1e5b897840db1aab287c67b04677a1095554f14702cfa9d30d02753da5343ceab431bcc2638a42fcde2c3f9ca35323a",
+        "normalised": true
+      },
+      "brc100": {
+        "method": "createSignature",
+        "args": {
+          "hashToDirectlySign": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86",
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "self"
+        },
+        "signature": "30440220400acd09ab2bcabfbbe61fca2479ed41d1e5b897840db1aab287c67b04677a1002206aaab0eb8fd30562cf2fd8ac25acbc300f6bc11a890ffc0bf1ef9a9306010f07"
+      },
+      "transaction": {
+        "note": "Synthetic transactions; nothing is broadcast. `previous` carries the record output (output 0, 1 satoshi) and `spending` spends it with the k1sign result followed by the sighash byte 0x41.",
+        "previous": "01000000018fa15ad7b7ad506eca638eee823a469c4cefc3cf381a66360721d20eac8904180000000000ffffffff010100000000000000633e4c41425f53454c465f544553545f4f4e4c592056432d5344582d4b31207265636f72642030314a42385a4b33514e3754345956583243394d355244505741752103058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1cac00000000",
+        "spending": "01000000010659486029b673779ab0b94694078faf62ccce4c75e9643f0842dae9f4b45f8200000000484730440220400acd09ab2bcabfbbe61fca2479ed41d1e5b897840db1aab287c67b04677a1002206aaab0eb8fd30562cf2fd8ac25acbc300f6bc11a890ffc0bf1ef9a9306010f0741ffffffff010100000000000000633e4c41425f53454c465f544553545f4f4e4c592056432d5344582d4b31207265636f72642030314a42385a4b33515038563252355739583359365a31413443752103561541ecc6182409261e11ecd86f1e296e7b6306fc0d4e2555fc3ba8ef4e71e1ac00000000",
+        "inputIndex": 0,
+        "sighashType": 65,
+        "preimage": "010000006fec2ff2302f48ddec549c7ec9c2d6e05e13672486743675e81a093a0ee4da553bb13029ce7b1f559ef5e747fcac439f1455a2ec7c5f09b72290795e706650440659486029b673779ab0b94694078faf62ccce4c75e9643f0842dae9f4b45f8200000000633e4c41425f53454c465f544553545f4f4e4c592056432d5344582d4b31207265636f72642030314a42385a4b33514e3754345956583243394d355244505741752103058981d250ec4512ee572156a72e624bec16e0612446ca9f5364a5d01ff61d1cac0100000000000000ffffffff20d0dde59f18068f04ce2c7f59d507052e70be270356f79c5a82fbf0f5f9611f0000000041000000"
+      }
+    },
+    {
+      "id": "k1sign-handoff-spend",
+      "requirement": "K1-02",
+      "kind": "module",
+      "title": "`k1sign` with `peer`: the recipient signs a spend of the handoff output addressed to it, with the key whose public key is the writer's `k1peer` lock",
+      "wallet": "recipient",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write f17fb4ae2a45aedbcb97445a2a9d1c5f"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a3646861736858207db9174bfd026b62d41c295e4696e7f3c1fa2a3b6279d06238b3970ab7ca16db6470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725821029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "peer": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+          "hash": "7db9174bfd026b62d41c295e4696e7f3c1fa2a3b6279d06238b3970ab7ca16db"
+        }
+      },
+      "expected": {
+        "ciphertext": "3045022100ebe93e1c09eb5aa8fee3a9a8686663e68b2701deb753495a6710b6365a63af83022019198c13110068672e40d41a14c69f02f1b45b2599a058eda944111e6d8cc332"
+      },
+      "intermediate": {
+        "sharedPoint": "033145dd219288244ae4201be3093b9ca746bd99a5df38575893c263039efbac07",
+        "hmac": "cd18ffdb3bdb22fb056561204261d424f82164f1ad43f80a01fe1cd54a1d868c",
+        "childPrivate": "9b8649ec72148455e5921666f622beda328a2e4136d65040a1dd237ec3109923",
+        "publicKey": "0331d724a4c8466e3f5729b8617693f68311d12884206479b627e95aef39d35da0",
+        "rfc6979": "ebe93e1c09eb5aa8fee3a9a8686663e68b2701deb753495a6710b6365a63af83e6e673eceeff9798d1bf2be5eb3960fbc8fa81c115a8474e168e4d6e62a97e0f",
+        "normalised": true
+      },
+      "brc100": {
+        "method": "createSignature",
+        "args": {
+          "hashToDirectlySign": "7db9174bfd026b62d41c295e4696e7f3c1fa2a3b6279d06238b3970ab7ca16db",
+          "protocolID": [
+            2,
+            "sdx handoff"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "counterparty": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7"
+        },
+        "signature": "3045022100ebe93e1c09eb5aa8fee3a9a8686663e68b2701deb753495a6710b6365a63af83022019198c13110068672e40d41a14c69f02f1b45b2599a058eda944111e6d8cc332"
+      }
+    },
+    {
+      "id": "k1sign-normalised",
+      "requirement": "K1-02",
+      "kind": "module",
+      "title": "`k1sign` on the top-up key: the RFC 6979 s is above n/2 and is returned as n - s",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820de9fd9890785420223713d1769c4243fa527d3169a61346d46e4c1296feb86c86470617468785a322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f746f7075702f30"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+          "hash": "de9fd9890785420223713d1769c4243fa527d3169a61346d46e4c1296feb86c8"
+        }
+      },
+      "expected": {
+        "ciphertext": "3045022100c842745da85be42810be9c7179740ac87ee2a8a9624745f6d87949b11ebd1f0902203a2e48bd41c2fbf66c4285d69ca77f6d961b8f020154f0228d1273ac3edfc438"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "b3627d9adfb2c8002cdd14b484ba18dc4ca389e45a96599ee89cdafaaa774c55",
+        "childPrivate": "fb6273555cb19b53b3809c47b748730c569895ac9b30469314638e12c5499eae",
+        "publicKey": "02c2305498f7a0df6a781e8af84b8836bc3bf96ab4f8bca97b6891d8990a5ec938",
+        "rfc6979": "c842745da85be42810be9c7179740ac87ee2a8a9624745f6d87949b11ebd1f09c5d1b742be3d040993bd7a296358809124934de4adf3b01932bfeae091567d09",
+        "normalised": true
+      },
+      "brc100": {
+        "method": "createSignature",
+        "args": {
+          "hashToDirectlySign": "de9fd9890785420223713d1769c4243fa527d3169a61346d46e4c1296feb86c8",
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+          "counterparty": "self"
+        },
+        "signature": "3045022100c842745da85be42810be9c7179740ac87ee2a8a9624745f6d87949b11ebd1f0902203a2e48bd41c2fbf66c4285d69ca77f6d961b8f020154f0228d1273ac3edfc438"
+      }
+    },
+    {
+      "id": "k1sign-unchanged",
+      "requirement": "K1-02",
+      "kind": "module",
+      "title": "`k1sign` on the top-up key: the RFC 6979 s is already at most n/2 and is returned unchanged",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26468617368582031e376fad36d0b3afeb6e99c50fc7a834053856f8e60be9eb759f0fd291621a16470617468785a322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f746f7075702f30"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+          "hash": "31e376fad36d0b3afeb6e99c50fc7a834053856f8e60be9eb759f0fd291621a1"
+        }
+      },
+      "expected": {
+        "ciphertext": "3044022100ec1a804e1dfe852490d26132b80aba10ce24e2c4151c70a34dcb1b231a51b1c5021f7dbc5c1fdaa1f9825316bad756392ae07348e523eae1691da2698bcd110a34"
+      },
+      "intermediate": {
+        "sharedPoint": "02cd9ea05f91cb8b4c495abdb614decf83c6faba36addc0e7e297596ee8e072c11",
+        "hmac": "b3627d9adfb2c8002cdd14b484ba18dc4ca389e45a96599ee89cdafaaa774c55",
+        "childPrivate": "fb6273555cb19b53b3809c47b748730c569895ac9b30469314638e12c5499eae",
+        "publicKey": "02c2305498f7a0df6a781e8af84b8836bc3bf96ab4f8bca97b6891d8990a5ec938",
+        "rfc6979": "ec1a804e1dfe852490d26132b80aba10ce24e2c4151c70a34dcb1b231a51b1c5007dbc5c1fdaa1f9825316bad756392ae07348e523eae1691da2698bcd110a34",
+        "normalised": false
+      },
+      "brc100": {
+        "method": "createSignature",
+        "args": {
+          "hashToDirectlySign": "31e376fad36d0b3afeb6e99c50fc7a834053856f8e60be9eb759f0fd291621a1",
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+          "counterparty": "self"
+        },
+        "signature": "3044022100ec1a804e1dfe852490d26132b80aba10ce24e2c4151c70a34dcb1b231a51b1c5021f7dbc5c1fdaa1f9825316bad756392ae07348e523eae1691da2698bcd110a34"
+      }
+    },
+    {
+      "id": "k1key-second-account-root",
+      "requirement": "K1-03",
+      "kind": "module",
+      "title": "Two accounts in one wallet: the tag of 5QkVr9TzWm selects that account at its current epoch 1; the result is the K that `open` returns",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "ciphertext": "02231449626609f3ddb4b9253ee7925651457cf6d3af9a067025f309d2e73721cb"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "identityKey": true
+        },
+        "publicKey": "02231449626609f3ddb4b9253ee7925651457cf6d3af9a067025f309d2e73721cb"
+      },
+      "differsFrom": "k1key-root-public-key"
+    },
+    {
+      "id": "k1key-second-account-epoch-0",
+      "requirement": "K1-03",
+      "kind": "module",
+      "title": "`ep` 0 selects the older epoch's root",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a162657000"
+        },
+        "input": {
+          "ep": 0
+        }
+      },
+      "expected": {
+        "ciphertext": "0283da67282a7d79c77df90e09aab369242c8169ee6b326077aef85801492f5450"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "identityKey": true
+        },
+        "publicKey": "0283da67282a7d79c77df90e09aab369242c8169ee6b326077aef85801492f5450"
+      },
+      "differsFrom": "k1key-second-account-root"
+    },
+    {
+      "id": "k1key-second-account-commitment",
+      "requirement": "K1-03",
+      "kind": "module",
+      "title": "The commitment key of 5QkVr9TzWm's record at the current epoch: ANC §3.1 uses the key tree of the epoch active when the record is written",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687852322d736478207369676e2d6163636f756e742f35516b567239547a576d2f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/5QkVr9TzWm/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "ciphertext": "034020cb37e448176766863de797f79c4df2e2b71c35847a4351f6df75e817ba16"
+      },
+      "intermediate": {
+        "sharedPoint": "027b00e346f0f7e61a9e02dc4b3dd272063093b1f5346d87e797449172954c2149",
+        "hmac": "b3a2a8cb9ecf0e08837deda8794d88a8786a3dd3f8e60b1944df4a53b88473f7",
+        "childPrivate": "1c7f6a57759aa295f6003187ca57bd3459effee6533fe4199341b3b2ffe9a412"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/5QkVr9TzWm/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "034020cb37e448176766863de797f79c4df2e2b71c35847a4351f6df75e817ba16"
+      }
+    },
+    {
+      "id": "k1key-second-account-commitment-epoch-0",
+      "requirement": "K1-03",
+      "kind": "module",
+      "title": "The same commitment path at epoch 0 derives from the epoch-0 root",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26265700064706174687852322d736478207369676e2d6163636f756e742f35516b567239547a576d2f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/5QkVr9TzWm/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "ep": 0
+        }
+      },
+      "expected": {
+        "ciphertext": "025024aa3033d1e33c9bfd4108a050070cb3b18892ba6ebf0b2586018e53908db3"
+      },
+      "intermediate": {
+        "sharedPoint": "02d3c87e7dcfb9ed3172c2e2f52175bce27c225dcaf49533abcb6c5a9a04820767",
+        "hmac": "951b6b602ff61ca6949583cf663aa6f1dd56d2a48c8bf847fe0c653a55112c2a",
+        "childPrivate": "f6967a227a54d7f5ffd4a5d0a95f676d2a604fd5532b2b2b2ffef7d7497c55f1"
+      },
+      "brc100": {
+        "method": "getPublicKey",
+        "args": {
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/5QkVr9TzWm/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "self",
+          "forSelf": true
+        },
+        "publicKey": "025024aa3033d1e33c9bfd4108a050070cb3b18892ba6ebf0b2586018e53908db3"
+      },
+      "differsFrom": "k1key-second-account-commitment"
+    },
+    {
+      "id": "k1sign-second-account-epoch-0",
+      "requirement": "K1-03",
+      "kind": "module",
+      "title": "`k1sign` with `ep` 0: the outgoing epoch's key spends a tip committed under it, as a rotation's anchoring transaction does with its first input once epoch 1 is open (KEYS §1.10.2 step 5; ANC §3.1)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a36265700064686173685820ae6884fbbf20135ea40cf191efef379e0d76ef0c0f2dd31dad96a4b73706b19d64706174687852322d736478207369676e2d6163636f756e742f35516b567239547a576d2f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/5QkVr9TzWm/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "ae6884fbbf20135ea40cf191efef379e0d76ef0c0f2dd31dad96a4b73706b19d",
+          "ep": 0
+        }
+      },
+      "expected": {
+        "ciphertext": "30450221009a9ee2a26c41fbdc5d5c59e60822e15ac62e1b0214eff6af41ec88589f087b1602207be90b236edb2eaf198bc5ed53bb8465fd81fa6548dc64a9011e2ffe653f3948"
+      },
+      "intermediate": {
+        "sharedPoint": "02d3c87e7dcfb9ed3172c2e2f52175bce27c225dcaf49533abcb6c5a9a04820767",
+        "hmac": "951b6b602ff61ca6949583cf663aa6f1dd56d2a48c8bf847fe0c653a55112c2a",
+        "childPrivate": "f6967a227a54d7f5ffd4a5d0a95f676d2a604fd5532b2b2b2ffef7d7497c55f1",
+        "publicKey": "025024aa3033d1e33c9bfd4108a050070cb3b18892ba6ebf0b2586018e53908db3",
+        "rfc6979": "9a9ee2a26c41fbdc5d5c59e60822e15ac62e1b0214eff6af41ec88589f087b167be90b236edb2eaf198bc5ed53bb8465fd81fa6548dc64a9011e2ffe653f3948",
+        "normalised": false
+      },
+      "brc100": {
+        "method": "createSignature",
+        "args": {
+          "hashToDirectlySign": "ae6884fbbf20135ea40cf191efef379e0d76ef0c0f2dd31dad96a4b73706b19d",
+          "protocolID": [
+            2,
+            "sdx sign"
+          ],
+          "keyID": "account/5QkVr9TzWm/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "counterparty": "self"
+        },
+        "signature": "30450221009a9ee2a26c41fbdc5d5c59e60822e15ac62e1b0214eff6af41ec88589f087b1602207be90b236edb2eaf198bc5ed53bb8465fd81fa6548dc64a9011e2ffe653f3948"
+      }
+    },
+    {
+      "id": "k1-unknown-account",
+      "requirement": "K1-03",
+      "kind": "request-rejection",
+      "scope": "selection",
+      "title": "A tag that names no account the wallet holds (7HdWq2KxRb), although a standing grant names it",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write bdbab9b708d8601529ff2080e90c93e9"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "error": "unknown-account"
+      }
+    },
+    {
+      "id": "k1-unknown-epoch",
+      "requirement": "K1-03",
+      "kind": "request-rejection",
+      "scope": "selection",
+      "title": "`ep` 2, which 5QkVr9TzWm does not have",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a162657002"
+        },
+        "input": {
+          "ep": 2
+        }
+      },
+      "expected": {
+        "error": "unknown-epoch"
+      }
+    },
+    {
+      "id": "k1-epoch-with-actor-role",
+      "requirement": "K1-03",
+      "kind": "request-rejection",
+      "scope": "selection",
+      "title": "Role `actor` with `ep`",
+      "wallet": "actor",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key actor 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a162657000"
+        },
+        "input": {
+          "ep": 0
+        }
+      },
+      "expected": {
+        "error": "epoch-not-allowed"
+      }
+    },
+    {
+      "id": "k1-epoch-with-session-role",
+      "requirement": "K1-03",
+      "kind": "request-rejection",
+      "scope": "selection",
+      "title": "Role `session` with `ep`",
+      "wallet": "actor",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key session 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a2626570006470617468785d322d7364782064656c65676174652d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f73657373696f6e2f6666656564646363626261613939383837373636353534343333323231313030"
+        },
+        "input": {
+          "path": "2-sdx delegate-account/3MNQpxFAsp/runtime/8kRt2wVbZq/session/ffeeddccbbaa99887766554433221100",
+          "ep": 0
+        }
+      },
+      "expected": {
+        "error": "epoch-not-allowed"
+      }
+    },
+    {
+      "id": "k1-session-without-path",
+      "requirement": "K1-03",
+      "kind": "request-rejection",
+      "scope": "selection",
+      "title": "Role `session` without `path`: no session root is selected",
+      "wallet": "actor",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key session 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "error": "session-not-selected"
+      }
+    },
+    {
+      "id": "k1-recipient-holds-no-such-account",
+      "requirement": "K1-03",
+      "kind": "request-rejection",
+      "scope": "selection",
+      "title": "The recipient wallet asked for 3MNQpxFAsp, an account it does not hold, although a standing grant names it",
+      "wallet": "recipient",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "error": "unknown-account"
+      }
+    },
+    {
+      "id": "k1-point-x-all-ones",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: x = 2^256 - 1, not less than p",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "02ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "reducesTo": {
+        "x": "00000000000000000000000000000000000000000000000000000001000003d0",
+        "validX": true
+      },
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582102ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "02ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-x-range"
+      }
+    },
+    {
+      "id": "k1-point-x-equals-p",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: x = p",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+      "reducesTo": {
+        "x": "0000000000000000000000000000000000000000000000000000000000000000",
+        "validX": false
+      },
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582102fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-x-range"
+      }
+    },
+    {
+      "id": "k1-point-x-equals-p-plus-1",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: x = p + 1; a parser that reduces x mod p first would accept the valid point with x = 1",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30",
+      "reducesTo": {
+        "x": "0000000000000000000000000000000000000000000000000000000000000001",
+        "validX": true
+      },
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582102fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-x-range"
+      }
+    },
+    {
+      "id": "k1-point-x-not-on-curve-02",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: x = 0: the curve equation has no solution for y",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "020000000000000000000000000000000000000000000000000000000000000000",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725821020000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "020000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725821020000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "020000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d35524450574164706565725821020000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "020000000000000000000000000000000000000000000000000000000000000000",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-not-on-curve"
+      }
+    },
+    {
+      "id": "k1-point-x-not-on-curve-03",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: x = 0 with prefix 03",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "030000000000000000000000000000000000000000000000000000000000000000",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725821030000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "030000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725821030000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "030000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d35524450574164706565725821030000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "030000000000000000000000000000000000000000000000000000000000000000",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-not-on-curve"
+      }
+    },
+    {
+      "id": "k1-point-prefix-00",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: 33 bytes with prefix 00",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "00d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582100d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "00d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582100d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "00d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582100d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "00d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-prefix"
+      }
+    },
+    {
+      "id": "k1-point-prefix-01",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: 33 bytes with prefix 01",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "01d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582101d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "01d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582101d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "01d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582101d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "01d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-prefix"
+      }
+    },
+    {
+      "id": "k1-point-prefix-04-33-bytes",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: 33 bytes with the uncompressed prefix 04",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582104d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582104d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582104d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-prefix"
+      }
+    },
+    {
+      "id": "k1-point-uncompressed-65-bytes",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: the valid point, SEC1 uncompressed",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572584104d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572584104d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572584104d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "04d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152179984c820f77f9c2c0ab379fced105fe2b71f97c050538d734ffbbf81378696",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-length"
+      }
+    },
+    {
+      "id": "k1-point-x-only-32-bytes",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: the bare x-coordinate",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725820d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565725820d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d35524450574164706565725820d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-length"
+      }
+    },
+    {
+      "id": "k1-point-trailing-byte-34-bytes",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: the valid point followed by 00",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582202d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582202d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057416470656572582202d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515200",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-length"
+      }
+    },
+    {
+      "id": "k1-point-sec1-infinity",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: the SEC1 encoding of the point at infinity",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "00",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565724100"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "00"
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f663264633763653631346164323833376363393063303331326261633264653264706565724100"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": "00"
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d35524450574164706565724100"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "00",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-length"
+      }
+    },
+    {
+      "id": "k1-point-empty",
+      "requirement": "K1-04",
+      "kind": "point-rejection",
+      "title": "Rejected before multiplication on secp256k1: zero bytes",
+      "wallet": "account",
+      "curve": "secp256k1",
+      "encoding": "",
+      "requests": [
+        {
+          "operation": "k1key",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f6632646337636536313461643238333763633930633033313262616332646532647065657240"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": ""
+          }
+        },
+        {
+          "operation": "k1peer",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f6632646337636536313461643238333763633930633033313262616332646532647065657240"
+          },
+          "input": {
+            "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+            "peer": ""
+          }
+        },
+        {
+          "operation": "k1sign",
+          "field": "peer",
+          "method": "encrypt",
+          "args": {
+            "protocolID": [
+              2,
+              "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+            ],
+            "keyID": "1",
+            "counterparty": "self",
+            "plaintext": "a364686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741647065657240"
+          },
+          "input": {
+            "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+            "peer": "",
+            "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      ],
+      "expected": {
+        "error": "point-length"
+      }
+    },
+    {
+      "id": "offset-range-secp256k1",
+      "requirement": "K1-04",
+      "kind": "offset-range",
+      "title": "Injected secp256k1 HMAC outputs: 0 and values >= n fail, 1 and n - 1 are accepted, nothing is reduced (KEYS §1.12 item 7; the reading of KEYS §1.8.2 in decision D-OFFSET)",
+      "curve": "secp256k1",
+      "injected": true,
+      "values": [
+        {
+          "hmac": "0000000000000000000000000000000000000000000000000000000000000000",
+          "expected": "reject"
+        },
+        {
+          "hmac": "0000000000000000000000000000000000000000000000000000000000000001",
+          "expected": "accept"
+        },
+        {
+          "hmac": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
+          "expected": "accept"
+        },
+        {
+          "hmac": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+          "expected": "reject"
+        },
+        {
+          "hmac": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142",
+          "expected": "reject"
+        },
+        {
+          "hmac": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "expected": "reject"
+        }
+      ]
+    },
+    {
+      "id": "decrypt-with-k1key",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "carrier",
+      "title": "`decrypt` carrying `k1key`: only `decrypt` travels on `decrypt`",
+      "wallet": "account",
+      "request": {
+        "method": "decrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "ciphertext": "a164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "error": "wrong-carrier"
+      }
+    },
+    {
+      "id": "decrypt-with-k1peer",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "carrier",
+      "title": "`decrypt` carrying `k1peer`: only `decrypt` travels on `decrypt`",
+      "wallet": "account",
+      "request": {
+        "method": "decrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "ciphertext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        }
+      },
+      "expected": {
+        "error": "wrong-carrier"
+      }
+    },
+    {
+      "id": "decrypt-with-k1sign",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "carrier",
+      "title": "`decrypt` carrying `k1sign`: only `decrypt` travels on `decrypt`",
+      "wallet": "account",
+      "request": {
+        "method": "decrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "ciphertext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "wrong-carrier"
+      }
+    },
+    {
+      "id": "k1-unknown-operation",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "operation",
+      "title": "An operation the scheme does not define (`k1verify`)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1verify write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "unknown-operation"
+      }
+    },
+    {
+      "id": "k1sign-privileged",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "grant",
+      "title": "`k1sign` with `privileged: true`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741",
+          "privileged": true,
+          "privilegedReason": "LAB_SELF_TEST_ONLY"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "privileged-not-supported"
+      }
+    },
+    {
+      "id": "k1key-counterparty-anyone",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "counterparty",
+      "title": "`k1key` with BRC-100 `counterparty` `anyone`: counterparties travel as `peer`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "anyone",
+          "plaintext": "a164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "error": "counterparty-not-self"
+      }
+    },
+    {
+      "id": "k1key-counterparty-public-key",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "counterparty",
+      "title": "`k1key` with BRC-100 `counterparty` set to a public key",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+          "plaintext": "a16470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f6632646337636536313461643238333763633930633033313262616332646532"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2"
+        }
+      },
+      "expected": {
+        "error": "counterparty-not-self"
+      }
+    },
+    {
+      "id": "k1sign-encryption-namespace",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "path",
+      "title": "`k1sign` for a path in the encryption namespace (KEYS §1.7, §1.11.2)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687855322d73647820656e63727970742d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "namespace-encryption"
+      }
+    },
+    {
+      "id": "k1key-namespace-unregistered",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "path",
+      "title": "`k1key` for a path in a namespace the profile does not register",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687853322d73647820626f6775732d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx bogus-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "error": "namespace-unregistered"
+      }
+    },
+    {
+      "id": "k1key-namespace-rotation",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "path",
+      "title": "`k1key` under `sdx rotation`, which SDX reserves (KEYS §1.7, §1.10.3)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687856322d73647820726f746174696f6e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx rotation-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "error": "namespace-rotation"
+      }
+    },
+    {
+      "id": "k1sign-namespace-rotation",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "path",
+      "title": "`k1sign` under `sdx rotation`: a rotation's anchoring input spends the tip with the commitment key under the signing namespace (KEYS §1.10.2 step 5)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign root 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687856322d73647820726f746174696f6e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx rotation-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "namespace-rotation"
+      }
+    },
+    {
+      "id": "k1key-purpose-unregistered",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "path",
+      "title": "`k1key` for a level-4 purpose the profile does not register (KEYS §1.6.1, §1.12 item 10)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a16470617468785b322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f726566756e642f30"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/refund/0"
+        }
+      },
+      "expected": {
+        "error": "purpose-unregistered"
+      }
+    },
+    {
+      "id": "k1key-path-record-keyword",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "path",
+      "title": "`k1key` with the level-3 keyword `record`: the laboratory profile names a record `action` on both curves (decision D-PROFILE)",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f7265636f72642f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/record/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "error": "key-path-grammar"
+      }
+    },
+    {
+      "id": "k1sign-hash-31-bytes",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` whose `hash` is 31 bytes; it must be exactly 32 bytes",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26468617368581f1111111111111111111111111111111111111111111111111111111111111164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "11111111111111111111111111111111111111111111111111111111111111"
+        }
+      },
+      "expected": {
+        "error": "hash-length"
+      }
+    },
+    {
+      "id": "k1sign-hash-33-bytes",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` whose `hash` is 33 bytes; it must be exactly 32 bytes",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26468617368582111111111111111111111111111111111111111111111111111111111111111111164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "111111111111111111111111111111111111111111111111111111111111111111"
+        }
+      },
+      "expected": {
+        "error": "hash-length"
+      }
+    },
+    {
+      "id": "k1sign-hash-empty",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` whose `hash` is zero bytes; it must be exactly 32 bytes",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173684064706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": ""
+        }
+      },
+      "expected": {
+        "error": "hash-length"
+      }
+    },
+    {
+      "id": "k1sign-hash-as-text",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` whose `hash` is a hex text string instead of bytes; it must be exactly 32 bytes",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a2646861736878406262643632666238613131313764633832376130643230313061626239346537336462636162613233613539633838616332613739363031396435393662383664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": {
+            "tstr": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+          }
+        }
+      },
+      "expected": {
+        "error": "member-type"
+      }
+    },
+    {
+      "id": "k1sign-without-hash",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` without `hash`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        }
+      },
+      "expected": {
+        "error": "missing-member"
+      }
+    },
+    {
+      "id": "k1sign-without-path",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` without `path`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a164686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        },
+        "input": {
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "missing-member"
+      }
+    },
+    {
+      "id": "k1sign-with-msg",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1sign` with `msg`, which only `sign` defines",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a3636d7367524c41425f53454c465f544553545f4f4e4c5964686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86",
+          "msg": "4c41425f53454c465f544553545f4f4e4c59"
+        }
+      },
+      "expected": {
+        "error": "unknown-member"
+      }
+    },
+    {
+      "id": "k1peer-without-peer",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1peer` without `peer`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a16470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f6632646337636536313461643238333763633930633033313262616332646532"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2"
+        }
+      },
+      "expected": {
+        "error": "missing-member"
+      }
+    },
+    {
+      "id": "k1peer-without-path",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1peer` without `path`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1peer write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a16470656572582102d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        },
+        "input": {
+          "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        }
+      },
+      "expected": {
+        "error": "missing-member"
+      }
+    },
+    {
+      "id": "k1key-peer-without-path",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "input",
+      "title": "`k1key` with `peer` but no `path`",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a16470656572582102d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        },
+        "input": {
+          "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        }
+      },
+      "expected": {
+        "error": "missing-member"
+      }
+    },
+    {
+      "id": "k1-no-grant-from-sign",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "grant",
+      "title": "`k1sign` with role `root`, where only `sign` with role `root` is granted: a `sign` grant does not cover `k1sign`",
+      "wallet": "recipient",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign root f17fb4ae2a45aedbcb97445a2a9d1c5f"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687852322d736478207369676e2d6163636f756e742f395678547152336d4c702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/9VxTqR3mLp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "no-grant"
+      }
+    },
+    {
+      "id": "k1-account-isolation",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "grant",
+      "title": "`k1peer` for 5QkVr9TzWm, where `k1peer` is granted only for 3MNQpxFAsp",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1peer write d59c74bbba9793428e5470684c4dad73"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a26470617468787e322d7364782068616e646f66662d6163636f756e742f334d4e517078464173702f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d3552445057412f68616e646f66662f66326463376365363134616432383337636339306330333132626163326465326470656572582102d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        },
+        "input": {
+          "path": "2-sdx handoff-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/f2dc7ce614ad2837cc90c0312bac2de2",
+          "peer": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+        }
+      },
+      "expected": {
+        "error": "no-grant"
+      }
+    },
+    {
+      "id": "k1-no-grant-unheld-account",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "grant",
+      "title": "`k1key` with role `read` for 7HdWq2KxRb, an account the wallet does not hold, with no grant for it: refused as not granted, so the refusal does not show whether the wallet holds the account",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1key read bdbab9b708d8601529ff2080e90c93e9"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a0"
+        },
+        "input": {}
+      },
+      "expected": {
+        "error": "no-grant"
+      }
+    },
+    {
+      "id": "k1-path-outside-grant",
+      "requirement": "K1-04",
+      "kind": "request-rejection",
+      "scope": "grant",
+      "title": "`k1sign` for another account whose ID extends the granted one; the prefix ends at a \"/\"",
+      "wallet": "account",
+      "request": {
+        "method": "encrypt",
+        "args": {
+          "protocolID": [
+            2,
+            "p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe"
+          ],
+          "keyID": "1",
+          "counterparty": "self",
+          "plaintext": "a264686173685820bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b8664706174687853322d736478207369676e2d6163636f756e742f334d4e51707846417370582f72756e74696d652f386b5274327756625a712f616374696f6e2f30314a42385a4b33514e3754345956583243394d355244505741"
+        },
+        "input": {
+          "path": "2-sdx sign-account/3MNQpxFAspX/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "hash": "bbd62fb8a1117dc827a0d2010abb94e73dbcaba23a59c88ac2a796019d596b86"
+        }
+      },
+      "expected": {
+        "error": "path-not-granted"
+      }
+    },
+    {
+      "id": "k1-behaviour-seek-permission-false",
+      "requirement": "K1-05",
+      "kind": "behaviour",
+      "title": "The call fails and no prompt is shown.",
+      "given": "No grant exists for the originator and [2, \"p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe\"].",
+      "when": "The application calls `encrypt` with `seekPermission: false`.",
+      "then": "The call fails and no prompt is shown.",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "Permissions"
+      }
+    },
+    {
+      "id": "k1-behaviour-sign-grant-does-not-cover-k1sign",
+      "requirement": "K1-05",
+      "kind": "behaviour",
+      "title": "The `sign` grant does not satisfy it; each operation is granted separately (request vector k1-no-grant-from-sign).",
+      "given": "A grant exists for [2, \"p sdx sign write 1f520702ec75fa65f6048ccdf8ce3efe\"].",
+      "when": "The application calls `k1sign` under the same logical protocol ID.",
+      "then": "The `sign` grant does not satisfy it; each operation is granted separately (request vector k1-no-grant-from-sign).",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "Permissions"
+      }
+    },
+    {
+      "id": "k1-behaviour-account-isolation",
+      "requirement": "K1-05",
+      "kind": "behaviour",
+      "title": "The grant does not satisfy it (request vector k1-account-isolation).",
+      "given": "A grant exists for [2, \"p sdx k1sign write 1f520702ec75fa65f6048ccdf8ce3efe\"].",
+      "when": "The application calls `k1sign` with the tag of 5QkVr9TzWm.",
+      "then": "The grant does not satisfy it (request vector k1-account-isolation).",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "Permissions"
+      }
+    },
+    {
+      "id": "k1-behaviour-k1sign-prompt-content",
+      "requirement": "K1-05",
+      "kind": "behaviour",
+      "title": "The trusted UI shows the operation, the role, the account tag, `keyID`, `path` and `hash`.",
+      "given": "No grant exists.",
+      "when": "The application calls `k1sign`.",
+      "then": "The trusted UI shows the operation, the role, the account tag, `keyID`, `path` and `hash`.",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "Permissions"
+      }
+    },
+    {
+      "id": "k1-behaviour-k1sign-signs-given-hash",
+      "requirement": "K1-05",
+      "kind": "behaviour",
+      "title": "The module signs exactly those 32 bytes without hashing them again; it trusts the application to have computed the transaction's signature hash, and the prompt shows the hash, the path and the account.",
+      "given": "Any wallet state.",
+      "when": "The application calls `k1sign` with a 32-byte `hash`.",
+      "then": "The module signs exactly those 32 bytes without hashing them again; it trusts the application to have computed the transaction's signature hash, and the prompt shows the hash, the path and the account.",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "Containment"
+      }
+    },
+    {
+      "id": "k1-behaviour-containment",
+      "requirement": "K1-05",
+      "kind": "behaviour",
+      "title": "The result is a 33-byte public key or a DER signature; it is never `ikm`, `d`, a seed, a child private key or an ECDH secret.",
+      "given": "Any request.",
+      "when": "Any secp256k1 operation succeeds.",
+      "then": "The result is a 33-byte public key or a DER signature; it is never `ikm`, `d`, a seed, a child private key or an ECDH secret.",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "Containment"
+      }
+    }
+  ]
+}

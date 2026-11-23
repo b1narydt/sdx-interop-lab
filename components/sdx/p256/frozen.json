@@ -1,0 +1,130 @@
+{
+  "note": "LAB_SELF_TEST_ONLY. JWEs that VC-P256 decrypt cases open, made once by jose 5.10.0 GeneralEncrypt with a random content-encryption key, IV and ephemeral key per recipient, and frozen with the protected header, recipient kids and plaintext they were made for, and their content-encryption key. generate.mjs re-verifies each by decryption on every run.",
+  "jwe": {
+    "field-two": {
+      "binding": {
+        "protectedHeader": {
+          "enc": "A256GCM"
+        },
+        "kids": [
+          "029fb0825d815a2515916103eaf02334bbf7bc95f84f5a982d22c51d350cf39b94",
+          "03c57c08c3b5a63a0eaeffce959046a4a3f220f38966d867cf0a66fb30321b2d46"
+        ],
+        "plaintext": "4c41425f53454c465f544553545f4f4e4c592056432d50323536206669656c642070686f746f48617368206f66207265636f72642030314a42385a4b33514e3754345956583243394d355244505741"
+      },
+      "cek": "1bc60b193733fd4b4d291c210576ad19792d3aed2a4211149cbc70a064a72a8a",
+      "jwe": {
+        "ciphertext": "BMW2OirneVjxgoKDxofWBlo8VBFwrl-QthE9aIeTZoclyn_zgJKd4-CQhxfChX0Du3Uog2TKM9yU2OqfQ1tQHOKfVMc5MlYKJ6Nw7iu8-A",
+        "iv": "SR6Paeuv16OvOXro",
+        "recipients": [
+          {
+            "encrypted_key": "0fwLwNz9F_4rMTV5YvNemmr5Gzo2jaa093dFQhg9sf8Suz2uH0H6lQ",
+            "header": {
+              "alg": "ECDH-ES+A256KW",
+              "kid": "029fb0825d815a2515916103eaf02334bbf7bc95f84f5a982d22c51d350cf39b94",
+              "epk": {
+                "x": "TSU4wyOF4xlZaxklptnBbuqooVQXGul-hNAYwJzlshM",
+                "crv": "P-256",
+                "kty": "EC",
+                "y": "QDDIaerCaaXG5rLrNyCq2mB-tVoStZVRZLgZajgrb7c"
+              }
+            }
+          },
+          {
+            "encrypted_key": "6xqzgegsEPGYxVOMFU_N2SV7pcd5_6E2iloNArsKejx_DmqkTM8gmw",
+            "header": {
+              "alg": "ECDH-ES+A256KW",
+              "kid": "03c57c08c3b5a63a0eaeffce959046a4a3f220f38966d867cf0a66fb30321b2d46",
+              "epk": {
+                "x": "BVwzblu6dKKkf0SgGPDTtlo1jIbr5AG-hnyK6enDMso",
+                "crv": "P-256",
+                "kty": "EC",
+                "y": "ZHwhtDwjMWRPvhUxc2KUfxOfIzydSMmAQ94E5LbJFAQ"
+              }
+            }
+          }
+        ],
+        "tag": "nM2vrW66PrHVbpb2JkWuSQ",
+        "protected": "eyJlbmMiOiJBMjU2R0NNIn0"
+      }
+    },
+    "outer-self": {
+      "binding": {
+        "protectedHeader": {
+          "enc": "A256GCM",
+          "proto": "tpnil-sdx-lab:v1",
+          "aid": "01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        },
+        "kids": [
+          "02c2935d7c0c301441aa8320489d9a849d19b25e305bc179135dd0cb51fb85c230"
+        ],
+        "plaintext": "4c41425f53454c465f544553545f4f4e4c592056432d50323536206175646974206c61796572206f66207265636f72642030314a42385a4b33514e3754345956583243394d355244505741"
+      },
+      "cek": "423a0d45f5cdf49ebb0bf1112bab36369486f57e0f213c1ae9ccb8510cd5c9f1",
+      "jwe": {
+        "ciphertext": "ld5kRGnmODDTCookepoSts0t4ahiwlvyz1gafJmwbY8WHWhyWwKFaRwPAl1CKIra2B89O0UrEPkGR4swa6cVS8t55LoyoFfXurYi",
+        "iv": "J9IXhDG2KJ4I0VUj",
+        "recipients": [
+          {
+            "encrypted_key": "GleE0iq24uuQG1wbJrXdTmYXYyeK4s0l87_qjAagQs3s1GKWk-jEVg",
+            "header": {
+              "alg": "ECDH-ES+A256KW",
+              "kid": "02c2935d7c0c301441aa8320489d9a849d19b25e305bc179135dd0cb51fb85c230"
+            }
+          }
+        ],
+        "tag": "FSYYY3bw1Cay9cMg8L1eOQ",
+        "protected": "eyJlbmMiOiJBMjU2R0NNIiwicHJvdG8iOiJ0cG5pbC1zZHgtbGFiOnYxIiwiYWlkIjoiMDFKQjhaSzNRTjdUNFlWWDJDOU01UkRQV0EiLCJlcGsiOnsieCI6ImsyTGlmMmRmWkhQM0ZIeTZ1S0ZhZ1NTeG11WVpqMEZtaG5oSVJOVVFWb0UiLCJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieSI6IlEtcFVleGVzelFQaE1QcHJlR1JnRVY1ZzBEUkdXbW5EQnFQdEdYTGdpbkkifX0"
+      }
+    },
+    "outer-two": {
+      "binding": {
+        "protectedHeader": {
+          "enc": "A256GCM",
+          "proto": "tpnil-sdx-lab:v1",
+          "aid": "01JB8ZK3QN7T4YVX2C9M5RDPWA"
+        },
+        "kids": [
+          "02c2935d7c0c301441aa8320489d9a849d19b25e305bc179135dd0cb51fb85c230",
+          "029b5066329c1fe0ded370c6ea441bf75b0d5514981e78a4d9e97697e51f301731"
+        ],
+        "plaintext": "4c41425f53454c465f544553545f4f4e4c592056432d50323536206175646974206c61796572206f66207265636f72642030314a42385a4b33514e3754345956583243394d355244505741"
+      },
+      "cek": "1c55e0906ec95dce56452b0794619bcd2abab262069697758957e6f61de7cbea",
+      "jwe": {
+        "ciphertext": "tWbUQTFrL5eGMRBA58FQyoJ41bDH4ZxwL__UYqdNEq2DxyHnrjPJiEh3E0K53HrEOKYncV3KaZDCtNAfbMk6J-lXzX8B31-idzBm",
+        "iv": "p4yc4M4ciB-Vo1kn",
+        "recipients": [
+          {
+            "encrypted_key": "dDZmROLCCq6_iosKlcH8vfAT1PysaTwOFv0xSxTFAp2IvApP2XaPwQ",
+            "header": {
+              "alg": "ECDH-ES+A256KW",
+              "kid": "02c2935d7c0c301441aa8320489d9a849d19b25e305bc179135dd0cb51fb85c230",
+              "epk": {
+                "x": "A_Y8mlUsR4WBTYpKpnvHr_YiKpa692Ij9B9bKVahQIw",
+                "crv": "P-256",
+                "kty": "EC",
+                "y": "AwhA6qVxB_vnad2BHhdNHNd5i9--MH-a0wfhlEo117A"
+              }
+            }
+          },
+          {
+            "encrypted_key": "JuDdcYDZgE50_baP0jKcroI7Hx0HYmkaM5Ebft0yoLgzJceUqIAzoQ",
+            "header": {
+              "alg": "ECDH-ES+A256KW",
+              "kid": "029b5066329c1fe0ded370c6ea441bf75b0d5514981e78a4d9e97697e51f301731",
+              "epk": {
+                "x": "RLVgfwt5iuBkmGCOIQgl_aF51H5VstYZhGic0ZoHFfw",
+                "crv": "P-256",
+                "kty": "EC",
+                "y": "uYYjLGpxAzjElDC-Y5xcJ9VF40GYa8uL6Yh4AaYu-Fg"
+              }
+            }
+          }
+        ],
+        "tag": "kVXAVuqrLVp0w1UhcmsmiQ",
+        "protected": "eyJlbmMiOiJBMjU2R0NNIiwicHJvdG8iOiJ0cG5pbC1zZHgtbGFiOnYxIiwiYWlkIjoiMDFKQjhaSzNRTjdUNFlWWDJDOU01UkRQV0EifQ"
+      }
+    }
+  }
+}

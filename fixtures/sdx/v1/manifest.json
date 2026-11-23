@@ -1,0 +1,769 @@
+{
+  "profile": "SDX-DATA-SHARING-PROPOSAL",
+  "version": "0.1.0",
+  "status": "PROPOSED",
+  "resultClass": "LAB_SELF_TEST_ONLY",
+  "program": "programs/proposals/sdx-data-sharing/0.1.0/profile.json",
+  "standards": [
+    {
+      "id": "sdx-v0.1-base",
+      "kind": "sdx-text",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "sha256": "f125f70bc18513632688b0adecec21a80184106d9995fc1223471b2e93208d43"
+    },
+    {
+      "id": "sdx-v0.1-keys",
+      "kind": "sdx-text",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "sha256": "a954f9405fe0a53b1366725ab9b0a23b2cd3426a8858739b8ffd2ce4c7a898ac"
+    },
+    {
+      "id": "sdx-v0.1-envelope",
+      "kind": "sdx-text",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "sha256": "00539ab7d1590f991b15034cc04f9ea7cdb47c40545b8259b270f49e008c3022"
+    },
+    {
+      "id": "sdx-v0.1-anchoring",
+      "kind": "sdx-text",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "sha256": "27dedc4c4ca70834e0798ea1cd68e2210a70baa32979ee56fa0005adccb149cc"
+    },
+    {
+      "id": "sdx-v0.1-vectors",
+      "kind": "sdx-text",
+      "path": "fixtures/sdx/v1/standards/text/vectors.md",
+      "sha256": "f2b492a42f0b224538c2af025082beaa1be494e04ed7cb21f78f072668c9db49"
+    },
+    {
+      "id": "sdx-licence-1.0",
+      "kind": "sdx-text",
+      "path": "fixtures/sdx/v1/standards/text/licence.md",
+      "sha256": "b3ad8c88b9d1ce8c9311bec7a723de1f09591237f29ec776e78725be44d85938"
+    },
+    {
+      "id": "sdx-text-index",
+      "kind": "index",
+      "path": "fixtures/sdx/v1/standards/text/index.json",
+      "sha256": "2d2bde8178678b944b3eac6bdbef8dc1604dc7cff44f84a6c7bdababa4317553"
+    },
+    {
+      "id": "sdx-cbor-det-v1",
+      "kind": "sdx-published-suite",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+      "sha256": "b109a1e5684eb6bd1b5bd21c98992b82c83a851a993f87224a547cade3d702b5"
+    },
+    {
+      "id": "sdx-historical-float64-decode",
+      "kind": "sdx-published-suite",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+      "sha256": "2b85139267668baf291a34d988ad99fef095b585efb8c84fd1ce56ea4f2b9726"
+    },
+    {
+      "id": "sdx-published-suite-index",
+      "kind": "index",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/index.json",
+      "sha256": "fb1b72022c35ae5bfffea2624777f325a3545cd79e0747a5c6962dd3c37e150c"
+    },
+    {
+      "id": "brc-draft-brc39-recipient-protector",
+      "kind": "draft-statement",
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-brc39-recipient-protector.md",
+      "sha256": "548b85a988ba7ecee1c17cabc115c41ea3c8b170249603cf5a728297465c2fe5"
+    },
+    {
+      "id": "brc-draft-sdx-module",
+      "kind": "draft-statement",
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "sha256": "6592e21d94a301217880502f58f2de2bce5e2e7bb0f7480246ad6c545351559e"
+    },
+    {
+      "id": "draft-statement-index",
+      "kind": "index",
+      "path": "fixtures/sdx/v1/standards/draft-statements/index.json",
+      "sha256": "8774a48377585c5ee2fbe8097eb29cbd4896d96770afd5862c4ced3dd41d6279"
+    }
+  ],
+  "suites": [
+    {
+      "id": "VA-ADM",
+      "status": "LABORATORY-STAND-IN",
+      "path": "fixtures/sdx/v1/va-adm/vectors.json",
+      "sha256": "ad9050cb0e378f6c192101af708f8058b827375f291de904b7755cf8f0e88b62",
+      "requirements": [
+        "SDX-A-09"
+      ],
+      "cases": 51
+    },
+    {
+      "id": "VA-ANC",
+      "status": "BASELINE-v0.1",
+      "path": "fixtures/sdx/v1/va-anc/vectors.json",
+      "sha256": "0e66e891fb50b81dfb0104863d9ee54f44c71759d28001ab4a5b93f81cb483b5",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": 31
+    },
+    {
+      "id": "VA-ENC",
+      "status": "BASELINE-v0.1",
+      "path": "fixtures/sdx/v1/va-enc/vectors.json",
+      "sha256": "33cad7ef0fa41d05713e7fbedec128f7f1d0db46a3488a23fd33bbc915394fe3",
+      "requirements": [
+        "SDX-A-01"
+      ],
+      "cases": 75
+    },
+    {
+      "id": "VA-ENV",
+      "status": "BASELINE-v0.1",
+      "path": "fixtures/sdx/v1/va-env/vectors.json",
+      "sha256": "5958465d49af4ea1f2b800b91c803ccf5c1634060098e62a251b03be07667c09",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-04"
+      ],
+      "cases": 95
+    },
+    {
+      "id": "VA-KEY",
+      "status": "BASELINE-v0.1",
+      "path": "fixtures/sdx/v1/va-key/vectors.json",
+      "sha256": "12e52d9a422ea6c763ad5bb5f1586bf64d70a5dbac02bc3edadca8e302adb1e4",
+      "requirements": [
+        "SDX-A-08"
+      ],
+      "cases": 69
+    },
+    {
+      "id": "VA-SIG",
+      "status": "BASELINE-v0.1",
+      "path": "fixtures/sdx/v1/va-sig/vectors.json",
+      "sha256": "f92bfc68f34fd9584e799a492b789e25a54566729310b779a9ef11a73542e23e",
+      "requirements": [
+        "SDX-A-02"
+      ],
+      "cases": 32
+    },
+    {
+      "id": "VC-B39R",
+      "status": "PROPOSED",
+      "path": "fixtures/sdx/v1/vc-b39r/vectors.json",
+      "sha256": "c8ffdc5396ca3473d076fc24b6dd0de1d4a4c48a22677201b2bebec70dc31367",
+      "requirements": [
+        "B39R-01",
+        "B39R-02"
+      ],
+      "cases": 37
+    },
+    {
+      "id": "VC-P256",
+      "status": "PROPOSED",
+      "path": "fixtures/sdx/v1/vc-p256/vectors.json",
+      "sha256": "4aad7680db2da99301841d905fb39ef7602b26ac34b226ab6e9798c13f548a59",
+      "requirements": [
+        "P256-01",
+        "P256-02",
+        "P256-03",
+        "P256-04"
+      ],
+      "cases": 177
+    },
+    {
+      "id": "VC-SDX-K1",
+      "status": "PROPOSED",
+      "path": "fixtures/sdx/v1/vc-sdx-k1/vectors.json",
+      "sha256": "ca7212fed2b6328de872a196f1072768738f8b160551837694bfa95483f3fd28",
+      "requirements": [
+        "K1-01",
+        "K1-02",
+        "K1-03",
+        "K1-04",
+        "K1-05"
+      ],
+      "cases": 72
+    }
+  ],
+  "artifacts": [
+    {
+      "role": "checker",
+      "path": "src/sdx/adm.mjs",
+      "sha256": "c00d5768c19885e66124ac7972687eaf38ce7e88d11ce04e11de10cb582d58d0"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/anc.mjs",
+      "sha256": "7d3484b38c2519eba0f76287d0b02d07d1ddc866b968bd3437bfe25904ea0bd2"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/brc2.mjs",
+      "sha256": "f6fb4857712c765c5716418427b85d56f59a8c327a11d33cf05079feb99313c3"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/brc42.mjs",
+      "sha256": "3652eb4ba8adda0961aa783db8bdfbb69ba68c18f2d6d786de78098e69b77e9e"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/cbor-det.mjs",
+      "sha256": "0b4f4cdc3735ac06adae57e20876454390f01635fe6004aa8ac5584f956e179a"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/ec-p256.mjs",
+      "sha256": "fdde97146d8095c625118a5986b9972d51ba705ae9f829b77950c7a9ba72a55f"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/env.mjs",
+      "sha256": "99dbdfbb7c7d743b71a7108489d79f64b7eaf9ad6c6f33a722701bbd492dbdfc"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/k1.mjs",
+      "sha256": "33a1e24e46f09268e51366679728805b1ee92c6c746af709abce1e95e3f93575"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/keys.mjs",
+      "sha256": "7c3f2dd7465c937eff17cad7ce7b46d7ed224ee1ce96962676a97f6214f92a45"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/lzma.mjs",
+      "sha256": "c91c5149979cada232c09418a20a2904d673d8a6821ee4da46951d3b6fca8274"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/p256.mjs",
+      "sha256": "de9203d7cb69558aec2ddf3ecd63baa552d4b37898f1597d39dfc594d3515192"
+    },
+    {
+      "role": "checker",
+      "path": "src/sdx/tx.mjs",
+      "sha256": "77ed5c6e45dfc40ec77e6caabbf61d18b318edfdc063546d7dcc317e03a041c0"
+    },
+    {
+      "role": "checker",
+      "path": "src/portability/brc39-recipient.mjs",
+      "sha256": "c2320d585e77ca5f73f0e475930906519eb0fffa766f11c60003a174d234f244"
+    },
+    {
+      "role": "deployment-profile",
+      "path": "fixtures/sdx/v1/deployment-profile.json",
+      "sha256": "2b5d3746178d85f878d212c3320a96e33185d0b3738ed8252f010a73a41e7c7c"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-adm.test.mjs",
+      "sha256": "9ccaa216ae52a3afea1919e87825adbd8e2bd723696753ec559c4a255396e146"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-anc.test.mjs",
+      "sha256": "a14f2d684d5d4d7e37cb63d0a7fabff705d7dec1a2c89a94e908ec24a7c9805f"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-cbor.test.mjs",
+      "sha256": "48ab9125856789485892751cb09310b37a748faa0596e3c940aa529fd4b3ce7f"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-env.test.mjs",
+      "sha256": "8e6ca46868faecbb195d0fc51286b3ba5b696b50c0280a571a7d09eedbfba7e1"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-harness.test.mjs",
+      "sha256": "115b431b187938ecd152ba7b946e956aa55d6035fe3ce53680c2e7d618c9ec82"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-k1.test.mjs",
+      "sha256": "5d0583f6c2bc02d5ffaae36f41181ca533140637072131d4a780c37f75e604ab"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-key.test.mjs",
+      "sha256": "868be6d8d5a9e6eb8ceafae43ccd2d251f38c036d3b4c6ce118485de1c2f5642"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-manifest.test.mjs",
+      "sha256": "ffadbc94cf36a2c30d04959aeb2c944d9313f8b7a99141cce04599d9b59f3ec5"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-p256.test.mjs",
+      "sha256": "e5ff9d2cb5f2e6929cccc33395caa7825e11db300286612f629aed4e4a43cee6"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx-profile.test.mjs",
+      "sha256": "95bf7d55ac5ebf434a8da97e48ad9c88b2d7b52a6ba8dea65a80b8dfe1c0585f"
+    },
+    {
+      "role": "test",
+      "path": "test/brc39-recipient.test.mjs",
+      "sha256": "935956ebf70a9221e60a4a7743097488100b9728a685f2e50e90927f31e25acc"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx_adm.py",
+      "sha256": "98d7eb51a10c41dd80d7057404975b373e03f7b1f3d270986780b72610b82eb0"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx_anc.py",
+      "sha256": "b3e7dc0434ab62851c5fe4afaba83e4ea643c7b99862f05eed332dae3f0c1fa5"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx_ec.py",
+      "sha256": "625950a79bfed000b5a0ef6afe6caf2f6a10e80565999ff318e27a7b3618ffbf"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx_env.py",
+      "sha256": "61afca31fe442391c3cd44c164e1d763af6088580ab961f1d6e86dd25fe4832d"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx_key.py",
+      "sha256": "005aab292ebf3e843abcd811844542740f403ed3e7017ec8f14b01f650ff6e24"
+    },
+    {
+      "role": "test",
+      "path": "test/sdx_module.py",
+      "sha256": "e8e472e955dc454c33ee670d154c0db7fcb2ec777e55cfd34d0d9c35206236c0"
+    },
+    {
+      "role": "test",
+      "path": "test/test_sdx_adm.py",
+      "sha256": "860b20cebe62584671c684a121da8197628a3904c35b961c2d80d5f1aaecf910"
+    },
+    {
+      "role": "test",
+      "path": "test/test_sdx_anc.py",
+      "sha256": "8b8bfdbfe30bc876a4e238027509e862a26500f8a8a4a255fbb26f27698c177f"
+    },
+    {
+      "role": "test",
+      "path": "test/test_sdx_env.py",
+      "sha256": "3bb1682c9e27b71f94c9206dfab5a769b6b9c4e157b8ae3e94ca16e681b5df5b"
+    },
+    {
+      "role": "test",
+      "path": "test/test_sdx_k1.py",
+      "sha256": "65b9201fe764f5dac26a43721a4621462e15238e93bb83dd0c59a410c306a82a"
+    },
+    {
+      "role": "test",
+      "path": "test/test_sdx_key.py",
+      "sha256": "fc611e950c16bfe3298fa8a01d5d0de5bfc255821e443610f7a0d5ae0d2881e1"
+    },
+    {
+      "role": "test",
+      "path": "test/test_sdx_p256.py",
+      "sha256": "249f95ded7e7786bbfd85fc2691fd594a0883b6c30eb0e9123788585b133a4a0"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/README.md",
+      "sha256": "525ba3949bf7189d6094a95ff1a97531aa8871d8f550927be1f236fe9668cf53"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/common.mjs",
+      "sha256": "cbd202f469ae5ac70d0392951521b6a5cfe0b5d89be206819f20a19d47980f31"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/frozen-random.json",
+      "sha256": "642e7e7a326b4fb977b18abbcd4581b3f63d51dcc4ed1068847e5ef561a36dd3"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/generate.mjs",
+      "sha256": "31af5af39dd3c8d1069c9dce158201e5669e9e17ffd37061d9ae67ce4d6f26bf"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/oracle.mjs",
+      "sha256": "7d45fcbdd0444f78a6e89fc1f26fe3569e35b27749c5a6277f9e9712d0fb14ce"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/package-lock.json",
+      "sha256": "21141cb62be7db43ecd42fdeb74c0a7eb9d0ad471c6e4ca4c8d800b93f023730"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/package.json",
+      "sha256": "87c4a639c6e963b1d804ec5d7af5e121e373acbe26d84bff3be82ec794a440e7"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/suites/vc-b39r.mjs",
+      "sha256": "363d71d99b07d2a7e16ad3049466148450defb7f1712941d3f4d1919ff635f25"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/test/differential.test.mjs",
+      "sha256": "03cf7078e4d6f9521bc9df06a0ff9625371030f2d138aa8b55df0a7dfc503a0a"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/b39r/test/generator.test.mjs",
+      "sha256": "20d74eb71416725520f53784dd5d1c49fbf52b992a58dfff92b58b668cffd02b"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/README.md",
+      "sha256": "1dff400ead932b2b149c2b710147df528f02bc269edf4b1d76fe6a930f11c67e"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/generate.mjs",
+      "sha256": "33840dcd8643b65c76726ccf7d22c919be2482f6e6982cd84f9abd76256e2cad"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/package-lock.json",
+      "sha256": "fb85e265efc38c5940cb77fcc20f3ed77b66b25d334bc9c0d8ef57bb42676b8e"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/package.json",
+      "sha256": "3553c305a6953ff184e21ba04b8f6a596e8f51d70b5cff90002729f1bae040e0"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/lib/beef.mjs",
+      "sha256": "d840b0a6888de78cfa22d8071c7d79a9863efe8c9fe34309c6054795006ffd62"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/lib/cbor.mjs",
+      "sha256": "5b33d95dfcf1310797d1be8096fc24e770956e535881ec22cd748d53ff12419e"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/lib/chain.mjs",
+      "sha256": "d51d3b79989c1ef79ab55814d0dd5d367eb421c58a1820b2f91a6132b06343cc"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/lib/keys.mjs",
+      "sha256": "a7d19af1257b54677550b43cc8ca2619c8784ef6e1d45ca2b7f810f71ecb43d2"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/lib/world.mjs",
+      "sha256": "db186e0c674cab71ec2dfcee8e64ffada076ff29a7e6452ee13c5a17c60d1684"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/test/rust-oracle.test.mjs",
+      "sha256": "15e9ff43cdbf2c547a1c4bf6d4636bf10754678794a72ed65f39a7f8c81fe631"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/proof/test/sdk-cross-check.test.mjs",
+      "sha256": "61624537a8849c67fd0c57fe425a19f607b3742a7b575fd914aa7ffdfd03eafa"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/README.md",
+      "sha256": "5cb5a4aec9fbfd43cd67aeb364939b933893c3e8c559e88320f71fbc217dba25"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/frozen.json",
+      "sha256": "30883b42728fdf3cfcf4c1c4fcdab616fa84eaeec8b19abf480a392b051ea5e6"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/generate.mjs",
+      "sha256": "a9b72f571841035cdd29473637ca8dd7a931991d6c600678d7d75db41de2446b"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/package-lock.json",
+      "sha256": "da51a31a0f2008202872956f77d980330eb10c0e8b640451cffc66da979191fb"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/package.json",
+      "sha256": "e01feb567fd2536d72a8f2515c75e58d4924a71b68bb62cbcf1ad706119ac3e1"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/grind/go.mod",
+      "sha256": "d5969f704eac9760f8a64d251e6f9e452ddd97e63c3a2995151b886e6e89fa98"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/p256/grind/main.go",
+      "sha256": "96ab2708b6d4a03b05f4f8dde6db822ddf81a7e5c5368c3dc78d9c170047f6c9"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/README.md",
+      "sha256": "a5aea183e0021844cc5d27c852de3a833c7d796ccf439cf4ecc8fdde04d05824"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/frozen.json",
+      "sha256": "b9bb40057325292ecc085dfe20ac77fd8f3217c2e3a3333e6769c8c12cc4db4b"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/generate.mjs",
+      "sha256": "8ca7d668939395feccebbb8df5a395036c805b6a1802b5d95b6855bed9f6252f"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/package-lock.json",
+      "sha256": "9377d852446ce5930fcc3623259a96e41941ab717002e68e4ba94533c4b1d44f"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/package.json",
+      "sha256": "c306ecb849a5c2056561f5d8727b3a1b224c719bf660b33aac10564aa34b8e2d"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/lib/cbor.mjs",
+      "sha256": "1a28b198dee8a1d34b9ab96dbadf492e3422cd57f1e7484a1102b3a51c45acb6"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/lib/envelope.mjs",
+      "sha256": "f4b91f5c85e51c1b8dce6a746d1f7f9a8431462e67a3fba77e5394fadbb7c840"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/lib/jwe.mjs",
+      "sha256": "c5c3b99d8ab64bf5d55e5648cbaac84675aafbde2c20484d33a7c038472c4aa7"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/lib/keys.mjs",
+      "sha256": "165309251a4ca4b5a351362380bbd4d967d0157cb72d3a851c284e299611054c"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/lib/lab.mjs",
+      "sha256": "eb28879c417501df570ec7adb863c5c8c0e31c6ca2bab2634cbb0eb4d405c5f6"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/lib/lzma.mjs",
+      "sha256": "5f4a49356c2f3cf35b49632ce426a82f1d7f91c94869bb2540bad55d5d709d0b"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/suites/decisions.mjs",
+      "sha256": "e94aab5e48ddbe735748e240da779368ede20474573a3dbe4993b24a020288ca"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/suites/va-env.mjs",
+      "sha256": "7f7fd1001d8e4730eb153f3dab6d8c97e2a6a461363e7301d8888b90bf2a13ad"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/envelope/suites/va-sig.mjs",
+      "sha256": "2a558ae5df99fe9d3d5a39ca6cf27a2565dce2b097db2f505f051b65a0573724"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/key/README.md",
+      "sha256": "d742f4f35700fa5328377a6005cb7172971280ccf381efc1968e8d8ad8b4e8c1"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/key/generate.mjs",
+      "sha256": "eb68ae867bc63f2c7c5ab98da028aa803d80b4ff6774165661f85526dca0bfb8"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/key/package-lock.json",
+      "sha256": "616c7ed699c9e6c74234ed49389f9dcece7ea55b01a27912acdd8b74bf8c9f80"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/key/package.json",
+      "sha256": "0cabebe24fe65422db425a9b4ed049fb4276065e96664ee6026e4add7b1008d8"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/admission/README.md",
+      "sha256": "9663e35d1bae7f309170242c91d370f1ea76a13bed5faba0358b88db9093c219"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/admission/generate.mjs",
+      "sha256": "4051946c7d3ba94b4891c60c167374f47eaa7965eb66c7bca6f854bae269848e"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/admission/package-lock.json",
+      "sha256": "17a8ce86702222f9343b2946d819b9a2a1250b4c1002867c57f6753e627da4f0"
+    },
+    {
+      "role": "generator",
+      "path": "components/sdx/admission/package.json",
+      "sha256": "15c96bccd18674f49ba0a3824823f276f8eb20d4729da2e3067ae5d4fdfe65e2"
+    },
+    {
+      "role": "harness",
+      "path": "src/sdx/harness/compare.mjs",
+      "sha256": "3c43e30ab443d7950a4a2ce54a3a31e3b2433966c1fd09f3754cdfb885427bcb"
+    },
+    {
+      "role": "harness",
+      "path": "src/sdx/harness/driver.mjs",
+      "sha256": "5fd8874d0a4f797f7c146b5d9649bfdbd0e23579bfc31921d9939df72d126be0"
+    },
+    {
+      "role": "harness",
+      "path": "src/sdx/harness/echo-driver.mjs",
+      "sha256": "9eeaf45ce366d09950ab5a5cbde2854d7f09655be7442d776cbda71135f431e8"
+    },
+    {
+      "role": "harness",
+      "path": "src/sdx/harness/run.mjs",
+      "sha256": "fc94af1f2b09726b8c640d7179210c86eafe533023742d628664afeaacab2e5e"
+    },
+    {
+      "role": "harness",
+      "path": "scripts/run-sdx-suts.mjs",
+      "sha256": "e9555f89d39f2ce4c3d74c95dacdac788275b116aecbedc82eade5a60ffb04ca"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/README.md",
+      "sha256": "1231f47c2401a9a7b7f41d273a765c70a1ec540eb0b3a6cfc841bf76ffcbbe22"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/AGENTS.md",
+      "sha256": "2747e32a1d62fd87d68faac87277caaec6eea734dbcd921d62bace79a0ed5987"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/profile.json",
+      "sha256": "1336dcd4e0686e36bb0484f9fda06aeede088496b54cbf4b5940176eeebfb3b0"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/coverage.json",
+      "sha256": "6a04bc53bd86443d47e8e0a8ae8c76938449d332a04497c8786bb219789ef4ef"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/promotion.md",
+      "sha256": "88d2cddea174119c29671ea7989c1a0bc2e2ea3613d89d88c5124f77caf85a56"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/driver-contract.md",
+      "sha256": "fdf7015c2ad969c99d43ac79863c84c05edbf4d8e0ddb99b170e3f3f5d4f523a"
+    },
+    {
+      "role": "program",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/run-record.schema.json",
+      "sha256": "8346e3a00b0f5cb8388e00122c34e7e36fdafe21ba664b5c881fc64adf8f786c"
+    },
+    {
+      "role": "run",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/record.json",
+      "sha256": "6ba6ca1cef351cf50fa608360f4b71d7d7ef7d29729953d7d701a7d80bf2434b"
+    },
+    {
+      "role": "run",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/transcript.jsonl",
+      "sha256": "d57267b06a0b397e434ec5bc916ec7bf7e5c40219950968147e5ea47278a6889"
+    },
+    {
+      "role": "run",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/runs/declarations/sdx-v01.json",
+      "sha256": "b507fd985d0c463cbff805e700c0d5362806c461e40746f965831fdb6efb897b"
+    },
+    {
+      "role": "run",
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/runs/declarations/sdxgo.json",
+      "sha256": "18245783acf22ad36f0d7dfce3eb6a182d82633edbf9e2b15b35d43066ec31f9"
+    },
+    {
+      "role": "builder",
+      "path": "scripts/build-sdx-manifest.mjs",
+      "sha256": "1e1074a65ce6dcecb5e5b6942b3ac61779b065e7d594b007f454c4107548dbe1"
+    },
+    {
+      "role": "licence-reference",
+      "path": "LICENSES/SDX-Specification-License-1.0.reference.txt",
+      "sha256": "c391802a5c5d77f02562ffd367fdbfac997093d763e41cb1eb9a78f0d3b71f6a"
+    }
+  ],
+  "oracleRuntime": {
+    "node": "24.22.1",
+    "python": "python3 standard library",
+    "checkers": "Node.js built-in modules only"
+  },
+  "generatorRuntime": {
+    "node": "24.22.1",
+    "npmLockfiles": [
+      "components/sdx/b39r/package-lock.json",
+      "components/sdx/proof/package-lock.json",
+      "components/sdx/p256/package-lock.json",
+      "components/sdx/envelope/package-lock.json",
+      "components/sdx/key/package-lock.json",
+      "components/sdx/admission/package-lock.json"
+    ],
+    "go": "components/sdx/p256/grind/go.mod declares go 1.22 and no module dependencies"
+  },
+  "syntheticFixtures": {
+    "keys": "public labelled test keys and fixed test roots",
+    "chain": "pinned synthetic regtest-difficulty headers; nothing broadcast",
+    "validFunding": false,
+    "containsPersonalData": false
+  },
+  "sutRuns": [
+    {
+      "runId": "2026-11-15-r1",
+      "record": "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/record.json",
+      "transcript": "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/transcript.jsonl",
+      "repetitions": 2,
+      "implementations": [
+        {
+          "id": "sdx-v01",
+          "commit": "9cba37cbd49f8f3552b0457030a195dca0b283dc",
+          "clean": true
+        },
+        {
+          "id": "sdxgo",
+          "commit": "9cba37cbd49f8f3552b0457030a195dca0b283dc",
+          "clean": true
+        }
+      ],
+      "aggregate": "FAIL"
+    }
+  ],
+  "remainingAdmissions": [
+    "TPNIL program identifier assignment",
+    "SDX publication of docv2-envelope, dual-curve, placement, utxo-chaining, overlay-binding and cross-domain-refs",
+    "SDX publication of the reader, writer and recorder port contracts",
+    "BRC-process adoption of the companion drafts",
+    "authoring of the remaining Phase A suites VA-GRANT and VA-ROT",
+    "replacement of the laboratory stand-in VA-ADM by SDX's overlay-binding suite",
+    "two independent admitted SDX implementations and SDX intake"
+  ]
+}

@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add ITCVE-1 1.1.0 with independent TypeScript/Go Overlay, ChainTracks and Wallet Storage selection, pinned native dependencies, authenticated mixed-component tests, fault/recovery checks, wallet/Android configuration and CI evidence. Historical profiles and results remain fixed.
+- Add the SDX data-sharing interoperability and conformance proposal 0.1.0 (PROPOSED, no program identifier assigned) with pinned SDX v0.1 texts and licence reference, frozen contributed draft statements (two companion BRC drafts), a published laboratory deployment profile, requirement, applicability and source-coverage inventories, promotion requirements, `LAB_SELF_TEST_ONLY` vector suites with dependency-free Node.js and Python checkers and pinned generators (including record-level envelope, signature, key-derivation and admission suites), a neutral driver contract, a digest manifest and third-party notices. Registered programs and their results are unchanged.
 
 ## Unreleased
 

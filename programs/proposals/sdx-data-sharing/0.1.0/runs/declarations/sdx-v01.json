@@ -1,0 +1,64 @@
+{
+  "schema": "tpnil-sdx-sut-declaration@0.1.0",
+  "claim": "LAB_SELF_TEST_ONLY",
+  "id": "sdx-v01",
+  "implementation": {
+    "name": "sdx-v01",
+    "version": "0.1.0",
+    "language": "JavaScript (Node.js 24)",
+    "description": "An SDX v0.1 library whose key operations go through the p sdx wallet module; its JOSE implementation is a fork of jose 6.2.13",
+    "source": "impl/sdx in the contributor's repository, with impl/sdx-module and impl/ct-admission",
+    "statement": "Implements SDX v0.1 (Draft); conformance not demonstrated"
+  },
+  "driver": {
+    "argv": [
+      "node",
+      "{source}/driver/sdx-v01-driver.mjs"
+    ],
+    "build": [
+      [
+        "npm",
+        "ci",
+        "--silent",
+        "--prefix",
+        "{source}/../sdx-module"
+      ],
+      [
+        "npm",
+        "ci",
+        "--silent",
+        "--prefix",
+        "{source}"
+      ]
+    ],
+    "transport": "JSON lines; one process per session"
+  },
+  "contract": "0.1.0",
+  "roles": [
+    "writer",
+    "reader",
+    "verifier",
+    "admission-service"
+  ],
+  "operations": [
+    "write",
+    "read",
+    "split",
+    "derive",
+    "validate",
+    "profile",
+    "setup",
+    "submit"
+  ],
+  "writeOptions": {
+    "random": false,
+    "convergent": false,
+    "writerBlind": false
+  },
+  "containedKeys": true,
+  "notes": [
+    "Keys are held by a p sdx module instance; the driver imports each request's root through the module's host interface. split answers the two root public keys and derive answers no private key (contained keys).",
+    "The topic manager decides admission; the driver keeps the admitted outputs per topic, as an overlay engine does for a topic manager. There is no per-topic index, so lookup and the fault hook are not offered.",
+    "The secrets and offset hooks and the secp256k1 symmetric key are not offered."
+  ]
+}

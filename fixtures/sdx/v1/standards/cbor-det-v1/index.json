@@ -1,0 +1,41 @@
+{
+  "schema": "tpnil-sdx-vector-suite-index@0.1.0",
+  "edition": "SDX Protocol specification v0.1, dated 2026-07-17, revised 2026-09-01; test vectors published with the revision of 2026-09-01.",
+  "licence": {
+    "name": "SDX specification texts and test vectors licence",
+    "version": "1.0",
+    "date": "2026-09-01",
+    "licensor": "mintBlue B.V.",
+    "reference": "LICENSES/SDX-Specification-License-1.0.reference.txt",
+    "attribution": "SDX Protocol specification, version 0.1 (2026-07-17, revised 2026-09-01)"
+  },
+  "listing": {
+    "sourceUrl": "https://sdxprotocol.org/protocols/data-sharing/v0.1/vectors/",
+    "text": "fixtures/sdx/v1/standards/text/vectors.md"
+  },
+  "digestRule": "sha256 covers the stored file, which is the retrieved bytes unchanged.",
+  "files": [
+    {
+      "id": "cbor-det-v1",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+      "sourceUrl": "https://sdxprotocol.org/vectors/cbor-det-v1.json",
+      "retrievedAt": "2026-11-11T05:05:51Z",
+      "sha256": "b109a1e5684eb6bd1b5bd21c98992b82c83a851a993f87224a547cade3d702b5",
+      "bytes": 15349,
+      "vectors": 36,
+      "direction": "encode",
+      "modified": false
+    },
+    {
+      "id": "historical-float64-decode",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+      "sourceUrl": "https://sdxprotocol.org/vectors/historical-float64-decode.json",
+      "retrievedAt": "2026-11-11T05:05:52Z",
+      "sha256": "2b85139267668baf291a34d988ad99fef095b585efb8c84fd1ce56ea4f2b9726",
+      "bytes": 3176,
+      "vectors": 8,
+      "direction": "decode",
+      "modified": false
+    }
+  ]
+}

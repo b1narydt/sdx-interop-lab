@@ -1,0 +1,1555 @@
+{
+  "schema": "tpnil-sdx-vectors@0.1.0",
+  "suite": "VA-ENC",
+  "claim": "LAB_SELF_TEST_ONLY",
+  "status": "BASELINE-v0.1",
+  "requirements": [
+    "SDX-A-01"
+  ],
+  "citations": [
+    {
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "clause": "ENV §3"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "clause": "ENV §17.6"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "clause": "BASE §3.1, §6"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/vectors.md",
+      "clause": "VEC"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/index.json",
+      "clause": "cbor-det-v1, historical-float64-decode"
+    }
+  ],
+  "references": [
+    {
+      "id": "RFC 8949",
+      "title": "Concise Binary Object Representation (CBOR), §4.2.1 Core Deterministic Encoding Requirements",
+      "url": "https://www.rfc-editor.org/rfc/rfc8949#section-4.2.1"
+    }
+  ],
+  "outcomeTags": {
+    "required": "The outcome follows from an ENV §3 MUST, a VEC rule, or CBOR well-formedness (RFC 8949 §3 and Appendix F), which ENV §3 presupposes. An implementation under test that differs FAILS the case.",
+    "labChoice": "The texts leave the outcome open. The case records the laboratory decoder's choice; an implementation under test that differs is reported, and never FAILS on it.",
+    "informative": "The strict decoder's outcome is a laboratory choice beyond ENV §3 (decision cbor-det-v1-decoder). It is recorded for the suites that read maps strictly and is never an expectation under SDX-A-01."
+  },
+  "decisions": [
+    {
+      "id": "cbor-det-v1-profile",
+      "kind": "Rests on the cited text",
+      "text": "The encoder follows the published `cbor-det-v1` vectors where they and the ENV §3 prose differ, as VEC directs: safe integers (±(2^53 - 1)) take the shortest integer head; every other number, including integral values beyond the safe range, is binary64 (vectors `int-above-safe-range-stays-float64`, `int-far-above-safe-range-stays-float64`); bigint inputs are refused. Map keys are ordered by their encoded bytes; absent map members are elided, absent array elements become null, and an absent whole value is CBOR undefined (ENV §3)."
+    },
+    {
+      "id": "cbor-det-v1-specials",
+      "kind": "Laboratory interpretation",
+      "text": "The encoder writes -0 as integer 0, NaN as fb7ff8000000000000 and ±Infinity as binary64. The published vectors do not pin these values, and the laboratory cross-checked them against cbor-x 1.6.9, where the published suite names cbor-x 1.6.4 (coverage gap ENV-3)."
+    },
+    {
+      "id": "cbor-det-v1-decoder",
+      "kind": "Rests on the cited text",
+      "text": "The semantic decoder implements ENV §3: it rejects tags and indefinite-length items, accepts non-shortest heads, and returns binary64 values as numbers, so the historical-float64-decode bytes read back to the integers shown. It rejects input that is not well-formed CBOR (RFC 8949 §3, Appendix F). As laboratory choices it also rejects well-formed input outside the profile: integers beyond ±(2^53 - 1), maps with duplicate keys and text that is not valid UTF-8 (both not valid, RFC 8949 §5.3.1, §5.6), and unassigned simple values. The strict decoder additionally requires the input to be the deterministic encoding of the decoded value."
+    },
+    {
+      "id": "lab-bounds",
+      "kind": "Laboratory test-construction choice",
+      "text": "The checker bounds nesting depth at 64 and input at 16 MiB, refuses duplicate set members and text containing a lone surrogate on encode. ENV §17.6 requires bounds and fixes no values, so these are laboratory bounds. A refusal caused by one of them when reading an implementation's output is reported as ERROR, never FAIL."
+    },
+    {
+      "id": "thin-suite",
+      "kind": "Laboratory test-construction choice",
+      "text": "Cases VA-ENC-001 to 044 reference the published SDX vectors by file and name and record this implementation's output; the expected bytes and values are those of the published files, which are stored unchanged and pinned by SHA-256. Cases VA-ENC-101 to 126 are laboratory-derived decoder cases, and VA-ENC-201 onward laboratory-derived encoder cases; each carries its `basis` tag and the clause it rests on."
+    }
+  ],
+  "implementation": {
+    "encoder": "src/sdx/cbor-det.mjs encode()",
+    "semanticDecoder": "src/sdx/cbor-det.mjs decode()",
+    "strictDecoder": "src/sdx/cbor-det.mjs decodeStrict()",
+    "dependencies": "none"
+  },
+  "imports": [
+    {
+      "id": "cbor-det-v1",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+      "sha256": "b109a1e5684eb6bd1b5bd21c98992b82c83a851a993f87224a547cade3d702b5",
+      "vectors": 36,
+      "direction": "encode",
+      "passed": 36
+    },
+    {
+      "id": "historical-float64-decode",
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+      "sha256": "2b85139267668baf291a34d988ad99fef095b585efb8c84fd1ce56ea4f2b9726",
+      "vectors": 8,
+      "direction": "decode",
+      "passed": 8
+    }
+  ],
+  "oracles": {
+    "sdxPublished": "For cases VA-ENC-001 to 044 the SDX published suites are the oracle: the expected bytes come from SDX, not from this implementation. Both suites pass in full.",
+    "labDerived": "For the laboratory-derived cases the generator declares each expected outcome from the rule it cites and the checker must reproduce it. The encoder cases build their expected bytes with cborg. test/test_sdx_anc.py replays every laboratory-derived case with a separate Python standard-library decoder and encoder.",
+    "cborg": {
+      "version": "6.2.1",
+      "options": "rfc8949EncodeOptions",
+      "agrees": 33,
+      "differs": [
+        "int-above-safe-range-stays-float64",
+        "float-double-1.5",
+        "float-zero-half"
+      ],
+      "note": "cborg follows RFC 8949 preferred serialization: it writes 2^53 as an integer and each non-integer as the shortest float that preserves it. The SDX profile writes both as binary64, so the published vectors, not RFC 8949 §4.2.1 alone, define its float rule."
+    }
+  },
+  "generator": {
+    "component": "components/sdx/proof",
+    "command": "npm run generate --prefix components/sdx/proof",
+    "check": "npm run check --prefix components/sdx/proof",
+    "dependencies": {
+      "@bsv/sdk": "4.0.1",
+      "cborg": "6.2.1"
+    },
+    "lockfile": "components/sdx/proof/package-lock.json",
+    "deterministic": "Fixed public test keys and roots, RFC 6979 signatures, fixed synthetic header times and a proof-of-work nonce search from zero; two runs produce identical files."
+  },
+  "cases": [
+    {
+      "id": "VA-ENC-001",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "empty-map"
+      },
+      "observed": {
+        "encodedHex": "a0",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-002",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "single-key-map"
+      },
+      "observed": {
+        "encodedHex": "a1616101",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-003",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "sorted-multi-key-map-from-insertion-order"
+      },
+      "observed": {
+        "encodedHex": "a3616102616201616303",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-004",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "byte-sort-not-string-sort"
+      },
+      "observed": {
+        "encodedHex": "a2617a026361616101",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-005",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "nested-map"
+      },
+      "observed": {
+        "encodedHex": "a1656f75746572a2616102617a01",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-006",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "long-string-23-bytes"
+      },
+      "observed": {
+        "encodedHex": "776161616161616161616161616161616161616161616161",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-007",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "long-string-24-bytes"
+      },
+      "observed": {
+        "encodedHex": "7818616161616161616161616161616161616161616161616161",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-008",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "negative-integer-small"
+      },
+      "observed": {
+        "encodedHex": "20",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-009",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "negative-integer-multibyte"
+      },
+      "observed": {
+        "encodedHex": "3863",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-010",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "byte-string"
+      },
+      "observed": {
+        "encodedHex": "43010203",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-011",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "array-positional"
+      },
+      "observed": {
+        "encodedHex": "83010203",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-012",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "primitives"
+      },
+      "observed": {
+        "encodedHex": "83f6f5f4",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-013",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "mixed-shape"
+      },
+      "observed": {
+        "encodedHex": "a4616183012000616242ff00616ef66173626869",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-014",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "integer-index-key-vs-empty-string"
+      },
+      "observed": {
+        "encodedHex": "a260616261306161",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-015",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "integer-index-and-letter-key"
+      },
+      "observed": {
+        "encodedHex": "a2613002616101",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-016",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-0"
+      },
+      "observed": {
+        "encodedHex": "00",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-017",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-23-last-inline"
+      },
+      "observed": {
+        "encodedHex": "17",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-018",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-24-first-1-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "1818",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-019",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-255-last-1-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "18ff",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-020",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-256-first-2-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "190100",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-021",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-65535-last-2-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "19ffff",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-022",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-65536-first-4-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "1a00010000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-023",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-4294967295-last-4-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "1affffffff",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-024",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-4294967296-first-8-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "1b0000000100000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-025",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-4294967297"
+      },
+      "observed": {
+        "encodedHex": "1b0000000100000001",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-026",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-max-safe-integer"
+      },
+      "observed": {
+        "encodedHex": "1b001fffffffffffff",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-027",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-negative-4294967296-last-4-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "3affffffff",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-028",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-negative-4294967297-first-8-byte-arg"
+      },
+      "observed": {
+        "encodedHex": "3b0000000100000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-029",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-ladder-min-safe-integer"
+      },
+      "observed": {
+        "encodedHex": "3b001ffffffffffffe",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-030",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-action-time-timestamp"
+      },
+      "observed": {
+        "encodedHex": "1b0000019ff1610b3d",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-031",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-grant-expires-at-in-map"
+      },
+      "observed": {
+        "encodedHex": "a1696578706972657341741b000001a2ce84263d",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-032",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-above-safe-range-stays-float64"
+      },
+      "observed": {
+        "encodedHex": "fb4340000000000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-033",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-far-above-safe-range-stays-float64"
+      },
+      "observed": {
+        "encodedHex": "fb444b1ae4d6e2ef50",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-034",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "int-near-boundary-non-integer-stays-float64"
+      },
+      "observed": {
+        "encodedHex": "fb41f0000000080000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-035",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "float-double-1.5"
+      },
+      "observed": {
+        "encodedHex": "fb3ff8000000000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-036",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/cbor-det-v1.json",
+        "name": "float-zero-half"
+      },
+      "observed": {
+        "encodedHex": "fb3fe0000000000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-037",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "first-float64-value"
+      },
+      "observed": {
+        "canonicalHex": "1b0000000100000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-038",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "first-float64-value-plus-one"
+      },
+      "observed": {
+        "canonicalHex": "1b0000000100000001",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-039",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "max-safe-integer"
+      },
+      "observed": {
+        "canonicalHex": "1b001fffffffffffff",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-040",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "negative-past-the-4-byte-head"
+      },
+      "observed": {
+        "canonicalHex": "3b0000000100000000",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-041",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "min-safe-integer"
+      },
+      "observed": {
+        "canonicalHex": "3b001ffffffffffffe",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-042",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "action-time-timestamp"
+      },
+      "observed": {
+        "canonicalHex": "1b0000019ff1610b3d",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-043",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "grant-expires-at-timestamp"
+      },
+      "observed": {
+        "canonicalHex": "1b000001a2ce84263d",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-044",
+      "requirement": "SDX-A-01",
+      "origin": "sdx-published",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/cbor-det-v1/historical-float64-decode.json",
+        "name": "round-timestamp-in-a-map"
+      },
+      "observed": {
+        "canonicalHex": "a16474696d651b0000018bcfe56800",
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "VA-ENC-101",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 4"
+      },
+      "description": "A tagged item (tag 0).",
+      "input": {
+        "hex": "c074323031332d30332d32315432303a30343a30305a"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "tag"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "tag"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-102",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 4"
+      },
+      "description": "Tag 24 around an embedded data item.",
+      "input": {
+        "hex": "d818456449455446"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "tag"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "tag"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-103",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 5"
+      },
+      "description": "An indefinite-length array.",
+      "input": {
+        "hex": "9f0102ff"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "indefinite-length"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "indefinite-length"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-104",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 5"
+      },
+      "description": "An indefinite-length byte string.",
+      "input": {
+        "hex": "5f42010243030405ff"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "indefinite-length"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "indefinite-length"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-105",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 5"
+      },
+      "description": "An indefinite-length map.",
+      "input": {
+        "hex": "bf616101ff"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "indefinite-length"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "indefinite-length"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-106",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (a decoder MAY accept a non-shortest head)"
+      },
+      "description": "Integer 1 with a one-byte argument head. ENV §3 lets a decoder accept it (MAY).",
+      "input": {
+        "hex": "1801"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "01"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-107",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (a decoder MAY accept a non-shortest head)"
+      },
+      "description": "Integer 23 with an eight-byte argument head. ENV §3 lets a decoder accept it (MAY).",
+      "input": {
+        "hex": "1b0000000000000017"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "17"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-108",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent)"
+      },
+      "description": "A map whose keys are not in bytewise order. ENV §3 states no decoder rule for it.",
+      "input": {
+        "hex": "a2616201616102"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "a2616102616201"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-109",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent); RFC 8949 §5.6"
+      },
+      "description": "A map that carries the same key twice: well-formed, but not valid CBOR (RFC 8949 §5.6). ENV §3 states no decoder rule for it.",
+      "input": {
+        "hex": "a2616101616102"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "duplicate-key"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "duplicate-key"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-110",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 3 (encoder only)"
+      },
+      "description": "Unsigned integer 2^53, outside the value domain. ENV §3 rule 3 binds the encoder; it states no decoder rule.",
+      "input": {
+        "hex": "1b0020000000000000"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "integer-out-of-domain"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "integer-out-of-domain"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-111",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 3 (encoder only)"
+      },
+      "description": "Negative integer -(2^53) - 1, outside the value domain. ENV §3 rule 3 binds the encoder; it states no decoder rule.",
+      "input": {
+        "hex": "3b0020000000000000"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "integer-out-of-domain"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "integer-out-of-domain"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-112",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent); VEC historical-float64-decode covers integers above 2^32 only"
+      },
+      "description": "binary64 5.0, an integer written as a float.",
+      "input": {
+        "hex": "fb4014000000000000"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "05"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-113",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent)"
+      },
+      "description": "binary16 1.5.",
+      "input": {
+        "hex": "f93e00"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "fb3ff8000000000000"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-114",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent)"
+      },
+      "description": "binary32 1.5.",
+      "input": {
+        "hex": "fa3fc00000"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "fb3ff8000000000000"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-115",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent); not pinned by cbor-det-v1"
+      },
+      "description": "binary64 -0.0. The re-encoding as integer 0 is a laboratory interpretation: the published vectors do not pin -0 (decision cbor-det-v1-profile).",
+      "input": {
+        "hex": "fb8000000000000000"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "00"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-116",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (absent-value table)"
+      },
+      "description": "undefined as a whole value, which ENV §3 preserves as CBOR undefined.",
+      "input": {
+        "hex": "f7"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "f7"
+      },
+      "informative": {
+        "strict": {
+          "result": "ACCEPT",
+          "canonicalHex": "f7"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-117",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 9 (encoder only)"
+      },
+      "description": "undefined as a map member, which the encoder elides. ENV §3 states no decoder rule for it.",
+      "input": {
+        "hex": "a16161f7"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "a0"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-118",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (absent-value table, encoder only)"
+      },
+      "description": "undefined as an array element, which the encoder writes as null. ENV §3 states no decoder rule for it.",
+      "input": {
+        "hex": "81f7"
+      },
+      "expected": {
+        "result": "ACCEPT",
+        "canonicalHex": "81f6"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "non-deterministic"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-119",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent); RFC 8949 §5.3.1"
+      },
+      "description": "A text string that is not valid UTF-8: well-formed, but not valid CBOR (RFC 8949 §5.3.1). ENV §3 states no decoder rule for it.",
+      "input": {
+        "hex": "62c328"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "invalid-utf8"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "invalid-utf8"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-120",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "RFC 8949 §3 and Appendix F (not well-formed): too much data"
+      },
+      "description": "Two top-level items where one data item is expected.",
+      "input": {
+        "hex": "0000"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "trailing-bytes"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "trailing-bytes"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-121",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "RFC 8949 §3 and Appendix F (not well-formed); RFC 8949 §3.3"
+      },
+      "description": "A two-byte simple value below 32.",
+      "input": {
+        "hex": "f818"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "not-well-formed"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "not-well-formed"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-122",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent); RFC 8949 §3.3"
+      },
+      "description": "Simple value 32: well-formed and unassigned. Refusing it is a laboratory choice.",
+      "input": {
+        "hex": "f820"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "simple-value"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "simple-value"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-123",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "labChoice",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (silent); RFC 8949 §3.3"
+      },
+      "description": "Simple value 0: well-formed and unassigned. Refusing it is a laboratory choice.",
+      "input": {
+        "hex": "e0"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "simple-value"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "simple-value"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-124",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "RFC 8949 §3 and Appendix F (not well-formed)"
+      },
+      "description": "Reserved additional information 28.",
+      "input": {
+        "hex": "1c"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "not-well-formed"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "not-well-formed"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-125",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "RFC 8949 §3 and Appendix F (not well-formed)"
+      },
+      "description": "A break outside an indefinite-length item.",
+      "input": {
+        "hex": "ff"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "not-well-formed"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "not-well-formed"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-126",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "decode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "RFC 8949 §3 and Appendix F (not well-formed): not enough data"
+      },
+      "description": "A byte string whose declared length exceeds the input.",
+      "input": {
+        "hex": "5a0000000501"
+      },
+      "expected": {
+        "result": "REJECT",
+        "reason": "truncated"
+      },
+      "informative": {
+        "strict": {
+          "result": "REJECT",
+          "reason": "truncated"
+        }
+      }
+    },
+    {
+      "id": "VA-ENC-201",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 7"
+      },
+      "description": "A timestamp: integer milliseconds since the Unix epoch, untagged.",
+      "input": {
+        "kind": "timestamp",
+        "ms": 1786461096765
+      },
+      "expected": {
+        "encodedHex": "1b0000019ff1610b3d"
+      }
+    },
+    {
+      "id": "VA-ENC-202",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 9"
+      },
+      "description": "A map with an absent member and a null member: the absent one is elided and the null one kept.",
+      "input": {
+        "kind": "object",
+        "fields": {
+          "a": {
+            "kind": "absent"
+          },
+          "b": {
+            "kind": "value",
+            "value": null
+          }
+        }
+      },
+      "expected": {
+        "encodedHex": "a16162f6"
+      }
+    },
+    {
+      "id": "VA-ENC-203",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (absent-value table)"
+      },
+      "description": "An array whose first element is absent: it is written as null.",
+      "input": {
+        "kind": "array",
+        "items": [
+          {
+            "kind": "absent"
+          },
+          {
+            "kind": "value",
+            "value": null
+          }
+        ]
+      },
+      "expected": {
+        "encodedHex": "82f6f6"
+      }
+    },
+    {
+      "id": "VA-ENC-204",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 (absent-value table)"
+      },
+      "description": "An absent whole value: CBOR undefined.",
+      "input": {
+        "kind": "absent"
+      },
+      "expected": {
+        "encodedHex": "f7"
+      }
+    },
+    {
+      "id": "VA-ENC-205",
+      "requirement": "SDX-A-01",
+      "origin": "lab-derived",
+      "direction": "encode",
+      "basis": "required",
+      "source": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3 rule 6"
+      },
+      "description": "A set of three members: an array sorted by the members' encodings.",
+      "input": {
+        "kind": "set",
+        "items": [
+          {
+            "kind": "value",
+            "value": "b"
+          },
+          {
+            "kind": "value",
+            "value": 1
+          },
+          {
+            "kind": "value",
+            "value": "a"
+          }
+        ]
+      },
+      "expected": {
+        "encodedHex": "830161616162"
+      }
+    }
+  ]
+}

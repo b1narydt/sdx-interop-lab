@@ -1,0 +1,1838 @@
+{
+  "schema": "tpnil-sdx-source-coverage@0.1.0",
+  "program": "sdx-data-sharing@0.1.0",
+  "source": {
+    "edition": "SDX Protocol specification v0.1, dated 2026-07-17, revised 2026-09-01; keys, envelope and anchoring ratified 2026-09-01",
+    "textIndex": "fixtures/sdx/v1/standards/text/index.json",
+    "texts": [
+      {
+        "text": "BASE",
+        "path": "fixtures/sdx/v1/standards/text/base.md",
+        "sha256": "f125f70bc18513632688b0adecec21a80184106d9995fc1223471b2e93208d43"
+      },
+      {
+        "text": "KEYS",
+        "path": "fixtures/sdx/v1/standards/text/keys.md",
+        "sha256": "a954f9405fe0a53b1366725ab9b0a23b2cd3426a8858739b8ffd2ce4c7a898ac"
+      },
+      {
+        "text": "ENV",
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "sha256": "00539ab7d1590f991b15034cc04f9ea7cdb47c40545b8259b270f49e008c3022"
+      },
+      {
+        "text": "ANC",
+        "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+        "sha256": "27dedc4c4ca70834e0798ea1cd68e2210a70baa32979ee56fa0005adccb149cc"
+      },
+      {
+        "text": "VEC",
+        "path": "fixtures/sdx/v1/standards/text/vectors.md",
+        "sha256": "f2b492a42f0b224538c2af025082beaa1be494e04ed7cb21f78f072668c9db49"
+      }
+    ]
+  },
+  "identifierPolicy": "Entry IDs are TPNIL locators for SDX v0.1 sections, enumerated items and published suites; they are not new normative requirements. Line ranges refer to the pinned snapshot files.",
+  "coveragePolicy": {
+    "covered": "Requirement rows address every normative obligation of the entry, and authored or SDX-published cases exercise each of them.",
+    "partial": "Authored or SDX-published cases exercise some obligations of the entry; gap lists the rest and says which of them a planned row addresses.",
+    "planned": "Requirement rows address the entry, but no authored or SDX-published case exercises it yet.",
+    "blocked-unpublished-vectors": "No row addresses the entry and no authored case exercises it, and SDX assigns it to a vector suite or interface contract it has not published.",
+    "uncovered": "No requirement row addresses the entry and no case exercises it.",
+    "fields": "`requirements` lists the rows that address the entry, whether a case exercises them or they are only planned. `cases` lists the suites whose authored or SDX-published cases exercise the entry; a companion suite (PROPOSED) is named only where it pins SDX bytes. `readings` names the laboratory interpretations that rest on the entry, and `sourceFindings` states where the pinned text is unspecified or contradicts itself, against its clauses, with what the laboratory does about it.",
+    "scope": "Coverage describes requirement design for SDX v0.1 only. No row has been executed against a SUT, and no pair of implementations has been run against each other. Companion rows are PROPOSED and are cited only where they extend an entry. BASE §1, §2, §7 and §8 and KEYS §1.1 and §1.2 introduce, define terms, govern or version the specification, and carry no entry."
+  },
+  "completeConformance": false,
+  "executed": {
+    "state": "laboratory self-test runs only",
+    "claim": "LAB_SELF_TEST_ONLY",
+    "runs": [
+      "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/record.json"
+    ],
+    "statement": "Two SDX v0.1 implementations, sdx-v01 and sdx-go, ran through the driver contract in run 2026-11-15-r1, in two repetitions with matching projections. Neither came through intake, the run scores no requirement row, and it is not a conformance result. The figures below are case outcomes of that run.",
+    "byRequirement": {
+      "SDX-A-01": "Not executed against an implementation: driver contract 0.1.0 has no deterministic-encoding operation, so VA-ENC runs only against the laboratory checkers. Every VA-ENC case is BLOCKED in the run.",
+      "SDX-A-02": "VA-SIG ran through both implementations: sdx-go 32 PASS, sdx-v01 31 PASS and 1 INCONCLUSIVE (the INCONCLUSIVE case is the labChoice VA-SIG-025). Each implementation's VA-SIG-001 record was verified by both implementations (VA-SIG-002, VA-SIG-003), all PASS.",
+      "SDX-A-03": "VA-ENV ran through both implementations: sdx-go 93 PASS and 2 INCONCLUSIVE, sdx-v01 90 PASS, 3 BLOCKED and 2 NOT_APPLICABLE. Every fromWrite read passed in all four cells of the matrix where the writer offers the write.",
+      "SDX-A-04": "The self-recipient and writer-only recovery reads (VA-ENV-002, -007, -010, -013, -016, VA-SIG-002) passed for both implementations on the laboratory envelopes and on every envelope either implementation wrote.",
+      "SDX-A-05": "No suite; not executed.",
+      "SDX-A-06": "No suite; not executed.",
+      "SDX-A-07": "Not executed against an implementation: driver contract 0.1.0 has no anchoring or chain-walk operation. Every VA-ANC case is BLOCKED in the run.",
+      "SDX-A-08": "VA-KEY ran through both implementations: sdx-go 69 PASS, sdx-v01 54 PASS, 1 FAIL, 1 INCONCLUSIVE and 13 BLOCKED. sdx-v01 holds its keys in a wallet module and was compared under the contract's contained-keys rule; its FAIL is VA-KEY-050, and its BLOCKED cases are the optional offset hook and the secp256k1 symmetric key, which it does not offer.",
+      "SDX-A-09": "VA-ADM ran through both implementations: sdx-go 51 PASS, sdx-v01 21 PASS, 7 FAIL and 23 BLOCKED. sdx-v01's FAILs are the ANC §11.6 side-channel cases; its BLOCKED cases need the per-topic index, which it does not have."
+    },
+    "companionRows": "Not executed through the driver contract. The module suites are replayed by the reference module's own tests only."
+  },
+  "entries": [
+    {
+      "id": "BASE-3.1",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "31-data-envelope-and-wire-format",
+      "startLine": 94,
+      "endLine": 123,
+      "title": "Data envelope and wire format",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-01"
+      ],
+      "cases": [
+        "VA-ENC"
+      ],
+      "gap": "Deterministic encoding is exercised by VA-ENC (SDX-A-01). The explicit record version, the fixed recorded-action shape and replay by a party that did not originate the action have no row."
+    },
+    {
+      "id": "BASE-3.2",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "32-addressing-and-discovery",
+      "startLine": 124,
+      "endLine": 146,
+      "title": "Addressing and discovery",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row. The overlay-binding suite named by BASE §6 item 6 is unpublished; see ANC §10 to §14. A laboratory admission and index suite on v0.1 envelopes is planned and has no row yet."
+    },
+    {
+      "id": "BASE-3.3",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "33-encryption-principles",
+      "startLine": 147,
+      "endLine": 176,
+      "title": "Encryption principles",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-06",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-KEY"
+      ],
+      "gap": "VA-ENV exercises per-field independent encryption with per-field recipient lists and field-scoped access, in-record placement descriptors and the per-field slots signed within the audit layer (SDX-A-03); VA-KEY exercises five-level derivation on both curves (SDX-A-08). Epoch transitions (SDX-A-06) have no case, and the per-field commitment for externalised fields waits for the unpublished placement suite.",
+      "sourceFindings": [
+        "BASE §3.3 (PROV-2) describes content-derived field keys as the construction, while ENV §4 makes them opt-in per field and off by default. No row depends on it."
+      ]
+    },
+    {
+      "id": "BASE-3.4",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "34-anchoring-to-the-public-audit-layer",
+      "startLine": 177,
+      "endLine": 196,
+      "title": "Anchoring to the public audit layer",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "VA-ANC exercises chained, ordered anchoring, independently verifiable proofs, a reference that carries its proof (in a laboratory encoding) and per-action commitment keys (SDX-A-07). Field commitments in the anchor have no case. PROV-1 leaves the settlement layer's naming pending technical review."
+    },
+    {
+      "id": "BASE-3.5",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "35-verification-and-replay-semantics",
+      "startLine": 197,
+      "endLine": 216,
+      "title": "Verification and replay semantics",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No Phase A row asserts identical state from the same ordered log, drift detection, method versions or cutover actions."
+    },
+    {
+      "id": "BASE-3.6",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "36-identity-and-delegation",
+      "startLine": 217,
+      "endLine": 244,
+      "title": "Identity and delegation",
+      "kind": "normative-section",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05"
+      ],
+      "cases": [],
+      "gap": "Pinned-key verification, scope and revocation are a planned row (SDX-A-05, VA-GRANT not yet authored). Time bounds, anchoring of delegation and revocation actions, and the optional DID and credential bindings have no row."
+    },
+    {
+      "id": "BASE-4",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "4-register-and-discovery-standard",
+      "startLine": 245,
+      "endLine": 261,
+      "title": "Register and discovery standard",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row. v0.1 specifies the register as a concept with no lookup service."
+    },
+    {
+      "id": "BASE-5",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "5-reference-implementation",
+      "startLine": 262,
+      "endLine": 284,
+      "title": "Reference implementation",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Its rules permit reuse and any topology, and forbid depending on the reference implementation to claim conformance. That rule concerns claims rather than observable behaviour; the program applies it through independent oracles and equal admission criteria, and no row asserts it of an implementation."
+    },
+    {
+      "id": "BASE-6.1",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 291,
+      "endLine": 291,
+      "title": "Deterministic canonical encoding of records",
+      "kind": "conformance-item",
+      "coverage": "covered",
+      "requirements": [
+        "SDX-A-01"
+      ],
+      "cases": [
+        "VA-ENC"
+      ],
+      "sdxSuite": "cbor-det-v1",
+      "note": "SDX publishes cbor-det-v1 (36 vectors) and the decode-tolerance suite historical-float64-decode (8 vectors); VA-ENC passes both and adds decoder cases. Where ENV §3 and the published vectors differ, VA-ENC follows the vectors as VEC directs."
+    },
+    {
+      "id": "BASE-6.2",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 292,
+      "endLine": 292,
+      "title": "The versioned typed-tier envelope and recorded-action shape",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-04"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "docv2-envelope is unpublished. VA-ENV and VA-SIG exercise the v0.1 envelope under the laboratory profile: the wire structure, every tier, the audit layer and header, signatures and the refusal corpus (SDX-A-02, SDX-A-03, SDX-A-04). The recorded-action shape beyond the envelope (BASE §3.1) has no row, and no implementation pair has run.",
+      "sdxSuite": "docv2-envelope"
+    },
+    {
+      "id": "BASE-6.3",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 293,
+      "endLine": 293,
+      "title": "Five-level, dual-curve key derivation",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VC-P256",
+        "VC-SDX-K1",
+        "VA-KEY",
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "dual-curve is unpublished. VA-KEY pins KEYS §1.12 items 1-3 and 5-11 under the laboratory profile on both curves (SDX-A-08), VA-SIG item 4, and VA-ENV and VA-SIG the P-256 signing and recipient keys of real records; VA-ANC exercises secp256k1 commitment keys. Enclave equivalence (KEYS §1.4.4) has no case.",
+      "readings": [
+        "R1-ACTION-KEYWORD (fixtures/sdx/v1/deployment-profile.json): one level-3 keyword, `action`, in every record-level key path on both curves.",
+        "Scalar rejection: a derivation offset of 0 or at least n fails and is never reduced. A reading of the self-contradictory KEYS §1.8.2."
+      ],
+      "sdxSuite": "dual-curve"
+    },
+    {
+      "id": "BASE-6.4",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 294,
+      "endLine": 294,
+      "title": "Correct resolution of the per-field placement descriptor",
+      "kind": "conformance-item",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; placement is unpublished.",
+      "sdxSuite": "placement"
+    },
+    {
+      "id": "BASE-6.5",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 295,
+      "endLine": 295,
+      "title": "Chained, ordered anchoring with independently verifiable proofs",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "utxo-chaining is unpublished. VA-ANC supplies a TPNIL oracle for SDX-A-07: the ANC §6.1 check of a reference in a laboratory encoding, and the ANC §7.1 walk with the ANC §6.2 integrity check over stand-in records under the laboratory profile. Write ordering and write outcomes (ANC §5), replay determinism and reorganisation (ANC §7.3, §7.4) and rotation (ANC §4.3) have no case.",
+      "readings": [
+        "VA-ANC walk readings: the walk halts at the first dead-lettered action; an entry of the chain that no walk reaches is reported `chain-break-timeout`; when no output matches, `key-missing` and then `decode-fail` take precedence over `integrity-fail`; a failure ANC §7.5 names no reason for is the class `unlisted` (VA-ANC decisions walk-halts, unlinked-entries, no-match-reason, dead-letter-classes)."
+      ],
+      "sdxSuite": "utxo-chaining"
+    },
+    {
+      "id": "BASE-6.6",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 296,
+      "endLine": 296,
+      "title": "Overlay-based addressing, admission, and discovery",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ADM"
+      ],
+      "gap": "overlay-binding is unpublished. VA-ADM, a laboratory stand-in, exercises topic naming, admission and the per-topic index (ANC §10-§12; SDX-A-09). Discovery (ANC §13) and access control (ANC §14) have no case.",
+      "sdxSuite": "overlay-binding",
+      "sourceFindings": [
+        "ANC §11.1 has the admission gate compare `proto` with \"the fixed value for this specification\", while ENV §2 makes the format identifier a deployment-profile parameter and calls `sdx:record:v1` non-normative. The laboratory gate compares with the profile's format identifier (reading).",
+        "ANC §11.1 says the keyless gate is exactly the set the reader will attempt to decode, so that a node does not admit records the reader will dead-letter, while ENV §14 step 3 refuses public-slot faults (for example a slot with neither value nor marker) before any unwrap and the gate does not look at public slots. VA-ADM admits such a record and VA-ENV refuses it; the laboratory readers apply exactly the gate's checks as their format checks."
+      ]
+    },
+    {
+      "id": "BASE-6.7",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 297,
+      "endLine": 297,
+      "title": "Cross-domain references that carry their own proof",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "cross-domain-refs is unpublished. VA-ANC exercises the ANC §6.1 check of one reference in a laboratory encoding, including the honest-citation guard; how a reference travels inside a record has no case.",
+      "sourceFindings": [
+        "The ENV §6.1 header carries `refs: [ReadRef]` and `responseTo: [ResponseRef]`, and the pinned text defines neither type. VA-ANC carries a reference in its own laboratory map and checks it as ANC §6.1 describes."
+      ],
+      "sdxSuite": "cross-domain-refs"
+    },
+    {
+      "id": "BASE-6.8",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 298,
+      "endLine": 298,
+      "title": "Deterministic replay and drift detection",
+      "kind": "conformance-item",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Behavioural item with no Phase A row; see BASE-3.5."
+    },
+    {
+      "id": "BASE-6.9",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 299,
+      "endLine": 299,
+      "title": "Local delegation verification against a pinned key, with recorded revocation",
+      "kind": "conformance-item",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05"
+      ],
+      "cases": [],
+      "gap": "Behavioural item. SDX-A-05 (VA-GRANT, not yet authored) will cover pinned-key acceptance, scope, revocation and wrong-key refusal; the KEYS §2.15 demonstrations are not all asserted (see KEYS-2.15)."
+    },
+    {
+      "id": "BASE-6.10",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 300,
+      "endLine": 300,
+      "title": "Implementation of the published port contracts",
+      "kind": "conformance-item",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "The reader, writer and recorder port contracts are unpublished; /protocols/data-sharing/v0.1/interfaces returned HTTP 404 on retrieval (2026-11-11T05:08Z)."
+    },
+    {
+      "id": "BASE-6-interop",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "6-conformance",
+      "startLine": 304,
+      "endLine": 308,
+      "title": "Interoperability test",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VA-SIG",
+        "VA-ENV"
+      ],
+      "gap": "VA-ANC checks records against the verifier's own header source and roots, and VA-SIG and VA-ENV check signatures and decryption against the keys each record names (SDX-A-02, SDX-A-07). The laboratory driver contract (driver-contract.md) lets a harness run two implementations against each other in both directions; no pair has been run. Identical state from the same ordered log has no Phase A row. Anchoring to the same audit layer depends on the controlled network selected at promotion."
+    },
+    {
+      "id": "BASE-9",
+      "text": "BASE",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "anchor": "9-provisional-items-register",
+      "startLine": 349,
+      "endLine": 358,
+      "title": "Provisional-items register",
+      "kind": "provisional-register",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "PROV-1 to PROV-4 are pending technical review. Rows cite the pinned provisional text; a later SDX revision requires new snapshots."
+    },
+    {
+      "id": "KEYS-1.3",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "13-the-open-derivation-standard-this-profile-builds-on",
+      "startLine": 47,
+      "endLine": 73,
+      "title": "The open derivation standard this profile builds on",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VA-KEY"
+      ],
+      "gap": "VA-KEY checks the namespace grammar through profile conformance (KEYS §1.12 item 11) and refuses a key path longer than 1033 bytes; VA-ANC derives under the laboratory profile. The 1033-byte key-path limit exceeds the 800-byte key-ID limit of BRC-43 wallets.",
+      "readings": [
+        "R2-LAB-PROFILE (fixtures/sdx/v1/deployment-profile.json): every SDX suite is computed under the published laboratory profile tpnil-sdx-lab:v1."
+      ]
+    },
+    {
+      "id": "KEYS-1.3.1",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "131-the-derivation-profile-normative",
+      "startLine": 56,
+      "endLine": 73,
+      "title": "The derivation profile",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-KEY"
+      ],
+      "gap": "Every SDX suite is computed under the published laboratory profile tpnil-sdx-lab:v1, and VA-KEY checks profile conformance (KEYS §1.12 item 11) for it and for ten non-conforming variants. No case checks an implementation's publication of its own profile or its immutability; intake records each implementation's published profile (promotion).",
+      "readings": [
+        "R2-LAB-PROFILE (fixtures/sdx/v1/deployment-profile.json): every SDX suite is computed under the published laboratory profile tpnil-sdx-lab:v1."
+      ]
+    },
+    {
+      "id": "KEYS-1.4",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "14-root-keying-material-and-the-per-curve-split",
+      "startLine": 74,
+      "endLine": 134,
+      "title": "Root keying material and the per-curve split",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VC-P256",
+        "VC-SDX-K1",
+        "VA-KEY"
+      ],
+      "gap": "VA-KEY pins the KEYS §1.4.2 split for fifteen roots, refuses a 32-byte root and a found root whose P-256 seed is out of range (KEYS §1.4.1, §1.4.3); VA-ANC and the companion suites use the same split. Enclave equivalence (KEYS §1.4.4) has no case. dual-curve is unpublished."
+    },
+    {
+      "id": "KEYS-1.5",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "15-the-two-curves",
+      "startLine": 135,
+      "endLine": 158,
+      "title": "The two curves",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VA-ENV",
+        "VA-SIG",
+        "VA-KEY"
+      ],
+      "gap": "VA-SIG and VA-ENV exercise P-256 envelope signatures and recipient identifiers on real records, VA-KEY derivation on both curves, and VA-ANC secp256k1 commitment keys and spends."
+    },
+    {
+      "id": "KEYS-1.6",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "16-key-path-grammar-normative",
+      "startLine": 159,
+      "endLine": 229,
+      "title": "Key path grammar",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VA-KEY",
+        "VA-ENV"
+      ],
+      "gap": "VA-KEY exercises the five-level grammar under the laboratory profile: every registered purpose and both level-3 variants accepted, an unregistered purpose, a foreign keyword, an empty segment, an extra segment and an over-long path refused, and NFC normalisation; VA-ENV's writer refuses a field name with `/` or outside 1 to 256 bytes. The action-identifier rule of KEYS §1.6.3 is a producer obligation with no case.",
+      "readings": [
+        "R1-ACTION-KEYWORD (fixtures/sdx/v1/deployment-profile.json): one level-3 keyword, `action`, in every record-level key path on both curves."
+      ],
+      "sourceFindings": [
+        "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`, and ENV §8.5 and §8.6 write `record` in the same position of the key identifier. Both are example values, so either is a valid profile choice, but the pinned texts show different literals for one key path. The laboratory profile uses `action` on both curves (reading R1).",
+        "KEYS §1.6.2 gives no text form for `delId`, `sessionId` or `actorPubKey` inside a key path. The companion suites record their reading.",
+        "KEYS §1.6.2 names base58check for account and runtime identifiers without a version byte or checksum definition; identifiers are opaque to every derivation, so the laboratory's construction changes no derived value.",
+        "KEYS §1.6.1 defines a delegation level-3 variant. KEYS §1.12 item 10 lists the session variant, not the delegation variant, among the paths a validator must accept, and KEYS §2.14.1 takes the delegation derivation off the verification path. VA-KEY-050 expects a validator to accept the variant, on the grammar of §1.6.1. An implementation whose only validator is a derivation boundary that never derives the variant refuses it."
+      ]
+    },
+    {
+      "id": "KEYS-1.7",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "17-derivation-namespaces-normative",
+      "startLine": 230,
+      "endLine": 253,
+      "title": "Derivation namespaces",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VC-P256",
+        "VC-SDX-K1",
+        "VA-KEY",
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "VA-KEY refuses derivation under a namespace absent from the profile and, as a laboratory choice, under the reserved rotation namespace; VA-ENV and VA-SIG derive signing and recipient keys under distinct namespaces (ENV §8.6). Separation in the module direction is exercised by the companion suites (PROPOSED). The secp256k1 role KEYS assigns to the encryption namespace is not used by ENV §8.6 or §9."
+    },
+    {
+      "id": "KEYS-1.8",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "18-deriving-a-key",
+      "startLine": 254,
+      "endLine": 355,
+      "title": "Deriving a key",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-07",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VC-P256",
+        "VC-SDX-K1",
+        "VA-KEY",
+        "VA-SIG"
+      ],
+      "gap": "VA-KEY pins P-256 and secp256k1 derivation, the secp256k1 symmetric key, counterparty symmetry, a found P-256 scalar rejection and injected offsets on both curves (KEYS §1.12 item 7, through the optional hook); VA-SIG accepts a high-S signature and refuses a DER one (KEYS §1.8.3, `labChoice`).",
+      "readings": [
+        "Scalar rejection: a derivation offset of 0 or at least n fails and is never reduced. A reading of the self-contradictory KEYS §1.8.2."
+      ],
+      "sourceFindings": [
+        "KEYS §1.8.2 reduces the HMAC output modulo N and also requires the derivation to fail when the scalar is at least N, and it misstates the failure probability. The laboratory rejects an offset of 0 or at least N before any reduction (reading); KEYS §1.12 item 7 assumes the same order.",
+        "KEYS §1.8.4 says the runtime side and the actor side of a delegation each call derivePrivateKey and get the same key, and KEYS §2.14.1 repeats it. Under the KEYS §1.8.2 algorithm each side adds the offset to its own private key, so the two private keys differ; KEYS §1.12 item 5 states the property that holds (one side's derived public key equals the other side's derived private key's public key). The companion suites test the §1.12 item 5 form.",
+        "The KEYS §1.8.4 worked derivations use segment names and identifier lengths that differ from ENV §8.5 and KEYS §1.6.2.",
+        "KEYS §1.8.2 says a symmetric key is \"the resulting shared material\" without naming the bytes. The laboratory takes the 32-byte x-coordinate of the derived private key times the counterparty's derived public key, as BRC-2 and @bsv/sdk do (reading)."
+      ]
+    },
+    {
+      "id": "KEYS-1.9",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "19-the-derivation-registry",
+      "startLine": 356,
+      "endLine": 394,
+      "title": "The derivation registry",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row for registry contents, at-rest encryption or rebuilding after registry-key loss."
+    },
+    {
+      "id": "KEYS-1.10",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "110-epochs-and-rotation",
+      "startLine": 395,
+      "endLine": 489,
+      "title": "Epochs and rotation",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-06"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "VA-ANC's reader holds one root per epoch and halts with `key-missing` for an epoch it does not hold (KEYS §1.10.4, §1.10.5). Dual-signed rotation and old-root refusal (SDX-A-06) are a planned row; VA-ROT waits for a reading of the rotation format (source findings). The registry lifecycle and failure modes have no row.",
+      "sourceFindings": [
+        "KEYS §1.10.2 makes the rotation's payload signature the concatenation oldRootSig || newRootSig with a header flag `dualSigned`. ENV §6.1 names the header member `ds`, ENV §8.2 adds the rotation signer as a second JWS entry in `sigs`, and KEYS §1.10.3 step 5 binds each signature through its own `kid`. The texts fix no single wire form for the two signatures. The laboratory has no reading yet, and VA-ROT is written only after one is fixed.",
+        "KEYS §1.10.2 step 5 pins the rotation transaction's first input to the tip and its first output to the new identity, while ANC §2.3 says neither the consuming input nor the new output is pinned to a position. The VA-ANC walk locates both by derivation and does not depend on position."
+      ]
+    },
+    {
+      "id": "KEYS-1.11",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "111-security-considerations",
+      "startLine": 490,
+      "endLine": 522,
+      "title": "Security considerations",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Observer exposure, tree separation and implementation hazards are not asserted."
+    },
+    {
+      "id": "KEYS-1.12",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "112-conformance-vectors",
+      "startLine": 523,
+      "endLine": 542,
+      "title": "Conformance vectors",
+      "kind": "conformance-item",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-08"
+      ],
+      "cases": [
+        "VC-P256",
+        "VC-SDX-K1",
+        "VA-KEY",
+        "VA-SIG"
+      ],
+      "gap": "VA-KEY pins items 1-3 and 5-11 under the laboratory profile on both curves, with @bsv/sdk as the independent derivation implementation for item 2; VA-SIG exercises item 4 on record signatures, verified by jose in its generator. The injected offsets of item 7 travel through an optional hook. Each implementation also publishes its own known-answer tests under its own profile; TPNIL admits them as SUT evidence, not as an oracle. dual-curve is unpublished.",
+      "readings": [
+        "Scalar rejection: a derivation offset of 0 or at least n fails and is never reduced. A reading of the self-contradictory KEYS §1.8.2."
+      ],
+      "sourceFindings": [
+        "The scalar-rejection test of item 7 assumes the check runs before the KEYS §1.8.2 reduction (see KEYS-1.8).",
+        "Item 8 requires a key path's field name to be normalised to NFC before hashing, and KEYS §1.6.2 requires the name in NFC before it enters a key path. Neither says which layer normalises when keys are held apart from the code that builds paths. The companion module draft uses a path byte for byte (VC-P256 case key-path-nfd), so an implementation built on that module normalises where it builds the path."
+      ]
+    },
+    {
+      "id": "KEYS-2.1",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "21-model",
+      "startLine": 545,
+      "endLine": 570,
+      "title": "Model and terminology",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Defines the model and terms used by KEYS §2.3 to §2.15; no separate assertion."
+    },
+    {
+      "id": "KEYS-2.3",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "23-the-grant-normative",
+      "startLine": 571,
+      "endLine": 599,
+      "title": "The grant",
+      "kind": "normative-section",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05"
+      ],
+      "cases": [],
+      "gap": "Pinned grants are exercised. Grant field validation, the actorDid emission guard (KEYS §2.15 item 1) and expiry have no row."
+    },
+    {
+      "id": "KEYS-2.4",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "24-audit-layer-placement-of-the-system-actions-normative",
+      "startLine": 600,
+      "endLine": 612,
+      "title": "Audit-layer placement of the system actions",
+      "kind": "normative-section",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05",
+        "SDX-A-06"
+      ],
+      "cases": [],
+      "gap": "Grant, revocation and rotation actions are produced, but their placement rules are not asserted separately."
+    },
+    {
+      "id": "KEYS-2.5",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "25-scope-grammar-normative",
+      "startLine": 613,
+      "endLine": 628,
+      "title": "Scope grammar",
+      "kind": "normative-section",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05"
+      ],
+      "cases": [],
+      "gap": "Out-of-scope refusal is asserted. The scope grammar and the mixed-scope header rejection of KEYS §2.15 item 11 are not."
+    },
+    {
+      "id": "KEYS-2.6",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "26-revocation-normative",
+      "startLine": 629,
+      "endLine": 644,
+      "title": "Revocation",
+      "kind": "normative-section",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05"
+      ],
+      "cases": [],
+      "gap": "Refusal after revocation is asserted. The self-revocation carve-out of KEYS §2.15 item 8 is not."
+    },
+    {
+      "id": "KEYS-2.7",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "27-verification-normative",
+      "startLine": 645,
+      "endLine": 744,
+      "title": "Verification",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-05"
+      ],
+      "cases": [
+        "VA-SIG"
+      ],
+      "gap": "VA-SIG exercises the checks that need no grant: the root-scope binding of `hdr.pk` to the verifying signature and, for a root-holder, to the derived key (`root-pk-mismatch`); mixed scope; the delegate `dref` length; and exactly one verifying signature naming `hdr.pk` (`delegation-invalid`). The grant-dependent branches (unknown grant, revocation, expiry, scope, self-revocation), the time basis and backdating tolerance, ordering and DID non-consultation wait for VA-GRANT (SDX-A-05).",
+      "readings": [
+        "A delegate record's signature `kid` is the hex of `hdr.pk`, the raw pinned key (KEYS §2.7.2, §2.14.1), where ENV §8.5 asks for a derived key.",
+        "An empty `dref` on a root record counts as absent (KEYS §2.7.1; ENV §6.1)."
+      ],
+      "sourceFindings": [
+        "ENV §8.5 requires every signature's `kid` to be the hex of a per-record key derived from the signer's root. KEYS §2.7.2 and §2.14.1 have a delegate action signed by the raw key pinned in the grant, with `kid` equal to the hex of `hdr.pk` and no derivation. The laboratory follows KEYS for delegate records (reading).",
+        "ENV §6.1 lists `dref` as a header member of length 0 or 1, and KEYS §2.7.1 dead-letters a root action whose `dref` is present. The laboratory reads an empty `dref` on a root record as absent (reading)."
+      ]
+    },
+    {
+      "id": "KEYS-2.8",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "28-the-delegations-projection",
+      "startLine": 745,
+      "endLine": 773,
+      "title": "The delegations projection",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row for the projection reducer or its byte identity across erasure."
+    },
+    {
+      "id": "KEYS-2.9",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "29-lifecycle-and-the-rotation-consequence",
+      "startLine": 774,
+      "endLine": 794,
+      "title": "Lifecycle and the rotation consequence",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No Phase A row."
+    },
+    {
+      "id": "KEYS-2.10",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "210-grant-issuance",
+      "startLine": 795,
+      "endLine": 844,
+      "title": "Grant issuance",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row for supported DID methods, the issuance procedure or trust in the resolved document."
+    },
+    {
+      "id": "KEYS-2.11",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "211-the-mandate-credential-optional",
+      "startLine": 845,
+      "endLine": 884,
+      "title": "The mandate credential",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Optional credential with no row, including the seconds-based time fields of KEYS §2.15 item 12."
+    },
+    {
+      "id": "KEYS-2.12",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "212-pseudonymous-identity-on-the-audit-layer-and-erasability",
+      "startLine": 885,
+      "endLine": 962,
+      "title": "Pseudonymous identity on the audit layer, and erasability",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row for the audit-layer pseudonym, the identity-link store, two-tier attribution or erasure (KEYS §2.15 items 3 to 5)."
+    },
+    {
+      "id": "KEYS-2.13",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "213-actor-authority-and-its-limits",
+      "startLine": 963,
+      "endLine": 974,
+      "title": "Actor authority and its limits",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "KEYS-2.14",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "214-delegated-and-session-actor-keys",
+      "startLine": 975,
+      "endLine": 1019,
+      "title": "Delegated and session actor keys",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-05"
+      ],
+      "cases": [
+        "VA-SIG"
+      ],
+      "gap": "VA-SIG exercises delegate records signed by the raw pinned key, with `kid` the hex of `hdr.pk` (KEYS §2.14.1). Pinned-key dispatch against a grant (SDX-A-05) and short-lived session actors (KEYS §2.14.2) have no case.",
+      "readings": [
+        "A delegate record's signature `kid` is the hex of `hdr.pk`, the raw pinned key (KEYS §2.7.2, §2.14.1), where ENV §8.5 asks for a derived key."
+      ],
+      "sourceFindings": [
+        "See KEYS-2.7: the raw pinned key of KEYS §2.14.1 against the derived `kid` of ENV §8.5."
+      ]
+    },
+    {
+      "id": "KEYS-2.15",
+      "text": "KEYS",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "anchor": "215-conformance",
+      "startLine": 1020,
+      "endLine": 1035,
+      "title": "Conformance",
+      "kind": "conformance-item",
+      "coverage": "planned",
+      "requirements": [
+        "SDX-A-05"
+      ],
+      "cases": [],
+      "gap": "Of the twelve required demonstrations, SDX-A-05 addresses part of item 7 only."
+    },
+    {
+      "id": "ENV-1",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "1-model",
+      "startLine": 27,
+      "endLine": 46,
+      "title": "Model",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Defines layers, parties and terms; no separate assertion."
+    },
+    {
+      "id": "ENV-2",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "2-wire-structure",
+      "startLine": 47,
+      "endLine": 87,
+      "title": "Wire structure and the deployment profile",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03",
+        "SDX-A-04"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-ADM"
+      ],
+      "gap": "VA-ENV exercises the wire structure and refuses an envelope whose `proto` is not the configured format identifier, including the example `sdx:record:v1`; VA-ADM's gate ignores it. The laboratory publishes its deployment profile with its format identifier, protocol identifiers and key identifier grammar (ENV §2.1).",
+      "readings": [
+        "R2-LAB-PROFILE (fixtures/sdx/v1/deployment-profile.json): every SDX suite is computed under the published laboratory profile tpnil-sdx-lab:v1."
+      ],
+      "sourceFindings": [
+        "ENV §2 states no decoder rule for an envelope member outside {proto, pu, outer}. The laboratory does not judge such members before the unwrap, because ANC §11.1 makes the keyless gate the reader's pre-unwrap gate (`labChoice`)."
+      ]
+    },
+    {
+      "id": "ENV-3",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "3-the-deterministic-encoding-profile",
+      "startLine": 88,
+      "endLine": 116,
+      "title": "The deterministic encoding profile",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-01",
+        "SDX-A-02",
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENC",
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "VA-ENC exercises the encoder rules and the decoder rejection of tagged and indefinite-length items with the published suites. VA-ENV and VA-SIG check that a writer's envelope and audit layer are deterministic encodings, refuse tagged, indefinite-length and truncated envelopes, and verify signatures rebuilt under the current and the superseded integer shape. Each laboratory decoder case is tagged `required` or `labChoice`. The laboratory's depth and size bounds (ENV §17.6) are reported as ERROR, never FAIL.",
+      "readings": [
+        "VA-ENC readings: -0, NaN and ±Infinity encode as integer 0, fb7ff8000000000000 and binary64, which the published vectors do not pin; decoder outcomes ENV §3 leaves open are tagged `labChoice` and never fail an implementation (VA-ENC decisions cbor-det-v1-specials, outcomeTags)."
+      ],
+      "sourceFindings": [
+        "ENV §3 rule 3 has the encoder refuse integers outside the value domain, while the published vectors encode them, and every non-integer, as binary64. VA-ENC follows the vectors, as VEC directs.",
+        "ENV §3 states no decoder rule for duplicate map keys, invalid UTF-8, unassigned simple values, unsorted keys, floats or absent values inside a map or array. VA-ENC records the laboratory decoder's outcome for each as `labChoice`.",
+        "The published vectors do not pin -0, NaN or ±Infinity, and the published suite names cbor-x 1.6.4 as its source; the laboratory cross-checked these values against cbor-x 1.6.9 (reading).",
+        "ENV §3 cross-references §8.5 and §7.3 for rules that sit in §8.3 and §7.",
+        "ENV §9 writes the private plaintext as [value, filename?, mediaType?, meta?] and ENV §3 encodes an absent array element as null, so the text does not fix whether trailing absent elements are written. The laboratory writes the shortest array, with null for an absent element before the last present one, and readers accept 1 to 4 elements (reading)."
+      ]
+    },
+    {
+      "id": "ENV-4",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "4-content-derived-secrets",
+      "startLine": 117,
+      "endLine": 150,
+      "title": "Content-derived secrets",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV"
+      ],
+      "gap": "VA-ENV pins calculateSecrets with a literal known answer (the HMAC key s2, the message s1), refuses an iteration count below 200000, refuses `cv` on an audit field at the writer, and exercises both convergent slots of a `cv` record. The zero-PBKDF2 rule for records without `cv` is observable only inside an implementation and has no case. ENV §4 cites section 15.3 for the confirmation oracle of §17.3, and the PROV-2 prose of BASE §3.3 differs from this section.",
+      "sourceFindings": [
+        "ENV §9 calls the per-field key HMAC(s2, s1) \"exactly as the record-level derivation is over the audit layer's\", while ENV §5.2, §12 and §13 step 10 key the outer convergent slot with the record-level s1 itself. The laboratory keys the field slot with HMAC(s2, s1) and the outer slot with s1 (reading)."
+      ]
+    },
+    {
+      "id": "ENV-5",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "5-public-slots-and-the-outer-layer",
+      "startLine": 151,
+      "endLine": 215,
+      "title": "Public slots and the outer layer",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-04"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-ADM"
+      ],
+      "gap": "VA-ENV exercises public slots in-record and unset, the outer protected header exactly {enc, proto, aid} with iter and salt on a convergent record, each identity recipient's `epk` in its own header, the writer self-recipient, the convergent recipient, and the ENV §5.3 `aid` rules (missing, not text, mismatched). Externalised public slots wait for the placement suite.",
+      "sourceFindings": [
+        "ENV §9 calls the per-field key HMAC(s2, s1) \"exactly as the record-level derivation is over the audit layer's\", while ENV §5.2, §12 and §13 step 10 key the outer convergent slot with the record-level s1 itself. The laboratory keys the field slot with HMAC(s2, s1) and the outer slot with s1 (reading)."
+      ]
+    },
+    {
+      "id": "ENV-6",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "6-the-audit-layer",
+      "startLine": 216,
+      "endLine": 286,
+      "title": "The audit layer",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "VA-ENV exercises the closed audit-layer member set, header validation (`pks`, `pl`, field-name uniqueness), the `cv` rules 1, 2 and 4 to 9 (including convergent material without `cv`, which decodes) and audit slots set and unset. `refs` and `responseTo` have no case.",
+      "sourceFindings": [
+        "The header uses ReadRef and ResponseRef, which the pinned text does not define (see BASE-6.7).",
+        "The ENV §6.1 header has no member for the origin marker of ANC §4.1 or for the chain that ANC §6.1 says a header declares (see ANC-4, ANC-6).",
+        "ENV §6.1 names a decoder rule for `pks` and `pl` but not for `sn`, and ENV §8.1 refuses a slot that no descriptor names but says nothing of a descriptor with no slot. The laboratory refuses both (`labChoice`)."
+      ],
+      "readings": [
+        "R1-ACTION-KEYWORD (fixtures/sdx/v1/deployment-profile.json): one level-3 keyword, `action`, in every record-level key path on both curves."
+      ]
+    },
+    {
+      "id": "ENV-7",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "7-declared-but-unset",
+      "startLine": 287,
+      "endLine": 311,
+      "title": "Declared but unset",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV"
+      ],
+      "gap": "VA-ENV exercises the four marker rules on public, audit and private slots, the marker on an `ov` descriptor, an unset private field that never reaches the resolver, and the writer refusals of an unset private field placed off the envelope or carrying metadata. Evaluating rules against own and inherited members is an API concern with no interoperable vector."
+    },
+    {
+      "id": "ENV-8",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "8-private-slots-and-signatures",
+      "startLine": 312,
+      "endLine": 456,
+      "title": "Private slots and signatures",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "VA-SIG exercises ENV §8.2-§8.5: the detached form, both candidate shapes, fail-closed refusals, the signing key identifier and its re-derivation by a root-holder; VA-ENV exercises in-record private slot shapes (ENV §8.1) and recipient key identifiers (ENV §8.6), including the self-recipient first. One-time raw recipient keys (ENV §8.7) and externalised private slots have no case.",
+      "readings": [
+        "R1-ACTION-KEYWORD (fixtures/sdx/v1/deployment-profile.json): one level-3 keyword, `action`, in every record-level key path on both curves.",
+        "A delegate record's signature `kid` is the hex of `hdr.pk`, the raw pinned key (KEYS §2.7.2, §2.14.1), where ENV §8.5 asks for a derived key."
+      ],
+      "sourceFindings": [
+        "ENV §8.5 and §8.6 write `record` where KEYS writes `action` (see KEYS-1.6; reading R1).",
+        "ENV §8.5 asks for a derived `kid` on every signature, and KEYS §2.7.2 and §2.14.1 sign delegate actions with the raw pinned key (see KEYS-2.7).",
+        "The dual signature of a rotation record has two descriptions (see KEYS-1.10).",
+        "ENV §8.3 and ENV §14 step 8 refuse a record when no signature verifies under any candidate. Neither says whether a record that carries a failing signature beside a verifying one is accepted, or whether a record that is not dual-signed may carry more than one signature: ENV §8.2 emits one signature per signer and adds a second only on rotation. VA-SIG-019 expects acceptance and tags it `required` (decision one-signature-suffices). An independent implementation first read the text as refusing such a record, then followed the laboratory's reading. The outcome rests on reading the fail-closed rule as the only refusal; maintainers decide whether it is a laboratory choice."
+      ]
+    },
+    {
+      "id": "ENV-9",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "9-per-field-encryption",
+      "startLine": 457,
+      "endLine": 551,
+      "title": "Per-field encryption",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV"
+      ],
+      "gap": "VA-ENV exercises per-field JWEs with protected header {enc} (or {enc, iter, salt}), recipient lists per field, the LZMA step, writer-blind fields and rules 1, 2, 3 and 5 of ENV §9.1, including the decline precondition and a recipient-less JWE refused. Externalised private fields wait for the placement suite.",
+      "sourceFindings": [
+        "ENV §9 and §13 name LZMA, level 9 and a disabled end-of-stream marker but no container. The laboratory reads the .lzma \"alone\" container with the uncompressed size in the header and no marker (reading). Encoders also differ at \"level 9\" (LZMA-JS writes a 32 MiB dictionary, liblzma 64 MiB), so compressed bytes are encoder-specific: the write checks require no marker and compare decompressed bytes, never compressed ones.",
+        "ENV §9 writes the private plaintext as [value, filename?, mediaType?, meta?] and ENV §3 encodes an absent array element as null, so the text does not fix whether trailing absent elements are written. The laboratory writes the shortest array, with null for an absent element before the last present one, and readers accept 1 to 4 elements (reading).",
+        "ENV §9 calls the per-field key HMAC(s2, s1) \"exactly as the record-level derivation is over the audit layer's\", while ENV §5.2, §12 and §13 step 10 key the outer convergent slot with the record-level s1 itself. The laboratory keys the field slot with HMAC(s2, s1) and the outer slot with s1 (reading).",
+        "ENV §9 and ENV §14 step 10 name LZMA decompression without fixing how strict a decoder is. The LZMA specification marks a stream whose range coder does not start with a zero byte as corrupted: liblzma refuses it, and LZMA-JS decodes it to the same bytes. VA-ENV-093 corrupts that byte under a valid tag and tags the refusal `required`, with a `labChoice` class. The refusal rests on the LZMA specification, which SDX does not pin; until SDX pins a container and decoder, two conforming readers can split on such a record."
+      ]
+    },
+    {
+      "id": "ENV-10",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "10-externalised-value-bytes",
+      "startLine": 552,
+      "endLine": 567,
+      "title": "Externalised value bytes",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row for externalised bytes or decode-output manifests. The laboratory suites place every field in-record; externalised placement waits for SDX's unpublished placement suite (BASE §6 item 4), and the driver contract reserves the projection states `unavailable` and `erased` for it."
+    },
+    {
+      "id": "ENV-11",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "11-the-settlement-container",
+      "startLine": 568,
+      "endLine": 585,
+      "title": "The settlement container",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03",
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-ADM"
+      ],
+      "gap": "VA-ENV checks what an observer sees on a writer's envelope: `proto`, public slots, the outer protected header and each recipient's `epk` and identifier; VA-ADM carries real envelopes in ANC §2.1 containers. The raw-key provenance difference is not exercised (ENV §8.7)."
+    },
+    {
+      "id": "ENV-12",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "12-tiered-access",
+      "startLine": 586,
+      "endLine": 606,
+      "title": "Tiered access",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03",
+        "SDX-A-04"
+      ],
+      "cases": [
+        "VA-ENV"
+      ],
+      "gap": "VA-ENV exercises the Nothing, Audit and per-field tiers for the writer and three readers, self-replication from the root alone and the writer-blind bound. The convergent routes are checked on the writer's output (both slots open with the regenerated keys); no reader request takes them."
+    },
+    {
+      "id": "ENV-13",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "13-encode-flow",
+      "startLine": 607,
+      "endLine": 689,
+      "title": "Encode flow",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-01",
+        "SDX-A-02",
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "The write checks of VA-ENV and VA-SIG judge a writer's envelope against the encode flow, and VA-ENV's writer refusals cover the step 4 guards. Upload failure semantics need field placement and have no case.",
+      "sourceFindings": [
+        "ENV §9 and §13 name LZMA, level 9 and a disabled end-of-stream marker but no container. The laboratory reads the .lzma \"alone\" container with the uncompressed size in the header and no marker (reading). Encoders also differ at \"level 9\" (LZMA-JS writes a 32 MiB dictionary, liblzma 64 MiB), so compressed bytes are encoder-specific: the write checks require no marker and compare decompressed bytes, never compressed ones."
+      ]
+    },
+    {
+      "id": "ENV-14",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "14-decode-flow",
+      "startLine": 690,
+      "endLine": 767,
+      "title": "Decode flow",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "VA-ENV and VA-SIG exercise steps 1-11 for in-record fields, with refusals at each step. Resolution of externalised bytes (steps 3, 9 and 10) and the convergent route of step 4(a) have no case.",
+      "sourceFindings": [
+        "ENV §2 states no decoder rule for an envelope member outside {proto, pu, outer}. The laboratory does not judge such members before the unwrap, because ANC §11.1 makes the keyless gate the reader's pre-unwrap gate (`labChoice`)."
+      ]
+    },
+    {
+      "id": "ENV-15",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "15-decode-output-field-markers",
+      "startLine": 768,
+      "endLine": 790,
+      "title": "Decode-output field markers",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV"
+      ],
+      "gap": "VA-ENV exercises the redacted state, distinct from unset, and a decline that does not abort the decode (rules 1-3). The unavailable and erased states need field placement.",
+      "sourceFindings": [
+        "ENV §15 leaves the representation of the redacted, unavailable and erased markers to each implementation, while rules 5, 6, 8 and 9 turn on that representation (refusing values that encode as a marker, or plaintexts that resemble one). No interoperable vector can state such an input, so the laboratory reports markers as projection states and leaves those rules without a case."
+      ]
+    },
+    {
+      "id": "ENV-16",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "16-algorithm-identifiers",
+      "startLine": 791,
+      "endLine": 803,
+      "title": "Algorithm identifiers",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VC-P256",
+        "VA-ENV",
+        "VA-SIG"
+      ],
+      "gap": "VA-ENV and VA-SIG exercise A256GCM, A256GCMKW, ECDH-ES+A256KW and 64-byte ES256 in records; jose 6.2.17 opens every known-answer JWE and verifies every known-answer signature in the generator. The JOSE-implementation requirement itself is not vector-testable, and the laboratory's Node and Python oracles do the JOSE steps by hand."
+    },
+    {
+      "id": "ENV-17",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "17-security-considerations",
+      "startLine": 804,
+      "endLine": 863,
+      "title": "Security considerations",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-03"
+      ],
+      "cases": [
+        "VA-ENV"
+      ],
+      "gap": "VA-ENV exercises outer-wrap integrity (ENV §17.5: tampered ciphertext, tag, wrapped key and protected header) and the decoding of an earlier format generation's convergent material (ENV §17.7). The ENV §17.6 requirements on untrusted input are implementation properties; the laboratory's bounds are reported as ERROR, never FAIL."
+    },
+    {
+      "id": "ENV-18",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "18-open-questions",
+      "startLine": 864,
+      "endLine": 873,
+      "title": "Open questions",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Open questions; no requirement."
+    },
+    {
+      "id": "ENV-FP-1",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "1-scope",
+      "startLine": 876,
+      "endLine": 881,
+      "title": "Field placement: scope",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Scope statement; no separate assertion."
+    },
+    {
+      "id": "ENV-FP-2",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "2-the-three-placements",
+      "startLine": 882,
+      "endLine": 927,
+      "title": "Field placement: the three placements",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; the placement suite (BASE §6 item 4) is unpublished."
+    },
+    {
+      "id": "ENV-FP-3",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "3-the-integrity-manifest",
+      "startLine": 928,
+      "endLine": 960,
+      "title": "Field placement: the integrity manifest",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; the placement suite is unpublished."
+    },
+    {
+      "id": "ENV-FP-4",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "4-uri-schemes",
+      "startLine": 961,
+      "endLine": 987,
+      "title": "Field placement: URI schemes",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; the placement suite is unpublished."
+    },
+    {
+      "id": "ENV-FP-5",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "5-encode-side",
+      "startLine": 988,
+      "endLine": 1000,
+      "title": "Field placement: encode side",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; the placement suite is unpublished."
+    },
+    {
+      "id": "ENV-FP-6",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "6-decode-side",
+      "startLine": 1001,
+      "endLine": 1021,
+      "title": "Field placement: decode side",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; the placement suite is unpublished."
+    },
+    {
+      "id": "ENV-FP-7",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "7-availability-and-failure-handling",
+      "startLine": 1022,
+      "endLine": 1081,
+      "title": "Field placement: availability and failure handling",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ENV-FP-8",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "8-replay-and-retention",
+      "startLine": 1082,
+      "endLine": 1110,
+      "title": "Field placement: replay and retention",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ENV-FP-9",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "9-garbage-collection",
+      "startLine": 1111,
+      "endLine": 1120,
+      "title": "Field placement: garbage collection",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ENV-FP-10",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "10-placement-migration",
+      "startLine": 1121,
+      "endLine": 1126,
+      "title": "Field placement: placement migration",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ENV-FP-11",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "11-security-considerations",
+      "startLine": 1127,
+      "endLine": 1161,
+      "title": "Field placement: security considerations",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ENV-FP-12",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "12-examples",
+      "startLine": 1162,
+      "endLine": 1212,
+      "title": "Field placement: examples",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Examples; no requirement."
+    },
+    {
+      "id": "ENV-FP-13",
+      "text": "ENV",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "anchor": "13-open-questions",
+      "startLine": 1213,
+      "endLine": 1218,
+      "title": "Field placement: open questions",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Open questions; no requirement."
+    },
+    {
+      "id": "ANC-1",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "1-why-records-live-in-spendable-entries",
+      "startLine": 27,
+      "endLine": 39,
+      "title": "Why records live in spendable entries",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "VA-ANC exercises records carried in spendable entries and chained by spending. Per-action funding is a writer obligation and a fixture prerequisite."
+    },
+    {
+      "id": "ANC-2",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "2-the-chaining-container",
+      "startLine": 40,
+      "endLine": 74,
+      "title": "The chaining container",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07",
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VA-ADM"
+      ],
+      "gap": "VA-ANC exercises the container shape, the minimal push and one data field (ANC §2.1, §2.2), and locates the consuming input and the successor output by scanning, at varying positions (ANC §2.3); VA-ADM's gate applies the same shape to real envelopes. Oversized-record refusal has no case. The ANC §2.4 value floor is a writer obligation: every VA-ANC and VA-ADM entry carries the laboratory profile's floor, and no verifier check rests on it.",
+      "sourceFindings": [
+        "KEYS §1.10.2 step 5 pins a rotation transaction's first input and first output, while ANC §2.3 pins neither (see KEYS-1.10)."
+      ]
+    },
+    {
+      "id": "ANC-3",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "3-the-per-record-commitment-key",
+      "startLine": 75,
+      "endLine": 108,
+      "title": "The per-record commitment key",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07",
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ANC",
+        "VA-ADM"
+      ],
+      "gap": "VA-ANC derives every commitment key as ANC §3.1 states it, under the laboratory profile, and recomputes it in the ANC §6.2 check, with substitution, wrong-action and wrong-epoch cases. Delivery-scope keys of entries addressed to another party (ANC §3.4) appear only as a handoff entry that no reader derivation matches. Determinism (ANC §3.3) is shown by recomputation; no case submits a randomised key.",
+      "readings": [
+        "R1-ACTION-KEYWORD (fixtures/sdx/v1/deployment-profile.json): one level-3 keyword, `action`, in every record-level key path on both curves."
+      ]
+    },
+    {
+      "id": "ANC-4",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "4-chaining-rules",
+      "startLine": 109,
+      "endLine": 143,
+      "title": "Chaining rules",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "VA-ANC starts walks from a published origin outpoint and checks the origin's own derivation, with a forged and a competing origin (ANC §4.1), and dead-letters an action that consumes two tips and reports one that consumes none (ANC §4.2). Rotation (ANC §4.3) has no case: SDX-A-06 addresses the rotation action of KEYS §1.10, and the walk across a rotation has no row. The writer rules of ANC §4.2 (serialised writes, halting on two spendable tips) have no case.",
+      "sourceFindings": [
+        "ANC §4.1 places a distinguishing origin marker in the envelope header, and the ENV §6.1 header defines no such member; the pinned text gives the marker no bytes or position. VA-ANC reads no marker and follows the origin outpoint the operator publishes, as ANC §4.1 directs consumers to."
+      ]
+    },
+    {
+      "id": "ANC-5",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "5-writing-a-record",
+      "startLine": 144,
+      "endLine": 202,
+      "title": "Writing a record",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No Phase A row for write ordering, the three write outcomes, unproven-predecessor ancestry, header verification or proof acquisition."
+    },
+    {
+      "id": "ANC-6",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "6-verifying-a-record",
+      "startLine": 203,
+      "endLine": 251,
+      "title": "Verifying a record",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "VA-ANC exercises the ANC §6.1 check of a reference in a laboratory encoding, in step order, with the two causes of a step-3 failure kept apart (INCONCLUSIVE for a range the header source does not hold, refusal for a root that differs), and the honest-citation guard for recipients. It exercises the ANC §6.2 check as the participant's own reader. Dead-lettering the whole citing action across a set of references has no case; VA-ANC checks one reference at a time.",
+      "readings": [
+        "VA-ANC walk readings: the walk halts at the first dead-lettered action; an entry of the chain that no walk reaches is reported `chain-break-timeout`; when no output matches, `key-missing` and then `decode-fail` take precedence over `integrity-fail`; a failure ANC §7.5 names no reason for is the class `unlisted` (VA-ANC decisions walk-halts, unlinked-entries, no-match-reason, dead-letter-classes)."
+      ],
+      "sourceFindings": [
+        "ANC §6.1 has a recipient confirm that the referenced header \"declares the chain and action the citation claims\", and the ENV §6.1 header declares no chain. The VA-ANC guard compares the action only.",
+        "ANC §6.2 requires readers added as recipients by a consortium to perform the chain-integrity check. The commitment key is a self-derivation (ANC §3.1), so recomputing it needs the writer's root, which a recipient key does not give. As written, only the participant's own reader can perform the check; VA-ANC runs it that way."
+      ]
+    },
+    {
+      "id": "ANC-7",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "7-walking-the-chain-and-replay",
+      "startLine": 252,
+      "endLine": 298,
+      "title": "Walking the chain and replay",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "cases": [
+        "VA-ANC"
+      ],
+      "gap": "VA-ANC exercises the walk from an origin or from the last processed entry (ANC §7.1), spend order within one block (ANC §7.2) and dead-letter classes (ANC §7.5). Replay determinism (ANC §7.3) and reorganisation (ANC §7.4) have no case.",
+      "readings": [
+        "VA-ANC walk readings: the walk halts at the first dead-lettered action; an entry of the chain that no walk reaches is reported `chain-break-timeout`; when no output matches, `key-missing` and then `decode-fail` take precedence over `integrity-fail`; a failure ANC §7.5 names no reason for is the class `unlisted` (VA-ANC decisions walk-halts, unlinked-entries, no-match-reason, dead-letter-classes)."
+      ],
+      "sourceFindings": [
+        "ANC §7.5 says the fixed set of dead-letter reasons includes integrity-fail, decode-fail, key-missing, cross-ref-invalid and chain-break-timeout, and publishes no full list. VA-ANC compares outcomes by these classes and reports a failure the text names no reason for as `unlisted`."
+      ]
+    },
+    {
+      "id": "ANC-8",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "8-size-budget",
+      "startLine": 299,
+      "endLine": 311,
+      "title": "Size budget",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ANC-9",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "9-what-the-audit-layer-does-not-protect-against",
+      "startLine": 312,
+      "endLine": 325,
+      "title": "What the audit layer does not protect against",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "Stated limits; no requirement."
+    },
+    {
+      "id": "ANC-10",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "10-topics",
+      "startLine": 330,
+      "endLine": 357,
+      "title": "Topics",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ADM"
+      ],
+      "gap": "VA-ADM exercises the `tm_` topic names, per-topic independence of one submission (ANC §10.2) and the `ls_` index of each topic. Topic creation by operators (ANC §10.3) is an operator action with no case. overlay-binding is unpublished."
+    },
+    {
+      "id": "ANC-11",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "11-admission",
+      "startLine": 358,
+      "endLine": 467,
+      "title": "Admission",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ADM"
+      ],
+      "gap": "VA-ADM, a laboratory stand-in, exercises the keyless gate on real envelopes (§11.1), business rules that only narrow (§11.2), records the service must admit (§11.3), idempotent resubmission (§11.4), retention including the parse-failure path and cold-start backfill (§11.5), and every row of the §11.6 table. Authentication (§14) and the submitter-visible refusal of §11.6 (an open item of the text) have no case. overlay-binding is unpublished.",
+      "readings": [
+        "Retention is named on every path that returns, including a submission whose outputs fail to parse as records; a declined submission raises and returns nothing (VA-ADM reading)."
+      ],
+      "sourceFindings": [
+        "ANC §11.1 has the admission gate compare `proto` with \"the fixed value for this specification\", while ENV §2 makes the format identifier a deployment-profile parameter and calls `sdx:record:v1` non-normative. The laboratory gate compares with the profile's format identifier (reading).",
+        "ANC §11.1 says the keyless gate is exactly the set the reader will attempt to decode, so that a node does not admit records the reader will dead-letter, while ENV §14 step 3 refuses public-slot faults (for example a slot with neither value nor marker) before any unwrap and the gate does not look at public slots. VA-ADM admits such a record and VA-ENV refuses it; the laboratory readers apply exactly the gate's checks as their format checks.",
+        "ANC §11.6 does not say which public manifests count against the side-channel run. Only `overlay://` bytes ride the channel (ENV-FP §2.2, §2.3, §5 step 4), so the laboratory counts overlay manifests only (reading)."
+      ]
+    },
+    {
+      "id": "ANC-12",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "12-the-per-topic-index",
+      "startLine": 468,
+      "endLine": 560,
+      "title": "The per-topic index",
+      "kind": "normative-section",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-09"
+      ],
+      "cases": [
+        "VA-ADM"
+      ],
+      "gap": "VA-ADM exercises the index constants, admission order with consumed entries kept, the cursor, an explicit limit honoured verbatim, every §12.4 refusal (the index-fault rule through an optional hook) and point lookups, including an entry of another topic. The byte budget and the at-least-one-row rule of §12.3, proofs in answers (§12.6) and admission-time stamps have no case. overlay-binding is unpublished."
+    },
+    {
+      "id": "ANC-13",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "13-discovery",
+      "startLine": 561,
+      "endLine": 574,
+      "title": "Discovery",
+      "kind": "normative-section",
+      "coverage": "blocked-unpublished-vectors",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row; overlay-binding is unpublished."
+    },
+    {
+      "id": "ANC-14",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "14-access-control",
+      "startLine": 575,
+      "endLine": 615,
+      "title": "Access control",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ANC-15",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "15-deployment-profiles",
+      "startLine": 616,
+      "endLine": 629,
+      "title": "Deployment profiles",
+      "kind": "normative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No row."
+    },
+    {
+      "id": "ANC-16",
+      "text": "ANC",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "anchor": "16-security-considerations",
+      "startLine": 630,
+      "endLine": 644,
+      "title": "Security considerations",
+      "kind": "informative-section",
+      "coverage": "uncovered",
+      "requirements": [],
+      "cases": [],
+      "gap": "No requirement."
+    },
+    {
+      "id": "VEC-cbor-det-v1",
+      "text": "VEC",
+      "path": "fixtures/sdx/v1/standards/text/vectors.md",
+      "anchor": null,
+      "startLine": 23,
+      "endLine": 23,
+      "title": "Published suite cbor-det-v1",
+      "kind": "published-suite",
+      "coverage": "covered",
+      "requirements": [
+        "SDX-A-01"
+      ],
+      "cases": [
+        "VA-ENC"
+      ],
+      "sdxSuite": "cbor-det-v1",
+      "note": "Imported unchanged under fixtures/sdx/v1/standards/cbor-det-v1/."
+    },
+    {
+      "id": "VEC-historical-float64-decode",
+      "text": "VEC",
+      "path": "fixtures/sdx/v1/standards/text/vectors.md",
+      "anchor": null,
+      "startLine": 24,
+      "endLine": 24,
+      "title": "Published suite historical-float64-decode",
+      "kind": "published-suite",
+      "coverage": "partial",
+      "requirements": [
+        "SDX-A-01",
+        "SDX-A-02"
+      ],
+      "cases": [
+        "VA-ENC"
+      ],
+      "gap": "Decode tolerance has no Phase A assertion of its own; VA-ENC passes every vector. SDX-A-02 (planned) relies on it for records signed under the superseded integer shape (ENV §8.3), and building such a record also needs the superseded encoder, which the suite does not pin (see ENV-8).",
+      "sdxSuite": "historical-float64-decode",
+      "note": "Imported unchanged under fixtures/sdx/v1/standards/cbor-det-v1/."
+    }
+  ]
+}

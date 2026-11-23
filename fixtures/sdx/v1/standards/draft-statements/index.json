@@ -1,0 +1,27 @@
+{
+  "schema": "tpnil-sdx-draft-statement-index@0.1.0",
+  "status": "DRAFT_STATEMENT",
+  "contributor": "Binary Distributed Technologies Inc.",
+  "statementDate": "2026-11-18",
+  "adoption": "Not adopted by the SDX working group or by any standards body",
+  "license": "Apache-2.0",
+  "formatChanges": [
+    "YAML front matter removed",
+    "Links to package documents not reproduced in this directory rendered as plain text",
+    "TPNIL draft-statement header added"
+  ],
+  "statements": [
+    {
+      "id": "brc-draft-brc39-recipient-protector",
+      "title": "BRC draft: a recipient protector for BRC-39 wallet data files",
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-brc39-recipient-protector.md",
+      "sha256": "548b85a988ba7ecee1c17cabc115c41ea3c8b170249603cf5a728297465c2fe5"
+    },
+    {
+      "id": "brc-draft-sdx-module",
+      "title": "BRC draft: SDX account keys on both curves as a BRC-98 module",
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "sha256": "6592e21d94a301217880502f58f2de2bce5e2e7bb0f7480246ad6c545351559e"
+    }
+  ]
+}

@@ -1,0 +1,1034 @@
+{
+  "schema": "tpnil-sdx-vectors@0.1.0",
+  "suite": "VC-B39R",
+  "claim": "LAB_SELF_TEST_ONLY",
+  "status": "PROPOSED",
+  "title": "BRC-39 recipient protector (protector type 0x02) files and refusals",
+  "requirements": [
+    "B39R-01",
+    "B39R-02"
+  ],
+  "citations": [
+    {
+      "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-brc39-recipient-protector.md",
+      "clause": "§1, §3"
+    },
+    {
+      "path": "programs/proposals/sdx-data-sharing/0.1.0/profile.json",
+      "clause": "requirements B39R-01, B39R-02"
+    },
+    {
+      "brc": 39,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "outpoints/0039.md",
+      "gitBlob": "40b2f1d1c78686c5a4470898940d116738c3cf45",
+      "clause": "§5 File Layout, §6, §11, §14.3"
+    },
+    {
+      "brc": 78,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "peer-to-peer/0078.md",
+      "gitBlob": "8060ce0b5155377e12dc6ecdfa2ef045544e84dd",
+      "clause": "Specification"
+    },
+    {
+      "brc": 2,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "wallet/0002.md",
+      "gitBlob": "6e59dc9595038481c1d583f4e01d384dbdda9fd5",
+      "clause": "Specification"
+    },
+    {
+      "brc": 42,
+      "repository": "bsv-blockchain/BRCs",
+      "path": "key-derivation/0042.md",
+      "gitBlob": "5ac0c735f524ccdcd0c2b020a4be0b38981e68db",
+      "clause": "Specification"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D-B39R-VERSION",
+      "decision": "Protector type 0x02 files use Format Version 0x02.",
+      "basis": "brc-draft-brc39-recipient-protector.md §1 \"Format Version\": BRC-39 §14.3 lists protector type 2 as a file an importer must refuse under Format Version 0x01, so a version-1 importer refuses these files by their version, before it reads any new field."
+    },
+    {
+      "id": "D-B39R-LAYOUT",
+      "decision": "Byte layout (see \"layout\"): Magic, Format Version 0x02, Protector Type 0x02, Inner Format, KDF Type 0x00, Flags 0x00, Salt Length 0x00, Nonce Length 0x20, Argon2id Iterations, Memory, Parallelism and Hash Length all zero, 12 reserved zero bytes, Wrapped Key Length (u16 big-endian), Wrapped Key (BRC-78), no Salt, Nonce (32), CiphertextAndTag. The fixed header is 35 bytes; a 32-byte K wraps to 182 bytes, so a file is 249 bytes plus the inner payload.",
+      "basis": "brc-draft-brc39-recipient-protector.md §1 \"Header\" (offset table) and \"Sizes\"; BRC-39 §5 field order up to the reserved bytes."
+    },
+    {
+      "id": "D-B39R-AAD",
+      "decision": "The AES-256-GCM additional authenticated data is the header from Magic through the Wrapped Key (bytes 0 .. 35+L). The nonce is GCM's IV and is authenticated through the tag.",
+      "basis": "brc-draft-brc39-recipient-protector.md §1 \"Export\" step 2, \"Additional authenticated data\": bytes 0 up to 35+L."
+    },
+    {
+      "id": "D-B39R-ORDER",
+      "decision": "Import order: header validation before any unwrapping; the BRC-78 recipient must equal the importer identity key; BRC-78 unwrap (K must be 32 bytes); GCM; then the inner-format check. Each refusal reports its stage: header, recipient, unwrap, decrypt or inner.",
+      "basis": "brc-draft-brc39-recipient-protector.md §1 \"Import\" and §3."
+    },
+    {
+      "id": "D-B39R-INNER",
+      "decision": "Known inner formats: 0x26 (BRC-38 wallet data), checked as UTF-8 JSON with brc 38 and formatVersion 1. The SDX account package code is still to be assigned and has no vector; an unknown code is refused at the header.",
+      "basis": "brc-draft-brc39-recipient-protector.md §1 \"Import\" step 5, §2, §3; BRC-39 §6.4."
+    },
+    {
+      "id": "D-B39R-LENGTH",
+      "decision": "A Wrapped Key Length inside 1..1024 that does not match the BRC-78 message makes unwrapping fail, because the BRC-78 ciphertext then absorbs or loses bytes.",
+      "basis": "brc-draft-brc39-recipient-protector.md §3 (\"the unwrapped K is not exactly 32 bytes\"; \"the Wrapped Key Length does not match the length of the BRC-78 message. Unwrapping then fails.\"); BRC-78."
+    },
+    {
+      "id": "D-B39R-RANDOM",
+      "decision": "BRC-78 draws a random key ID and IV, so every file is decrypt-direction: generated once and frozen in components/sdx/b39r/frozen-random.json. K and the nonce are fixed laboratory values so the rest of each file reproduces.",
+      "basis": "BRC-78; BRC-2."
+    },
+    {
+      "id": "D-B39R-BRC100",
+      "decision": "Unwrapping K is reachable through BRC-100 decrypt with protocol [2, \"message encryption\"], key ID = base64 of the BRC-78 key ID and counterparty = the BRC-78 sender. VC-B39R-003 is a file whose wrapped key was written through BRC-100 encrypt.",
+      "basis": "brc-draft-brc39-recipient-protector.md open item 3 (resolved, citing VC-B39R-003); BRC-78; @bsv/sdk 4.0.1."
+    }
+  ],
+  "layout": [
+    {
+      "offset": 0,
+      "length": 4,
+      "field": "Magic",
+      "value": "57444154 (\"WDAT\")"
+    },
+    {
+      "offset": 4,
+      "length": 1,
+      "field": "Format Version",
+      "value": "02"
+    },
+    {
+      "offset": 5,
+      "length": 1,
+      "field": "Protector Type",
+      "value": "02 (recipient)"
+    },
+    {
+      "offset": 6,
+      "length": 1,
+      "field": "Inner Format",
+      "value": "26 (BRC-38); the SDX account package code is to be assigned"
+    },
+    {
+      "offset": 7,
+      "length": 1,
+      "field": "KDF Type",
+      "value": "00 (none)"
+    },
+    {
+      "offset": 8,
+      "length": 1,
+      "field": "Flags",
+      "value": "00"
+    },
+    {
+      "offset": 9,
+      "length": 1,
+      "field": "Salt Length",
+      "value": "00"
+    },
+    {
+      "offset": 10,
+      "length": 1,
+      "field": "Nonce Length",
+      "value": "20"
+    },
+    {
+      "offset": 11,
+      "length": 4,
+      "field": "Argon2id Iterations",
+      "value": "00000000"
+    },
+    {
+      "offset": 15,
+      "length": 4,
+      "field": "Argon2id Memory KiB",
+      "value": "00000000"
+    },
+    {
+      "offset": 19,
+      "length": 1,
+      "field": "Argon2id Parallelism",
+      "value": "00"
+    },
+    {
+      "offset": 20,
+      "length": 1,
+      "field": "Argon2id Hash Length",
+      "value": "00"
+    },
+    {
+      "offset": 21,
+      "length": 12,
+      "field": "Reserved",
+      "value": "zero"
+    },
+    {
+      "offset": 33,
+      "length": 2,
+      "field": "Wrapped Key Length L",
+      "value": "big-endian, 1..1024; 182 (00b6) for a 32-byte K"
+    },
+    {
+      "offset": 35,
+      "length": "L",
+      "field": "Wrapped Key",
+      "value": "BRC-78 message (42421033 ‖ sender 33 ‖ recipient 33 ‖ keyID 32 ‖ IV 32 ‖ AES-256-GCM(K) 32 ‖ tag 16) whose plaintext is the 32-byte content key K"
+    },
+    {
+      "offset": "35+L",
+      "length": 0,
+      "field": "Salt",
+      "value": "absent"
+    },
+    {
+      "offset": "35+L",
+      "length": 32,
+      "field": "Nonce",
+      "value": "random"
+    },
+    {
+      "offset": "67+L",
+      "length": "rest",
+      "field": "CiphertextAndTag",
+      "value": "AES-256-GCM(K, Nonce, AAD = bytes 0 .. 35+L, inner payload) followed by the 16-byte tag"
+    }
+  ],
+  "testKeys": {
+    "accountA": {
+      "curve": "secp256k1",
+      "privateKey": "47fff5ba7cfed35386a38793328e5a3009f50bc84099ecf42bc6b3181ad25259",
+      "publicKey": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+      "derivation": "KEYS §1.4.2 split: HKDF-SHA-256(ikm, salt \"\", info \"sdx-secp256k1\", L 32)",
+      "ikm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "info": "sdx-secp256k1",
+      "note": "public test key, not a secret, never funded"
+    },
+    "accountB": {
+      "curve": "secp256k1",
+      "privateKey": "ce6d4a113639615ae02cb546b3c0eab3f517a63638daf8725fb16536492953d8",
+      "publicKey": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+      "derivation": "KEYS §1.4.2 split: HKDF-SHA-256(ikm, salt \"\", info \"sdx-secp256k1\", L 32)",
+      "ikm": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+      "info": "sdx-secp256k1",
+      "note": "public test key, not a secret, never funded"
+    },
+    "partyM": {
+      "curve": "secp256k1",
+      "privateKey": "4fd5e921456cc0dc6ea41752ed35a69ef5f2ce7187a04534054909457a202e1f",
+      "publicKey": "02d5703cf416b90fb7757cc4fd6781883c5653142953d5dc0777278b434c32d905",
+      "derivation": "SHA-256(UTF-8(label))",
+      "label": "TPNIL SDX v1 LAB_SELF_TEST_ONLY public test key: party M",
+      "note": "public test key, not a secret, never funded"
+    }
+  },
+  "generator": {
+    "path": "components/sdx/b39r/generate.mjs",
+    "runtime": "node 24.22.1",
+    "dependencies": {
+      "@bsv/sdk": "4.0.1",
+      "@noble/ciphers": "2.4.0"
+    },
+    "lockfile": "components/sdx/b39r/package-lock.json",
+    "frozenRandom": "components/sdx/b39r/frozen-random.json"
+  },
+  "oracles": [
+    {
+      "path": "src/portability/brc39-recipient.mjs",
+      "basis": "node:crypto (ECDH secp256k1, HMAC-SHA-256, AES-256-GCM) and BigInt point arithmetic; independent of src/portability/brc39.mjs"
+    },
+    {
+      "path": "components/sdx/b39r/suites/vc-b39r.mjs",
+      "basis": "@bsv/sdk 4.0.1 EncryptedMessage and BRC-100 encrypt/decrypt (pure TypeScript paths); @noble/ciphers 2.4.0 AES-256-GCM with AAD"
+    }
+  ],
+  "cases": [
+    {
+      "id": "VC-B39R-001",
+      "requirement": "B39R-01",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.file"
+      ],
+      "description": "Handover: account A exports to account B. B imports it to the exact BRC-38 document.",
+      "input": {
+        "importer": "accountB",
+        "file": "57444154020226000000200000000000000000000000000000000000000000000000b642421033029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da702d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152c7a9d4a71d4600b312e263a8311978274c2dd3cbfd573997d2d392a2b390c032701b22c6a5800618e2d9e5ed3dace3682df7c4a3892114f20230e84bf220bdf56d34ddc6fd96ec98780ec2459b9c20b8eea1f9ee2b8f3ea8f154710d87e60a2367a2b495a41a6bf416b1e69bebe3ecc0d160fc563a78e6f193700d2589a69b4cc4bc5c6310b0b5b7563dc35f22499593a5d8af5f4ac32e4f769507d60dcca666713787c8cd004a0a10f16d37e639e4d3680e70dc61d1ead1c4dc25b39cf3230bdacf8dc145b5a9d59012b62b30547257e0a1ac117e1cbe647f0376029ad8c69efad27931d1fd2996d18168326fb47e5268e865b2e6703e85e380553ae20615e6843d4826562a037af9d911904d62e5cec13d9ef03008cf8b9a2a78b3df1f1920e0228f5cf0ce1d4e570a60c0c52175bf739e9949777364d9f57876b65b80e1d8df268c99be72377d6b8f88ca129c4608d2d40224bb09b4e686328605679aa5335de12b28e06fe9947bdc12c5ea687190f8103944709199812a6336d98dd7862aee6c6e2b1944d65d8345b93c2700688c1195870c3463045d860066e3fda70c057e8a8277c54976c97ccac02bba8b1b84ebff4cb57aae73f26e38d2487e1fed57a2dae48baab84408c5e3afd25370d27a353f9c02454c656d2c52fd4c0e2b50bc354a570862135f88dd29f927ffdfc229ae06109b040e80f9cbdb949d2b39b15641e78163b332a8c830e0fcf64f6142db3752dab080bafdc1e648f738eb9d51b5e990aa7d1ba077e60a2a9358a4f6a49c5498dbbafbd190eb3f19cc75efd9aa9ff47b5ac83bcc6164b31f3b5f680dba904924758a3fb5589496f104da60dfc0bee726f47e50c3e7f8b807fd3527a48e4ada23810bed81b3f8880a2529655da2fdaf30e0f0670d60450f4c8764bb18aca674e1831d92d67d3580a334b138d8584506aa0ca6e4edc2b08f4d98775fa121427de995280140499befe1048bf34eb49038c1e89b53f8c3e4e995c9bb6d08d19a92750ae35c07306ebf6ed3d8f90c9c5ad42440aa3c7dc6baee065983c06413ab6328d5972d2348f11e126b1e7383c0b55caf685cf8d8b97eccb0b3a2a6e4eebaaad83528263347208fbfcd55d93246fc131c20e7f07071531046039d67318e6b417a653f7afcffc3ab6817bbe867c403e2532d9abe6905938b351c7ac8e37f3c40f1ea9bf4b5edaa73e9ade7e61876cc70ced64d9dfc6cc872454d1594f239afbf586bbe36ba9a25e7ba7cb992c16503f474ee771d75c72e8e35f8242c8256419146e42d290f90cb629043d0e03be91e4b090b0ca10e629f82d700693ea08bc8eed789e810b523cf6c2226599fc10ab965df34fbd76a6127a93155ef92751719b86b062aac915f76c93738d8cf425a5f11a7e1c2cfc7321e67a77646ec2fc7fb87e429048d5b8a48d25940d641d313bf35e40ff23b633be8dad8"
+      },
+      "expected": {
+        "plaintext": "7b22627263223a33382c226578706f727465644174223a22323032362d30312d30325430333a30343a30352e3030365a222c22666f726d617456657273696f6e223a312c22736f7572636553746f72616765223a7b22636861696e223a2274657374222c22637265617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c22646274797065223a2253514c697465222c226d61784f7574707574536372697074223a313032342c2273746f726167654964656e746974794b6579223a22303231313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131222c2273746f726167654e616d65223a2273796e746865746963222c22757064617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a227d2c227461626c6573223a7b2263657274696669636174654669656c6473223a5b5d2c22636572746966696361746573223a5b5d2c22636f6d6d697373696f6e73223a5b5d2c226f75747075744261736b657473223a5b5d2c226f75747075745461674d617073223a5b5d2c226f757470757454616773223a5b5d2c226f757470757473223a5b5d2c2270726f76656e547852657173223a5b5d2c2270726f76656e547873223a5b5d2c2273796e63537461746573223a5b5d2c227472616e73616374696f6e73223a5b5d2c2274784c6162656c4d617073223a5b5d2c2274784c6162656c73223a5b5d7d2c227469746c65223a22557365722057616c6c6574204461746120466f726d6174222c2275736572223a7b2261637469766553746f72616765223a22303231313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131222c22637265617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c226964656e746974794b6579223a22303332323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232222c22757064617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c22757365724964223a317d7d",
+        "plaintextSha256": "e76c1eb7a57cdf87e8d8a9c50b783e50decffb54c586bb86fa63186d7a31e48c",
+        "innerFormat": 38,
+        "wrappedKeyLength": 182,
+        "sender": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+        "recipient": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+      }
+    },
+    {
+      "id": "VC-B39R-002",
+      "requirement": "B39R-01",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.file"
+      ],
+      "description": "Backup to self: account B wraps the content key to its own identity key, and B restores it.",
+      "input": {
+        "importer": "accountB",
+        "file": "57444154020226000000200000000000000000000000000000000000000000000000b64242103302d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515202d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152ce2e517adfbfd0e74358e1807453e194c9bf9df46be5bbdc8cd45e9f283474e816092efec2604a4ab50d7f098310bcf47353575e0d7d293049b91924406183ed5473049bae0b04d604e3b3c6e4f965d6a56dbc8c1c55cdc91177e69cca9c5afe6de909fa2f7f445aee93196b189e599f86f4d51a5d7e5e7379d1e9e745ccaef2c94491ac92e7d7ff23b909c971ea845a3ab420e556066d6934e2fdb705a758f0fc3c702ba453b595415fcb1003550632cee8128703e04928fcd072cb03d08d2d28adca60a349f62ed396801ef453544e0c8e1ed410766443fa73aaed4880d20b2560900744cf4b4f0c60434beb84640354c9800f184afcf8668b29ac289b6ace24c7306f71549d6019abe5c0a1ff919b2a66e1dd886838c07a87a76cea7209b4e8a8a781737ecc93d82f524ed3e16981ffdf163ed7632cda436b91b2f3cf987532902d3bc1a9653c8ee2011cb3f8b9545337523e8946cafd7d6ebece9f55a6577557f9de739f8a3d39ee525285d6efa42717e5b4260280dc1418774aca13a8a8e63e43cc22c6f047920c1e2a61468c493ea72c891d198748f80d377d1d8a2b9735fc5de037f35d24bc481afa20f7ef23972946694c5e07abe6678a6308724dec89273eccee83e2497b63b91673cf83bb05ba7e3d2100e700f16054d93a46987ec7ddc8fe114e724fa6b679d983742293a59dd2cf40c0ca4029a8fa124f6a7e362d424ca3b8ab7e1f18dd34a8b9734cfa511e40a1e9d14800b964126a32c40f4d0cbb94f3aabc711fec07670f1cfbe121ba13a0022f545a607aa0790325c0ac9e4f6d2e11dc29ba1829c9a4161bb503ff853ec94b94282cab907541052556f3a0f9281e88a31890a6e1bbcf337fb08520250e512ea37e6713316313823079fd604a5687565441dd0414963fd4a4a46d2deef9a0586e85e0cef72e30f9478510d66bf67b65e99182abfe7ad44376719042e43d451458efd704a26b9631c451f52a8cdc5f77e821eeb012a75a1684244b4b4997dce98aa1bd1b1f298c39214394ad9ec62f4ee00c36702a2a5f18454acbf2035b6d789dd7f0099fed6acdc9c3abf4b44ebc82060c515e02fb3e64240b8d91b620270be5addd48d8d4672e312b373ee411c9e71e724db5133997a42f9a84c4facac6eb02cb4d849ddbb9a7b1dcdf0ce09a77356c9dacd28731eb3890a2ec96dce473bcde9f121c17ecc1e75acf23b582cd7a1076bedb054d7b2943c14f511c0b65df39b36dcec749d22dcbd2d8b57252e68f7d763afe2c39567b9f2d12d074ae93fb542019e89b83ab2b35c89a150b7a09bd7c1aa371cf65c9fd45c510c04a35503d20c474fb93326def33d7167903187187fcdf1963e6c5af3103edf372151776e54f9fd2f5b71fff6c86dcde98a519327e0cc3c44a139d72948e17ccfbbed26ce66796b6108506fcc442ca56fd698528ac057620a6bf4f74"
+      },
+      "expected": {
+        "plaintext": "7b22627263223a33382c226578706f727465644174223a22323032362d30312d30325430333a30343a30352e3030365a222c22666f726d617456657273696f6e223a312c22736f7572636553746f72616765223a7b22636861696e223a2274657374222c22637265617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c22646274797065223a2253514c697465222c226d61784f7574707574536372697074223a313032342c2273746f726167654964656e746974794b6579223a22303231313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131222c2273746f726167654e616d65223a2273796e746865746963222c22757064617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a227d2c227461626c6573223a7b2263657274696669636174654669656c6473223a5b5d2c22636572746966696361746573223a5b5d2c22636f6d6d697373696f6e73223a5b5d2c226f75747075744261736b657473223a5b5d2c226f75747075745461674d617073223a5b5d2c226f757470757454616773223a5b5d2c226f757470757473223a5b5d2c2270726f76656e547852657173223a5b5d2c2270726f76656e547873223a5b5d2c2273796e63537461746573223a5b5d2c227472616e73616374696f6e73223a5b5d2c2274784c6162656c4d617073223a5b5d2c2274784c6162656c73223a5b5d7d2c227469746c65223a22557365722057616c6c6574204461746120466f726d6174222c2275736572223a7b2261637469766553746f72616765223a22303231313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131222c22637265617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c226964656e746974794b6579223a22303332323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232222c22757064617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c22757365724964223a317d7d",
+        "plaintextSha256": "e76c1eb7a57cdf87e8d8a9c50b783e50decffb54c586bb86fa63186d7a31e48c",
+        "innerFormat": 38,
+        "wrappedKeyLength": 182,
+        "sender": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152",
+        "recipient": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+      }
+    },
+    {
+      "id": "VC-B39R-003",
+      "requirement": "B39R-01",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.file"
+      ],
+      "description": "Handover whose BRC-78 wrapped key was assembled from BRC-100 encrypt (protocol [2, \"message encryption\"]), with no raw key access.",
+      "input": {
+        "importer": "accountB",
+        "file": "57444154020226000000200000000000000000000000000000000000000000000000b642421033029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da702d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a3594951526b431bc6f79eaf47fa4d6fd11d5530695aa2fcce13a261a64040ba4df2a298220f64d0a70e270706336d9d0e754944759c4d526831fcdecf3974cc8cfcc37179d2ca5f39d0ba8d0ecd6d556a2235f0a62d0c9a63ab734db914b872ab8c1d1def4c90897baaedc8368766935aa820c77cb9f5d0d4df9fe4e5fd7a65e01f4f6200e10c17df535e11e1f2207fa7ab0e3e637764e80fe3f3e1331b1c3e73660a813fd8cdcb78e365eb7bf058583d0567186de098e49bff4c636d4b709ca3d8dd86e372de43650ef0692ed9b8829a9157214f38243e9bda2ea9a7860a003126feeca953a1b7a8f83a1efab4f0e6711bb53f5c0ddf82f5f81849ee8099fb4e84e8d9be4432655c988ba95e9bb00754b4583d165225913f80d6327c831edd434ebaefa3202acec7e2350ac7b756a144662226dddc638b9722223bf2f30f8178a53824b8c57ed3cfa7a7a42b6182d526fc105580411424c4cdb270abcfc35b53d13256e8e6593744ca5b231dd063be505c346ca664a904b92f34f8dd26a387c968b488e5e88873ed580cc525068e4b7f44f1c3d247c3255e7a9552dea7e04aad75492892c2042557fa6d9c3a5abacbaf365f3bbd900fd8d63fdf3fac57b7b001ae991593747b6e665d1923035a1f12fc7a086606fc9ca901a0c54b26f2c7923404d1d2396872d09ca129534cc051b763bda4eb1e827fe7d3b7883d7e671be305f09283129fb68a806845f0fc9e25cf8147a197e5bc4f1c7fb9f1f39068747650a43c30afddfa811e41c63c6dc05703e2e0642b5f61a864187e1599e8a523a410a32e903c2eeeb0167c6923449bc985d62b2cf6ec17e8038a39f31a2b6aa74b51cb415e632242706cf33268418aa8cd59e3d403e3cd1f393993b234ecfec486b195fcba3a42645198c1e32a37545417e783578a0f3692c90d1cc7a4542e5770f77177c6cc6eaa80c07eddb9b2de514aafb6b7144c458140f7668521a044de5ac89cde8691b4d4caf00776da62d63c65008df5406fab8894b5c5dd0db7f641c7b80a0a6c76847692f906c3f3ce89e2c0b9e688c1c95978b32769e0967c8a74a11af17967e7a2d510836e4107207d732791aa748a31a7a29b629ca045a595e8e90c0aba69d73e411c04b53bbdf9fe33c7584e11fb87c46123b07a2613de55bfc8de1ca01eab3b4b85e8c7e42e810a0d6a7f528595d029bf8144b833fd05021a2197ffce1f6d62b242c59cc21d9c0c50ca7c543aed6a54f5ecf5527bfc15e3357b9b762e5396d1a2547da7272965e9730d682bbab01b944cea473c52ad86522aa3f351a19bdd4e835d458c687aa80971feb416a63a7ceade2e25968fcddd71b4ead702721932f82c5d62c1ff422f41524da3235a2478ab9ee31ad6b4c461a640d30a141e3102ab2f6a98f07c2e59c642a1be5971984ab2bbbcba8ba6f9c3ba4a616e2acfca8ced5c047d0bf64050c0a3"
+      },
+      "expected": {
+        "plaintext": "7b22627263223a33382c226578706f727465644174223a22323032362d30312d30325430333a30343a30352e3030365a222c22666f726d617456657273696f6e223a312c22736f7572636553746f72616765223a7b22636861696e223a2274657374222c22637265617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c22646274797065223a2253514c697465222c226d61784f7574707574536372697074223a313032342c2273746f726167654964656e746974794b6579223a22303231313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131222c2273746f726167654e616d65223a2273796e746865746963222c22757064617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a227d2c227461626c6573223a7b2263657274696669636174654669656c6473223a5b5d2c22636572746966696361746573223a5b5d2c22636f6d6d697373696f6e73223a5b5d2c226f75747075744261736b657473223a5b5d2c226f75747075745461674d617073223a5b5d2c226f757470757454616773223a5b5d2c226f757470757473223a5b5d2c2270726f76656e547852657173223a5b5d2c2270726f76656e547873223a5b5d2c2273796e63537461746573223a5b5d2c227472616e73616374696f6e73223a5b5d2c2274784c6162656c4d617073223a5b5d2c2274784c6162656c73223a5b5d7d2c227469746c65223a22557365722057616c6c6574204461746120466f726d6174222c2275736572223a7b2261637469766553746f72616765223a22303231313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131222c22637265617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c226964656e746974794b6579223a22303332323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232222c22757064617465645f6174223a22323032362d30312d30325430333a30343a30352e3030365a222c22757365724964223a317d7d",
+        "plaintextSha256": "e76c1eb7a57cdf87e8d8a9c50b783e50decffb54c586bb86fa63186d7a31e48c",
+        "innerFormat": 38,
+        "wrappedKeyLength": 182,
+        "sender": "029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da7",
+        "recipient": "02d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152"
+      }
+    },
+    {
+      "id": "VC-B39R-004",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: magic \"WDAX\".",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 3,
+            "value": "58"
+          }
+        ]
+      },
+      "expectedError": "ERR_MAGIC",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-005",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: Format Version 0x01 with protector 0x02 (the BRC-39 v1 refusal, unchanged).",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 4,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_FORMAT_VERSION",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-006",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: Format Version 0x03.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 4,
+            "value": "03"
+          }
+        ]
+      },
+      "expectedError": "ERR_FORMAT_VERSION",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-007",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: protector type 0x01 under Format Version 0x02.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 5,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_PROTECTOR_TYPE",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-008",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: protector type 0x03.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 5,
+            "value": "03"
+          }
+        ]
+      },
+      "expectedError": "ERR_PROTECTOR_TYPE",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-009",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: unknown inner format 0x27.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 6,
+            "value": "27"
+          }
+        ]
+      },
+      "expectedError": "ERR_INNER_FORMAT",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-010",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: KDF type 0x01 (Argon2id) with protector 0x02.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 7,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_KDF_TYPE",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-011",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: flags 0x01.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 8,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_FLAGS",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-012",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: salt length 32.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 9,
+            "value": "20"
+          }
+        ]
+      },
+      "expectedError": "ERR_SALT_LENGTH",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-013",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: nonce length 12.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 10,
+            "value": "0c"
+          }
+        ]
+      },
+      "expectedError": "ERR_NONCE_LENGTH",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-014",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: Argon2id iterations 7.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 11,
+            "value": "00000007"
+          }
+        ]
+      },
+      "expectedError": "ERR_ARGON2_FIELDS",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-015",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: Argon2id memory 131072 KiB.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 15,
+            "value": "00020000"
+          }
+        ]
+      },
+      "expectedError": "ERR_ARGON2_FIELDS",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-016",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: Argon2id parallelism 1.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 19,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_ARGON2_FIELDS",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-017",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: Argon2id hash length 32.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 20,
+            "value": "20"
+          }
+        ]
+      },
+      "expectedError": "ERR_ARGON2_FIELDS",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-018",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: first reserved byte 0x01.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 21,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_RESERVED",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-019",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: last reserved byte 0x01.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 32,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_RESERVED",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-020",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: wrapped key length 0.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 33,
+            "value": "0000"
+          }
+        ]
+      },
+      "expectedError": "ERR_WRAPPED_KEY_LENGTH",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-021",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: wrapped key length 1025.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 33,
+            "value": "0401"
+          }
+        ]
+      },
+      "expectedError": "ERR_WRAPPED_KEY_LENGTH",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-022",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: BRC-78 version byte altered inside the wrapped key.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 35,
+            "value": "43"
+          }
+        ]
+      },
+      "expectedError": "ERR_WRAPPED_KEY_FORMAT",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-023",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused before unwrapping: a header defect (flags 0x01) wins over a wrong importer.",
+      "input": {
+        "importer": "partyM",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 8,
+            "value": "01"
+          }
+        ]
+      },
+      "expectedError": "ERR_FLAGS",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-024",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: imported by account A, the sender; the BRC-78 recipient is not the importer identity key.",
+      "input": {
+        "importer": "accountA",
+        "base": "VC-B39R-001",
+        "edits": []
+      },
+      "expectedError": "ERR_RECIPIENT",
+      "expectedStage": "recipient"
+    },
+    {
+      "id": "VC-B39R-025",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: imported by party M, which is not the BRC-78 recipient.",
+      "input": {
+        "importer": "partyM",
+        "base": "VC-B39R-001",
+        "edits": []
+      },
+      "expectedError": "ERR_RECIPIENT",
+      "expectedStage": "recipient"
+    },
+    {
+      "id": "VC-B39R-026",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: wrapped key length 183, one byte more than the BRC-78 message.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 33,
+            "value": "00b7"
+          }
+        ]
+      },
+      "expectedError": "ERR_UNWRAP",
+      "expectedStage": "unwrap"
+    },
+    {
+      "id": "VC-B39R-027",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base",
+        "input.edits[0].value"
+      ],
+      "description": "Refused: one byte of the BRC-78 key ID flipped.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 108,
+            "value": "a6"
+          }
+        ]
+      },
+      "expectedError": "ERR_UNWRAP",
+      "expectedStage": "unwrap"
+    },
+    {
+      "id": "VC-B39R-028",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: the BRC-78 sender key replaced by party M's key.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 39,
+            "value": "02d5703cf416b90fb7757cc4fd6781883c5653142953d5dc0777278b434c32d905"
+          }
+        ]
+      },
+      "expectedError": "ERR_UNWRAP",
+      "expectedStage": "unwrap"
+    },
+    {
+      "id": "VC-B39R-029",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: one nonce byte flipped (GCM tag fails).",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 217,
+            "value": "d0"
+          }
+        ]
+      },
+      "expectedError": "ERR_DECRYPT",
+      "expectedStage": "decrypt"
+    },
+    {
+      "id": "VC-B39R-030",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: the first ciphertext byte flipped.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 249,
+            "value": "a4"
+          }
+        ]
+      },
+      "expectedError": "ERR_DECRYPT",
+      "expectedStage": "decrypt"
+    },
+    {
+      "id": "VC-B39R-031",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base",
+        "input.edits[0].value"
+      ],
+      "description": "Refused: the last tag byte flipped.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 1138,
+            "value": "d9"
+          }
+        ]
+      },
+      "expectedError": "ERR_DECRYPT",
+      "expectedStage": "decrypt"
+    },
+    {
+      "id": "VC-B39R-032",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base",
+        "input.edits[0].value"
+      ],
+      "description": "Refused: the Wrapped Key swapped for a fresh BRC-78 wrap of the same K. Unwrapping succeeds; the header AAD makes GCM fail.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [
+          {
+            "offset": 35,
+            "value": "42421033029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da702d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a35949515256b38e63308f3434f17b74bbf41561fbb2b29ff1fba03686e23458eb16560a80b5b26cd3c972469fd2ddc29443a60e3e5c9ad7a6eb938f25245e8a0df00eb16069b5e94c351c0682e9a5db54bb336601a60b853a48e7eae3c300a1f4c8a2de501116713c10f43b74f5994aeb85ed0899"
+          }
+        ]
+      },
+      "expectedError": "ERR_DECRYPT",
+      "expectedStage": "decrypt"
+    },
+    {
+      "id": "VC-B39R-033",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: 34 bytes, shorter than the fixed header.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [],
+        "length": 34
+      },
+      "expectedError": "ERR_FILE_SIZE",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-034",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: shorter than header, wrapped key, nonce and tag.",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [],
+        "length": 264
+      },
+      "expectedError": "ERR_FILE_SIZE",
+      "expectedStage": "header"
+    },
+    {
+      "id": "VC-B39R-035",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.base"
+      ],
+      "description": "Refused: the final byte removed (GCM tag fails).",
+      "input": {
+        "importer": "accountB",
+        "base": "VC-B39R-001",
+        "edits": [],
+        "length": 1138
+      },
+      "expectedError": "ERR_DECRYPT",
+      "expectedStage": "decrypt"
+    },
+    {
+      "id": "VC-B39R-036",
+      "requirement": "B39R-02",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.file"
+      ],
+      "description": "Refused: the wrapped content key is 31 bytes, not 32.",
+      "input": {
+        "importer": "accountB",
+        "file": "57444154020226000000200000000000000000000000000000000000000000000000b542421033029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da702d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152213c691996b050ed2e192920ad51175efdaaec71b502db8b8ef6d2ec9cee22dde50c656fd458a76e7244ddff82c01ac345a533ddcfc7798dd53e63a587ed5ee64d300d716c1e3f50cc4a74f7780b9da50fb7c5320d920995f7437da7d41a6a1fd1756c9838a19a20cff79ae341e2a781513a53846eaed02c446f07686562b84010dd10a13cebff9c129ea9f0a26d4c091960e77c87e49bd8ca35a008bde110e0427b515d83da5cce50a959a4d916fd00000000000000000000000000000000"
+      },
+      "expectedError": "ERR_CONTENT_KEY_LENGTH",
+      "expectedStage": "unwrap"
+    },
+    {
+      "id": "VC-B39R-037",
+      "requirement": "B39R-01",
+      "kind": "brc39-recipient-file",
+      "direction": "decrypt",
+      "randomized": [
+        "input.file"
+      ],
+      "description": "Refused after decryption: inner format 0x26 labels a payload that is not a BRC-38 document.",
+      "input": {
+        "importer": "accountB",
+        "file": "57444154020226000000200000000000000000000000000000000000000000000000b642421033029bccd145afbbfa4d9f66c1d181a5d3707f1c5d696f400d94c48c649efb688da702d2d6407daafdc71c27cc71a899c15ee3ed9a0c89ea1618ac230e68a359495152ed691166e9e719e12b3650cbf000ea21f031f72cd1513d6523e4dd9f82416114c665222f42ffcd707aab015a8976c19ab5f72725a0cfc0f1e271bdda5e2397a87d8770226f15e6b285f38efdf37ec901eac939745428da86a5fa426e156dab947cf18d640b14d448478d184ee36cecfb7ba4ef988b0d7e5b72ea7e2461d93d1f467e17e3276d33c19503c399d747032d6144d6a6e14f74824a28f9ceefebc8e3ab0ef98bad4418fb218ec134209f4311a616030bbb82831b51d0fbb50dfa0add26945f5b459214111930b90583abdd88ee160e2785b7c4dc24213f9fd58480a1e243ce8c3b43cfbe6168413d1f83"
+      },
+      "expectedError": "ERR_INNER_PAYLOAD",
+      "expectedStage": "inner"
+    }
+  ]
+}

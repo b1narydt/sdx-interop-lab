@@ -1,0 +1,60 @@
+{
+  "schema": "tpnil-sdx-sut-declaration@0.1.0",
+  "claim": "LAB_SELF_TEST_ONLY",
+  "id": "sdxgo",
+  "implementation": {
+    "name": "sdx-go",
+    "version": "0.1.0",
+    "language": "Go 1.25",
+    "description": "An SDX v0.1 implementation written from the specification text alone: the record envelope, keys on both curves, and an admission service with its per-topic index; its JOSE implementation is go-jose v4.1.9",
+    "source": "impl/sdx-go in the contributor's repository",
+    "statement": "Implements SDX v0.1 (Draft); conformance not demonstrated"
+  },
+  "driver": {
+    "argv": [
+      "{build}/sdxgo"
+    ],
+    "build": [
+      [
+        "go",
+        "build",
+        "-o",
+        "{build}/sdxgo",
+        "./cmd/sdxgo"
+      ]
+    ],
+    "transport": "JSON lines; one process per session"
+  },
+  "contract": "0.1.0",
+  "roles": [
+    "writer",
+    "reader",
+    "verifier",
+    "admission-service"
+  ],
+  "writeOptions": {
+    "random": false,
+    "convergent": true,
+    "writerBlind": true
+  },
+  "containedKeys": false,
+  "notes": [
+    "Per its README, go-jose draws content-encryption keys, IVs and ephemeral keys from a source it keeps private, so the driver ignores the contract's frozen random values.",
+    "Per its README it does not write overlay or external placement, and does not read dual-signed records. Its admission service keeps state for one process and takes raw transactions without proofs."
+  ],
+  "operations": [
+    "write",
+    "read",
+    "secrets",
+    "split",
+    "derive",
+    "symmetric",
+    "validate",
+    "offset",
+    "profile",
+    "setup",
+    "submit",
+    "lookup",
+    "fault"
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tpnil-sdx-run-record@0.1.0",
+  "title": "SDX data-sharing proposal: laboratory run record",
+  "description": "LAB_SELF_TEST_ONLY. One run of SDX v0.1 implementations through the driver contract, written by scripts/run-sdx-suts.mjs. It records what was executed and what each case observed. It is not a conformance result and issues no certification.",
+  "type": "object",
+  "required": ["schema", "claim", "statement", "runId", "program", "contract", "deploymentProfile", "suites", "harness", "runtime", "started", "finished", "repetitions", "implementations", "summary", "results", "transcript"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "tpnil-sdx-run-record@0.1.0" },
+    "claim": { "const": "LAB_SELF_TEST_ONLY" },
+    "statement": { "type": "string" },
+    "runId": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "program": {
+      "type": "object",
+      "required": ["id", "status", "programIdentifier", "profile"],
+      "properties": {
+        "id": { "const": "sdx-data-sharing@0.1.0" },
+        "status": { "const": "PROPOSED" },
+        "programIdentifier": { "type": ["string", "null"] },
+        "profile": { "type": "string" }
+      }
+    },
+    "contract": { "$ref": "#/$defs/pinned" },
+    "deploymentProfile": { "$ref": "#/$defs/pinned" },
+    "suites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "sha256", "cases"],
+        "properties": { "id": { "type": "string" }, "path": { "type": "string" }, "sha256": { "$ref": "#/$defs/sha256" }, "cases": { "type": "integer", "minimum": 0 } }
+      }
+    },
+    "harness": {
+      "type": "object",
+      "required": ["version", "files"],
+      "properties": {
+        "version": { "type": "string" },
+        "files": { "type": "array", "items": { "type": "object", "required": ["path", "sha256"], "properties": { "path": { "type": "string" }, "sha256": { "$ref": "#/$defs/sha256" } } } }
+      }
+    },
+    "runtime": { "type": "object", "required": ["node", "platform"] },
+    "started": { "type": "string", "format": "date-time" },
+    "finished": { "type": "string", "format": "date-time" },
+    "repetitions": { "type": "integer", "minimum": 1, "description": "PASS requires two clean repetitions with matching semantic projections; a case whose repetitions differ is INCONCLUSIVE" },
+    "implementations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "declaration", "revision"],
+        "properties": {
+          "id": { "type": "string" },
+          "declaration": { "$ref": "#/$defs/declaration" },
+          "revision": {
+            "type": "object",
+            "required": ["commit", "lastChange", "path", "clean"],
+            "properties": {
+              "commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+              "lastChange": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+              "path": { "type": "string" },
+              "clean": { "type": "boolean", "description": "false when the implementation's folder differed from its commit during the run" }
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["suites", "matrix", "aggregate"],
+      "properties": {
+        "suites": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "$ref": "#/$defs/counts" } } },
+        "matrix": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/counts" }, { "type": "object", "required": ["writer", "reader", "kind"] }] } },
+        "aggregate": { "$ref": "#/$defs/outcome" }
+      }
+    },
+    "results": {
+      "type": "object",
+      "required": ["suites", "matrix"],
+      "properties": {
+        "suites": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "array", "items": { "$ref": "#/$defs/case" } } } },
+        "matrix": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["writer", "reader", "kind", "cases"],
+            "properties": {
+              "writer": { "type": "string" },
+              "reader": { "type": "string" },
+              "kind": { "enum": ["self-pair", "cross-implementation"] },
+              "cases": { "type": "array", "items": { "$ref": "#/$defs/case" } }
+            }
+          }
+        }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "required": ["path", "sha256", "note"],
+      "properties": { "path": { "const": "transcript.jsonl" }, "sha256": { "$ref": "#/$defs/sha256" }, "note": { "type": "string" } }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "pinned": { "type": "object", "required": ["path", "sha256"], "properties": { "path": { "type": "string" }, "sha256": { "$ref": "#/$defs/sha256" } } },
+    "outcome": { "enum": ["PASS", "FAIL", "BLOCKED", "INCONCLUSIVE", "ERROR", "NOT_APPLICABLE"] },
+    "counts": {
+      "type": "object",
+      "required": ["cases", "aggregate", "counts"],
+      "properties": {
+        "cases": { "type": "integer", "minimum": 0 },
+        "aggregate": { "$ref": "#/$defs/outcome" },
+        "counts": { "type": "object", "required": ["PASS", "FAIL", "BLOCKED", "INCONCLUSIVE", "ERROR", "NOT_APPLICABLE"], "additionalProperties": { "type": "integer", "minimum": 0 } }
+      }
+    },
+    "case": {
+      "type": "object",
+      "required": ["id", "outcome", "reason"],
+      "properties": {
+        "id": { "type": "string" },
+        "outcome": { "$ref": "#/$defs/outcome" },
+        "reason": { "type": "string", "minLength": 1 },
+        "tag": { "type": ["string", "null"], "description": "`required` or `labChoice`: only a required expectation can produce FAIL; a labChoice that differs is INCONCLUSIVE" },
+        "classTag": { "type": "string" },
+        "repetitions": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "declaration": {
+      "$id": "tpnil-sdx-sut-declaration@0.1.0",
+      "description": "Fixed before execution: what the implementation is, how its driver is built and started, and which optional provisions it offers. `{source}` and `{build}` stand for the local checkout and a temporary build folder.",
+      "type": "object",
+      "required": ["schema", "claim", "id", "implementation", "driver", "contract", "roles", "writeOptions", "containedKeys"],
+      "properties": {
+        "schema": { "const": "tpnil-sdx-sut-declaration@0.1.0" },
+        "claim": { "const": "LAB_SELF_TEST_ONLY" },
+        "id": { "type": "string" },
+        "implementation": { "type": "object", "required": ["name", "version", "language", "statement"] },
+        "driver": {
+          "type": "object",
+          "required": ["argv"],
+          "properties": {
+            "argv": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+            "build": { "type": "array", "items": { "type": "array", "items": { "type": "string" } } }
+          }
+        },
+        "contract": { "type": "string", "description": "the driver contract version the driver was built to" },
+        "contractGaps": { "type": "object", "description": "for a driver built to an earlier revision: what it lacks; a difference these explain is BLOCKED, never FAIL" },
+        "roles": { "type": "array", "items": { "enum": ["writer", "reader", "verifier", "runtime", "admission-service", "wallet-substrate"] } },
+        "writeOptions": {
+          "type": "object",
+          "properties": {
+            "random": { "type": "boolean", "description": "takes the contract's frozen random values" },
+            "convergent": { "type": "boolean", "description": "builds convergent fields (ENV §4)" },
+            "writerBlind": { "type": "boolean", "description": "builds writer-blind fields (ENV §9.1)" }
+          }
+        },
+        "containedKeys": { "type": "boolean", "description": "keys never leave the implementation's key store: split answers public keys and derive no private key" }
+      }
+    }
+  }
+}

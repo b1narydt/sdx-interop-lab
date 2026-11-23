@@ -1,0 +1,991 @@
+{
+  "schema": "tpnil-sdx-program-proposal@0.1.0",
+  "id": "sdx-data-sharing@0.1.0",
+  "title": "SDX data-sharing interoperability and conformance",
+  "version": "0.1.0",
+  "status": "PROPOSED",
+  "programIdentifier": null,
+  "resultClass": "LAB_SELF_TEST_ONLY",
+  "standard": {
+    "edition": "SDX Protocol specification v0.1, dated 2026-07-17, revised 2026-09-01; keys, envelope and anchoring ratified 2026-09-01",
+    "textIndex": "fixtures/sdx/v1/standards/text/index.json",
+    "draftStatementIndex": "fixtures/sdx/v1/standards/draft-statements/index.json",
+    "citationPrefixes": {
+      "BASE": "fixtures/sdx/v1/standards/text/base.md",
+      "KEYS": "fixtures/sdx/v1/standards/text/keys.md",
+      "ENV": "fixtures/sdx/v1/standards/text/envelope.md",
+      "ANC": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "VEC": "fixtures/sdx/v1/standards/text/vectors.md",
+      "LIC": "fixtures/sdx/v1/standards/text/licence.md",
+      "SDXM": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+      "B39R": "fixtures/sdx/v1/standards/draft-statements/brc-draft-brc39-recipient-protector.md"
+    }
+  },
+  "deploymentProfile": {
+    "id": "tpnil-sdx-lab:v1",
+    "path": "fixtures/sdx/v1/deployment-profile.json",
+    "rule": "Every TPNIL SDX suite is computed under this published laboratory profile (KEYS §1.3.1, ENV §2.1). Its format identifier is tpnil-sdx-lab:v1; its other strings are the SDX example values, used in the laboratory only."
+  },
+  "roles": [
+    {
+      "id": "writer",
+      "description": "Builds, signs, encrypts and anchors records"
+    },
+    {
+      "id": "reader",
+      "description": "Verifies records and decrypts the entries addressed to it"
+    },
+    {
+      "id": "verifier",
+      "description": "Checks signatures against the keys they name, grants, chain rules and anchor proofs. Holds audit-tier access (ENV §12), obtained through an outer identity slot or the record-level key, and no field key. Header and signature checks need that access (ENV §6.1). The ANC §6.2 chain-integrity check also needs the writer's root (ANC §3.1), so a verifier performs it only for records it holds the root for"
+    },
+    {
+      "id": "runtime",
+      "description": "Dispatches actions under grants and switches or hands over accounts"
+    },
+    {
+      "id": "admission-service",
+      "description": "Admits outputs to topics under ANC §11 and answers the per-topic index under ANC §12"
+    },
+    {
+      "id": "wallet-substrate",
+      "description": "A BRC-100 wallet that holds an implementation's keys; stock-wallet rows install no extension"
+    }
+  ],
+  "declaration": {
+    "fixedBeforeExecution": true,
+    "capabilities": [
+      "sdx-module",
+      "brc39-recipient-protector"
+    ],
+    "deploymentProfile": "Derived bytes are profile-relative (KEYS §1.12). Byte-exact suites are computed under the published laboratory profile fixtures/sdx/v1/deployment-profile.json (tpnil-sdx-lab:v1). An implementation that cannot run under it is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle",
+    "matchRule": "A requirement applies when any anyOf clause matches. A clause matches when the declaration includes at least one listed role and every listed capability. An empty clause matches every declaration. Otherwise the outcome is NOT_APPLICABLE with the recorded reason."
+  },
+  "matrix": {
+    "directions": "both",
+    "minimumIndependentImplementations": 2,
+    "rule": "Every interoperability row runs in both directions between independent implementations; each ordered pair is a separate cell. Self-pairs supplement and never replace cross-implementation cells. Wallet-substrate rows use wallets admitted through TPNIL intake."
+  },
+  "outcomes": [
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "INCONCLUSIVE",
+    "ERROR",
+    "NOT_APPLICABLE"
+  ],
+  "aggregatePrecedence": [
+    "ERROR",
+    "FAIL",
+    "INCONCLUSIVE",
+    "BLOCKED",
+    "PASS"
+  ],
+  "acceptance": {
+    "cleanRepetitions": 2,
+    "rule": "PASS requires every applicable mandatory row to execute successfully in two clean repetitions with matching declared semantic projections. Rows with status PROPOSED are never mandatory."
+  },
+  "requirements": [
+    {
+      "id": "SDX-A-01",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §3"
+      },
+      "assertion": "Independent implementations encode identical record values to identical bytes under the deterministic encoding profile, and their decoders reject tagged and indefinite-length items and input that is not well-formed CBOR. Decoder outcomes ENV §3 leaves open are laboratory choices and never fail an implementation.",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-ENC"
+      ],
+      "sdxSuites": [
+        "cbor-det-v1",
+        "historical-float64-decode"
+      ]
+    },
+    {
+      "id": "SDX-A-02",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §8.2, §8.5"
+      },
+      "assertion": "An ES256 record signature produced by one implementation verifies in the other against the kid named in its protected header. A root-holder re-derives that kid from the root: the writer itself, or the other implementation after importing the writer's root. Altering any single byte of the signed content makes signature verification fail in both implementations.",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-SIG",
+        "VA-ENV"
+      ],
+      "sdxSuites": [
+        "docv2-envelope",
+        "dual-curve",
+        "historical-float64-decode"
+      ]
+    },
+    {
+      "id": "SDX-A-03",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §8.6, §9, §12"
+      },
+      "assertion": "A P-256 recipient decrypts exactly the access tiers it was given (audit, one field, or all fields) and no other.",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-ENV"
+      ],
+      "sdxSuites": [
+        "docv2-envelope",
+        "dual-curve",
+        "placement"
+      ]
+    },
+    {
+      "id": "SDX-A-04",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/envelope.md",
+        "clause": "ENV §5.2"
+      },
+      "assertion": "Every record carries the writer self-recipient on its outer wrap, and a writer holding only its root recovers its records from the settlement network.",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-ENV"
+      ],
+      "sdxSuites": [
+        "docv2-envelope"
+      ]
+    },
+    {
+      "id": "SDX-A-05",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/keys.md",
+        "clause": "KEYS §2"
+      },
+      "assertion": "A runtime accepts a delegate-signed action under a pinned grant and refuses it when the action is out of scope, follows the grant's revocation, or is signed by a key other than the pinned key.",
+      "applicability": {
+        "text": "Runtimes",
+        "anyOf": [
+          {
+            "roles": [
+              "runtime"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VA-GRANT"
+      ],
+      "sdxSuites": []
+    },
+    {
+      "id": "SDX-A-06",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/keys.md",
+        "clause": "KEYS §1.10; ANC §4.3"
+      },
+      "assertion": "A dual-signed _rotation action is verified and processed (KEYS §1.10.3). After it, a record signed for the new epoch under the previous root is refused as the account's, and a reader walking the chain follows the rotation action's output, committed under the new root (ANC §4.3). The rotation's wire form waits for a laboratory reading (coverage KEYS-1.10).",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-ROT"
+      ],
+      "sdxSuites": []
+    },
+    {
+      "id": "SDX-A-07",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+        "clause": "ANC §2–§4, §6, §7"
+      },
+      "assertion": "A reader verifies a reference against its own header source (ANC §6.1), walks a participant's chain by spend links from a published origin or from its last processed entry (ANC §4.1, §7.1), and keeps the output whose commitment key matches the derivation for the action and epoch its record declares (ANC §2.3, §3.1, §6.2). It dead-letters substitution, a wrong action or epoch, a missing epoch root, an undecodable record and an action that consumes two tips, with the ANC §7.5 reason class, and reports a block range its header source does not hold as INCONCLUSIVE.",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-ANC"
+      ],
+      "sdxSuites": [
+        "utxo-chaining"
+      ]
+    },
+    {
+      "id": "SDX-A-08",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/keys.md",
+        "clause": "KEYS §1.3.1, §1.4, §1.6–§1.8, §1.12"
+      },
+      "assertion": "Under the published laboratory profile, independent implementations derive byte-identical per-curve seeds, derivation identifiers and keys from the same roots: the KEYS §1.4.2 split, secp256k1 and P-256 derivation, counterparty symmetry on both curves, scalar rejection, field-name normalisation, derivation-identifier assembly, key-path grammar rejection and profile conformance (KEYS §1.12 items 1–11).",
+      "applicability": {
+        "text": "All implementations",
+        "anyOf": [
+          {}
+        ]
+      },
+      "suites": [
+        "VA-KEY"
+      ],
+      "sdxSuites": [
+        "dual-curve"
+      ]
+    },
+    {
+      "id": "SDX-A-09",
+      "phase": "A",
+      "origin": "standard",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+        "clause": "ANC §10–§12"
+      },
+      "assertion": "An admission service admits exactly the format-valid record outputs of a submitted transaction, without keys and wherever they sit (ANC §11.1), narrows but never widens through business rules (§11.2), admits records whose keys, signatures, chain or delegation it cannot judge (§11.3), answers a resubmission with the same outcome (§11.4), retains every admitted entry a submission consumes (§11.5) and accounts for side-channel bytes as far as the public manifests allow (§11.6). Its per-topic index `ls_<scope>` answers in admission order with consumed entries kept, honours an explicit limit, refuses every ANC §12.4 condition and answers point lookups (§12.5). VA-ADM is a laboratory stand-in until SDX publishes `overlay-binding`",
+      "applicability": {
+        "text": "Admission services",
+        "anyOf": [
+          {
+            "roles": [
+              "admission-service"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VA-ADM"
+      ],
+      "sdxSuites": [
+        "overlay-binding"
+      ]
+    },
+    {
+      "id": "P256-01",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Canonical derivation: one root for both curves; §Roots and selection"
+      },
+      "assertion": "From an account's 64-byte root, the module's key and peer results match SDX's dual-curve vectors when published, and its open, key, peer, sign and decrypt results match VC-P256. The logical protocol ID selects the account and ep its epoch; roles actor and session select the actor root and the session root the path names. For an account created inside a wallet, the root is derived from the wallet root, the account ID and the epoch exactly as the draft fixes it. A path whose HMAC output is at least the curve order fails and is not reduced. A threshold wallet's sign results are checked by verification, because its nonces are drawn jointly.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-P256"
+      ]
+    },
+    {
+      "id": "P256-02",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Point validation"
+      },
+      "assertion": "Every invalid P-256 point encoding is rejected before any scalar multiplication.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-P256"
+      ]
+    },
+    {
+      "id": "P256-03",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Scheme, operations and carrier methods; §Roots and selection"
+      },
+      "assertion": "Each operation on the wrong carrier method, every other BRC-100 method under p sdx, a malformed logical protocol ID, an unknown account or epoch, a path outside the profile's namespaces for the curve, a path under the rotation namespace, a decrypt path outside the encryption namespace, a sign path in the encryption namespace, a key path that breaks the KEYS §1.6.1 grammar, an unregistered purpose and a key path longer than 1,033 bytes are rejected.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-P256"
+      ]
+    },
+    {
+      "id": "P256-04",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Permissions"
+      },
+      "assertion": "seekPermission false fails without a prompt, ordinary and module grants do not satisfy one another, a grant for one account does not cover another, creating an account or an epoch always prompts, and a request no grant covers is refused alike whether or not the wallet holds its account or epoch.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-P256"
+      ],
+      "evidence": "behavioural"
+    },
+    {
+      "id": "K1-01",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Canonical derivation: one root for both curves"
+      },
+      "assertion": "From an account's root, the module's k1key and k1peer results equal BRC-42 on the account's secp256k1 seed: the value stock BRC-100 getPublicKey returns for protocol [s, namespace] and key ID keyPath in a wallet whose root is that seed. Both sides of a handoff or a delegation derive the same key.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-SDX-K1"
+      ]
+    },
+    {
+      "id": "K1-02",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Canonical derivation: one root for both curves (step 4)"
+      },
+      "assertion": "k1sign returns a deterministic RFC 6979, low-S DER ECDSA signature over the 32 bytes of hash as given, by the key k1key or k1peer names, and the signature spends an ANC §2 record output whose commitment key k1key returned. A threshold wallet's k1sign results are checked by verification, because its nonces are drawn jointly.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-SDX-K1"
+      ]
+    },
+    {
+      "id": "K1-03",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Roots and selection"
+      },
+      "assertion": "On secp256k1 too, the logical protocol ID selects the account and ep its epoch: two accounts and two epochs give different keys, an unknown account or epoch is rejected, and ep is rejected for roles actor and session.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-SDX-K1"
+      ]
+    },
+    {
+      "id": "K1-04",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Point validation; §Scheme, operations and carrier methods"
+      },
+      "assertion": "Every invalid secp256k1 peer encoding, a hash that is not 32 bytes, a k1sign path in the encryption namespace, a path under the rotation namespace, an unregistered purpose, a derivation offset of 0 or at least n (the KEYS §1.12 item 7 range computation), privileged requests, counterparties other than self and k1 operations on decrypt are rejected, and grants cover one operation and one account.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-SDX-K1"
+      ]
+    },
+    {
+      "id": "K1-05",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-sdx-module.md",
+        "clause": "SDXM §Permissions"
+      },
+      "assertion": "seekPermission false fails without a prompt, a sign grant does not cover k1sign, a grant for one account does not cover another, a request no grant covers is refused alike whether or not the wallet holds its account, and the k1sign prompt shows the hash, the path and the account.",
+      "applicability": {
+        "text": "Wallets that install the p sdx module",
+        "anyOf": [
+          {
+            "roles": [
+              "wallet-substrate"
+            ],
+            "capabilities": [
+              "sdx-module"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-SDX-K1"
+      ],
+      "evidence": "behavioural"
+    },
+    {
+      "id": "B39R-01",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-brc39-recipient-protector.md",
+        "clause": "B39R §1 Protector type 0x02"
+      },
+      "assertion": "A recipient-protected file opens only for its recipient, and opens to the exact plaintext.",
+      "applicability": {
+        "text": "Implementations that support the BRC-39 recipient protector",
+        "anyOf": [
+          {
+            "capabilities": [
+              "brc39-recipient-protector"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-B39R"
+      ]
+    },
+    {
+      "id": "B39R-02",
+      "phase": "companion",
+      "origin": "standard",
+      "status": "PROPOSED",
+      "citation": {
+        "path": "fixtures/sdx/v1/standards/draft-statements/brc-draft-brc39-recipient-protector.md",
+        "clause": "B39R §3 Validation"
+      },
+      "assertion": "A header that breaks the protector 0x02 rules is refused before unwrapping.",
+      "applicability": {
+        "text": "Implementations that support the BRC-39 recipient protector",
+        "anyOf": [
+          {
+            "capabilities": [
+              "brc39-recipient-protector"
+            ]
+          }
+        ]
+      },
+      "suites": [
+        "VC-B39R"
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "VA-ENC",
+      "state": "authored",
+      "status": "BASELINE-v0.1",
+      "pins": "Deterministic encoding of v0.1 records: the published SDX suites, and laboratory-derived decoder and encoder cases tagged required or labChoice",
+      "path": "fixtures/sdx/v1/va-enc/vectors.json",
+      "cases": 75,
+      "requirements": [
+        "SDX-A-01"
+      ],
+      "oracles": [
+        "SDX-published cbor-det-v1 and historical-float64-decode supply the expected bytes and values for cases VA-ENC-001 to 044",
+        "checker src/sdx/cbor-det.mjs (no dependencies); test/sdx_anc.py replays every laboratory-derived case on the Python standard library; cborg 6.2.1 builds the expected bytes of the encoder cases and agrees on 33 published vectors, differing on 3 where the SDX profile writes binary64"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VA-SIG",
+      "state": "authored",
+      "status": "BASELINE-v0.1",
+      "pins": "ES256 record signatures on SDX v0.1 envelopes under the laboratory profile: the ENV §8.2 detached form, the ENV §8.3 candidate list with the superseded integer shape, the ENV §8.5 signing key identifier, the grant-free KEYS §2.7.1 and §2.7.2 signer binding, delegate records and fail-closed cases",
+      "path": "fixtures/sdx/v1/va-sig/vectors.json",
+      "cases": 32,
+      "requirements": [
+        "SDX-A-02"
+      ],
+      "oracles": [
+        "jose 6.2.17, a JOSE implementation, opens every JWE of every known-answer record through every recipient and verifies every known-answer signature in the generator",
+        "src/sdx/env.mjs with src/sdx/cbor-det.mjs, src/sdx/ec-p256.mjs and src/sdx/lzma.mjs on Node.js built-ins, every case: an oracle that does the JOSE steps by hand and has its own LZMA decoder, which also detects an end-of-stream marker",
+        "test/sdx_env.py with test/sdx_ec.py and test/sdx_anc.py on the Python standard library, every case: an oracle that does the JOSE steps by hand (pure-Python AES) and decodes LZMA with the lzma module, which cannot see the end-of-stream marker"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VA-ENV",
+      "state": "authored",
+      "status": "BASELINE-v0.1",
+      "pins": "SDX v0.1 record envelopes under the laboratory profile: known-answer records from frozen random values, every access tier, unset and redacted fields, the writer self-recipient, recipient key identifiers, the outer and per-field protected headers, LZMA, the ENV §4 known answer, writer refusals and a clause-by-clause refusal corpus",
+      "path": "fixtures/sdx/v1/va-env/vectors.json",
+      "cases": 95,
+      "requirements": [
+        "SDX-A-02",
+        "SDX-A-03",
+        "SDX-A-04"
+      ],
+      "oracles": [
+        "jose 6.2.17, a JOSE implementation, opens every JWE of every known-answer record through every recipient and verifies every known-answer signature in the generator",
+        "src/sdx/env.mjs with src/sdx/cbor-det.mjs, src/sdx/ec-p256.mjs and src/sdx/lzma.mjs on Node.js built-ins, every case: an oracle that does the JOSE steps by hand and has its own LZMA decoder, which also detects an end-of-stream marker",
+        "test/sdx_env.py with test/sdx_ec.py and test/sdx_anc.py on the Python standard library, every case: an oracle that does the JOSE steps by hand (pure-Python AES) and decodes LZMA with the lzma module, which cannot see the end-of-stream marker"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VA-GRANT",
+      "state": "not-yet-authored",
+      "pins": "Grants, scope, revocation and pinned delegate keys",
+      "intendedOracle": "Second implementation",
+      "requirements": [
+        "SDX-A-05"
+      ]
+    },
+    {
+      "id": "VA-ROT",
+      "state": "not-yet-authored",
+      "pins": "Dual-signed rotation; written once the laboratory fixes a reading of the rotation format (coverage KEYS-1.10)",
+      "intendedOracle": "Second implementation",
+      "requirements": [
+        "SDX-A-06"
+      ]
+    },
+    {
+      "id": "VA-KEY",
+      "state": "authored",
+      "status": "BASELINE-v0.1",
+      "pins": "KEYS §1.12 known-answer tests, items 1-3 and 5-11, under the laboratory profile on both curves; item 4 is exercised by VA-SIG",
+      "path": "fixtures/sdx/v1/va-key/vectors.json",
+      "cases": 69,
+      "requirements": [
+        "SDX-A-08"
+      ],
+      "oracles": [
+        "@bsv/sdk 4.0.1 KeyDeriver equals every secp256k1 derivation and the symmetric key in the generator",
+        "src/sdx/keys.mjs with src/sdx/ec-p256.mjs on Node.js built-ins, every case",
+        "test/sdx_key.py with test/sdx_ec.py on the Python standard library, every case"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VA-ANC",
+      "state": "authored",
+      "status": "BASELINE-v0.1",
+      "pins": "SDX v0.1 anchoring under the laboratory profile: the ANC §6.1 reference check, and the ANC §7.1 walk with the ANC §6.2 integrity check and the ANC §4.2 tip rule, outcomes named by ANC §7.5 class",
+      "path": "fixtures/sdx/v1/va-anc/vectors.json",
+      "cases": 31,
+      "requirements": [
+        "SDX-A-07"
+      ],
+      "oracles": [
+        "Checker src/sdx/{cbor-det,tx,anc}.mjs on Node.js built-ins; the generator declares each outcome and the checker reproduces it",
+        "test/sdx_anc.py on the Python standard library, every case",
+        "@bsv/sdk 4.0.1 Spend, MerklePath, Beef and KeyDeriver cross-checks, including every commitment key; cborg 6.2.1; optional Rust participant"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VA-ADM",
+      "state": "authored",
+      "status": "LABORATORY-STAND-IN",
+      "pins": "Overlay admission and the per-topic index (ANC §10-§12) on real VA-ENV and VA-SIG envelopes in signed synthetic transactions, as steps against a fresh admission service and index; a laboratory stand-in for SDX's unpublished overlay-binding suite",
+      "path": "fixtures/sdx/v1/va-adm/vectors.json",
+      "cases": 51,
+      "requirements": [
+        "SDX-A-09"
+      ],
+      "oracles": [
+        "@bsv/sdk 4.0.1 Spend validates every input of every synthetic transaction and KeyDeriver derives every commitment key, which noble derives independently, in the generator",
+        "src/sdx/adm.mjs with src/sdx/tx.mjs and src/sdx/cbor-det.mjs on Node.js built-ins, every case",
+        "test/sdx_adm.py with test/sdx_anc.py on the Python standard library, every case"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VC-P256",
+      "state": "authored",
+      "status": "PROPOSED",
+      "pins": "SDX accounts in a BRC-98 module (`p sdx`), P-256 operations: roots, account selection, derivation, results and rejections",
+      "path": "fixtures/sdx/v1/vc-p256/vectors.json",
+      "cases": 177,
+      "requirements": [
+        "P256-01",
+        "P256-02",
+        "P256-03",
+        "P256-04"
+      ],
+      "oracles": [
+        "src/sdx/p256.mjs and src/sdx/ec-p256.mjs on node:crypto, every case",
+        "test/sdx_ec.py on the Python standard library, every value"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VC-SDX-K1",
+      "state": "authored",
+      "status": "PROPOSED",
+      "pins": "SDX accounts in a BRC-98 module (`p sdx`), secp256k1 operations: k1key, k1peer, k1sign, account and epoch selection, and rejections",
+      "path": "fixtures/sdx/v1/vc-sdx-k1/vectors.json",
+      "cases": 72,
+      "requirements": [
+        "K1-01",
+        "K1-02",
+        "K1-03",
+        "K1-04",
+        "K1-05"
+      ],
+      "oracles": [
+        "src/sdx/k1.mjs with src/sdx/p256.mjs, src/sdx/ec-p256.mjs, src/sdx/brc42.mjs and src/sdx/tx.mjs on node:crypto, every case",
+        "test/sdx_ec.py on the Python standard library, every value",
+        "@bsv/sdk 4.0.1 ProtoWallet getPublicKey and createSignature: the generator requires every k1key, k1peer and k1sign result to equal them"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    },
+    {
+      "id": "VC-B39R",
+      "state": "authored",
+      "status": "PROPOSED",
+      "pins": "BRC-39 recipient protector (protector type 0x02) files and refusals",
+      "path": "fixtures/sdx/v1/vc-b39r/vectors.json",
+      "cases": 37,
+      "requirements": [
+        "B39R-01",
+        "B39R-02"
+      ],
+      "oracles": [
+        "src/portability/brc39-recipient.mjs on node:crypto, independent of src/portability/brc39.mjs",
+        "@bsv/sdk 4.0.1 EncryptedMessage and BRC-100 encrypt and decrypt; @noble/ciphers 2.4.0 AES-256-GCM"
+      ],
+      "resultClass": "LAB_SELF_TEST_ONLY"
+    }
+  ],
+  "sdxSuites": [
+    {
+      "name": "cbor-det-v1",
+      "baseItem": 1,
+      "state": "published",
+      "vectors": 36,
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/"
+    },
+    {
+      "name": "historical-float64-decode",
+      "baseItem": null,
+      "state": "published",
+      "vectors": 8,
+      "path": "fixtures/sdx/v1/standards/cbor-det-v1/"
+    },
+    {
+      "name": "docv2-envelope",
+      "baseItem": 2,
+      "state": "unpublished"
+    },
+    {
+      "name": "dual-curve",
+      "baseItem": 3,
+      "state": "unpublished"
+    },
+    {
+      "name": "placement",
+      "baseItem": 4,
+      "state": "unpublished"
+    },
+    {
+      "name": "utxo-chaining",
+      "baseItem": 5,
+      "state": "unpublished"
+    },
+    {
+      "name": "overlay-binding",
+      "baseItem": 6,
+      "state": "unpublished"
+    },
+    {
+      "name": "cross-domain-refs",
+      "baseItem": 7,
+      "state": "unpublished"
+    }
+  ],
+  "uncoveredCells": [
+    "No SDX implementation is admitted through intake. Two laboratory pilot implementations, sdx-v01 and sdx-go, ran through the driver contract in the laboratory self-test run 2026-11-15-r1 (see sutRuns); the run scores no requirement row",
+    "Phase A rows SDX-A-05 and SDX-A-06 have no authored TPNIL suite (VA-GRANT; VA-ROT waits for a reading of the rotation format)",
+    "SDX-A-09 rests on the laboratory stand-in VA-ADM until SDX publishes overlay-binding",
+    "SDX v0.1 sections without a requirement row, and rows with no case yet, are listed in coverage.json"
+  ],
+  "sutRuns": [
+    {
+      "runId": "2026-11-15-r1",
+      "record": "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/record.json",
+      "transcript": "programs/proposals/sdx-data-sharing/0.1.0/runs/2026-11-15-r1/transcript.jsonl",
+      "resultClass": "LAB_SELF_TEST_ONLY",
+      "statement": "A laboratory self-test run. It is not a conformance result, admits no implementation, and scores no requirement row.",
+      "contract": "0.1.0",
+      "repetitions": 2,
+      "repetitionsMatch": true,
+      "implementations": [
+        {
+          "id": "sdx-v01",
+          "declaration": "programs/proposals/sdx-data-sharing/0.1.0/runs/declarations/sdx-v01.json",
+          "commit": "9cba37cbd49f8f3552b0457030a195dca0b283dc",
+          "path": "impl/sdx",
+          "lastChange": "92aac12076cb493605cdb3fdf4451a9bd9ccbdf7",
+          "clean": true
+        },
+        {
+          "id": "sdxgo",
+          "declaration": "programs/proposals/sdx-data-sharing/0.1.0/runs/declarations/sdxgo.json",
+          "commit": "9cba37cbd49f8f3552b0457030a195dca0b283dc",
+          "path": "impl/sdx-go",
+          "lastChange": "9cba37cbd49f8f3552b0457030a195dca0b283dc",
+          "clean": true
+        }
+      ],
+      "executedSuites": [
+        "VA-ENV",
+        "VA-SIG",
+        "VA-KEY",
+        "VA-ADM"
+      ],
+      "blockedSuites": {
+        "VA-ENC": "driver contract 0.1.0 defines no deterministic-encoding operation",
+        "VA-ANC": "driver contract 0.1.0 defines no anchoring or chain-walk operation"
+      },
+      "outcomes": {
+        "sdx-v01": {
+          "VA-ENV": {
+            "PASS": 90,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 3,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 2
+          },
+          "VA-SIG": {
+            "PASS": 31,
+            "FAIL": 0,
+            "INCONCLUSIVE": 1,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          },
+          "VA-KEY": {
+            "PASS": 54,
+            "FAIL": 1,
+            "INCONCLUSIVE": 1,
+            "BLOCKED": 13,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          },
+          "VA-ADM": {
+            "PASS": 21,
+            "FAIL": 7,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 23,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          }
+        },
+        "sdxgo": {
+          "VA-ENV": {
+            "PASS": 93,
+            "FAIL": 0,
+            "INCONCLUSIVE": 2,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          },
+          "VA-SIG": {
+            "PASS": 32,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          },
+          "VA-KEY": {
+            "PASS": 69,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          },
+          "VA-ADM": {
+            "PASS": 51,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          }
+        }
+      },
+      "matrix": [
+        {
+          "writer": "sdx-v01",
+          "reader": "sdx-v01",
+          "kind": "self-pair",
+          "cases": 15,
+          "counts": {
+            "PASS": 11,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 4
+          }
+        },
+        {
+          "writer": "sdx-v01",
+          "reader": "sdxgo",
+          "kind": "cross-implementation",
+          "cases": 15,
+          "counts": {
+            "PASS": 11,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 4
+          }
+        },
+        {
+          "writer": "sdxgo",
+          "reader": "sdx-v01",
+          "kind": "cross-implementation",
+          "cases": 15,
+          "counts": {
+            "PASS": 15,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          }
+        },
+        {
+          "writer": "sdxgo",
+          "reader": "sdxgo",
+          "kind": "self-pair",
+          "cases": 15,
+          "counts": {
+            "PASS": 15,
+            "FAIL": 0,
+            "INCONCLUSIVE": 0,
+            "BLOCKED": 0,
+            "ERROR": 0,
+            "NOT_APPLICABLE": 0
+          }
+        }
+      ]
+    }
+  ]
+}

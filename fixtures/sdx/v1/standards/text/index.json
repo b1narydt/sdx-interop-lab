@@ -1,0 +1,94 @@
+{
+  "schema": "tpnil-sdx-source-text-index@0.1.0",
+  "edition": "SDX Protocol specification v0.1, dated 2026-07-17, revised 2026-09-01; keys, envelope and anchoring ratified 2026-09-01.",
+  "licence": {
+    "name": "SDX specification texts and test vectors licence",
+    "version": "1.0",
+    "date": "2026-09-01",
+    "licensor": "mintBlue B.V.",
+    "reference": "LICENSES/SDX-Specification-License-1.0.reference.txt",
+    "attribution": "SDX Protocol specification, version 0.1 (2026-07-17, revised 2026-09-01)"
+  },
+  "upstreamSeparator": "<!-- tpnil:upstream-text-follows -->",
+  "digestRule": "sha256 covers the stored file; upstreamSha256 covers the bytes after the first upstreamSeparator line and its newline, which are the retrieved bytes.",
+  "texts": [
+    {
+      "id": "sdx-v0.1-base",
+      "clausePrefix": "BASE",
+      "title": "Base protocol specification v0.1",
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "sourceUrl": "https://sdxprotocol.org/protocols/data-sharing/v0.1/",
+      "markdownUrl": "https://sdxprotocol.org/llms.mdx/protocols/data-sharing/v0.1.md",
+      "retrievedAt": "2026-11-11T05:08:31Z",
+      "sha256": "f125f70bc18513632688b0adecec21a80184106d9995fc1223471b2e93208d43",
+      "upstreamSha256": "944ad17b4b1237b4217d347739ae8995c923ac12befba500fc1829cd815f511f",
+      "upstreamBytes": 45560,
+      "modified": false
+    },
+    {
+      "id": "sdx-v0.1-keys",
+      "clausePrefix": "KEYS",
+      "title": "Keys, identity and delegation",
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "sourceUrl": "https://sdxprotocol.org/protocols/data-sharing/v0.1/keys/",
+      "markdownUrl": "https://sdxprotocol.org/llms.mdx/protocols/data-sharing/v0.1/keys.md",
+      "retrievedAt": "2026-11-11T05:08:31Z",
+      "sha256": "a954f9405fe0a53b1366725ab9b0a23b2cd3426a8858739b8ffd2ce4c7a898ac",
+      "upstreamSha256": "e4315e4eaadcab3b4bb3c229b2d98314b5e70ea7f10310f7846589f4a0f4f79f",
+      "upstreamBytes": 98098,
+      "modified": false
+    },
+    {
+      "id": "sdx-v0.1-envelope",
+      "clausePrefix": "ENV",
+      "title": "The record envelope and field placement",
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "sourceUrl": "https://sdxprotocol.org/protocols/data-sharing/v0.1/envelope/",
+      "markdownUrl": "https://sdxprotocol.org/llms.mdx/protocols/data-sharing/v0.1/envelope.md",
+      "retrievedAt": "2026-11-11T05:08:32Z",
+      "sha256": "00539ab7d1590f991b15034cc04f9ea7cdb47c40545b8259b270f49e008c3022",
+      "upstreamSha256": "1b5b980ca8eb73277b712257ece838e852a91fad87d3c4f3ef44c8e43018dc73",
+      "upstreamBytes": 138449,
+      "modified": false
+    },
+    {
+      "id": "sdx-v0.1-anchoring",
+      "clausePrefix": "ANC",
+      "title": "Anchoring, addressing and retrieval",
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "sourceUrl": "https://sdxprotocol.org/protocols/data-sharing/v0.1/anchoring/",
+      "markdownUrl": "https://sdxprotocol.org/llms.mdx/protocols/data-sharing/v0.1/anchoring.md",
+      "retrievedAt": "2026-11-11T05:08:32Z",
+      "sha256": "27dedc4c4ca70834e0798ea1cd68e2210a70baa32979ee56fa0005adccb149cc",
+      "upstreamSha256": "ba8e503e541c09f6fad78fb6838311014fbe617a5c6ab74e718e7983fb871eda",
+      "upstreamBytes": 69672,
+      "modified": false
+    },
+    {
+      "id": "sdx-v0.1-vectors",
+      "clausePrefix": "VEC",
+      "title": "Test vectors",
+      "path": "fixtures/sdx/v1/standards/text/vectors.md",
+      "sourceUrl": "https://sdxprotocol.org/protocols/data-sharing/v0.1/vectors/",
+      "markdownUrl": "https://sdxprotocol.org/llms.mdx/protocols/data-sharing/v0.1/vectors.md",
+      "retrievedAt": "2026-11-11T05:08:32Z",
+      "sha256": "f2b492a42f0b224538c2af025082beaa1be494e04ed7cb21f78f072668c9db49",
+      "upstreamSha256": "559fcbeaa596de824aab42bc1167c5efab47e6d9427d403a3e738c3787638907",
+      "upstreamBytes": 3684,
+      "modified": false
+    },
+    {
+      "id": "sdx-licence-1.0",
+      "clausePrefix": "LIC",
+      "title": "Licence",
+      "path": "fixtures/sdx/v1/standards/text/licence.md",
+      "sourceUrl": "https://sdxprotocol.org/licence/",
+      "markdownUrl": "https://sdxprotocol.org/llms.mdx/licence.md",
+      "retrievedAt": "2026-11-11T05:08:33Z",
+      "sha256": "b3ad8c88b9d1ce8c9311bec7a723de1f09591237f29ec776e78725be44d85938",
+      "upstreamSha256": "573e748e038d1012ec8282afbadf9efd9f0a8d4a27fc0090691500598943cd7b",
+      "upstreamBytes": 9289,
+      "modified": false
+    }
+  ]
+}

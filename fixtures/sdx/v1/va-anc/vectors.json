@@ -1,0 +1,1918 @@
+{
+  "schema": "tpnil-sdx-vectors@0.1.0",
+  "suite": "VA-ANC",
+  "claim": "LAB_SELF_TEST_ONLY",
+  "status": "BASELINE-v0.1",
+  "requirements": [
+    "SDX-A-07"
+  ],
+  "profile": {
+    "id": "tpnil-sdx-lab:v1",
+    "path": "fixtures/sdx/v1/deployment-profile.json",
+    "sha256": "2b5d3746178d85f878d212c3320a96e33185d0b3738ed8252f010a73a41e7c7c"
+  },
+  "citations": [
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "ANC §2.1, §2.2, §2.3"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "ANC §3.1, §3.3, §3.4"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "ANC §4.1, §4.2"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "ANC §6.1, §6.2"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "ANC §7.1, §7.2, §7.5"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/anchoring.md",
+      "clause": "ANC §12.6, §16"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/keys.md",
+      "clause": "KEYS §1.4.2, §1.6.1, §1.8.1, §1.8.2, §1.8.3, §1.10.4, §1.10.5"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/envelope.md",
+      "clause": "ENV §6.1"
+    },
+    {
+      "path": "fixtures/sdx/v1/standards/text/base.md",
+      "clause": "BASE §3.4"
+    }
+  ],
+  "references": [
+    {
+      "id": "BRC-62",
+      "title": "Background Evaluation Extended Format (BEEF) Transactions",
+      "url": "https://github.com/bsv-blockchain/BRCs/blob/master/transactions/0062.md"
+    },
+    {
+      "id": "BRC-74",
+      "title": "BSV Unified Merkle Path (BUMP) Format",
+      "url": "https://github.com/bsv-blockchain/BRCs/blob/master/transactions/0074.md"
+    },
+    {
+      "id": "BRC-95",
+      "title": "Atomic BEEF Transactions",
+      "url": "https://github.com/bsv-blockchain/BRCs/blob/master/transactions/0095.md"
+    },
+    {
+      "id": "BRC-42",
+      "title": "BSV Key Derivation Scheme (BKDS)",
+      "url": "https://github.com/bsv-blockchain/BRCs/blob/master/key-derivation/0042.md"
+    },
+    {
+      "id": "RFC 5869",
+      "title": "HMAC-based Extract-and-Expand Key Derivation Function (HKDF)",
+      "url": "https://www.rfc-editor.org/rfc/rfc5869"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "deployment-profile",
+      "kind": "Rests on the cited text",
+      "text": "Every derived value follows the laboratory deployment profile `tpnil-sdx-lab:v1` (fixtures/sdx/v1/deployment-profile.json; KEYS §1.3.1, ENV §2.1). The commitment key of an action is the BRC-42 self-derivation, on the secp256k1 seed of the root of the epoch the record declares (KEYS §1.4.2, HKDF-SHA-256 with info `sdx-secp256k1`), under protocol [2, `sdx sign`] with key ID `account/<accountId>/runtime/<runtimeId>/action/<actionId>` (ANC §3.1; KEYS §1.6.1, §1.8.1, §1.8.2). The level-3 keyword `action` is the profile's reading R1."
+    },
+    {
+      "id": "root-holding-reader",
+      "kind": "Rests on the cited text",
+      "text": "The walk runs as the participant's own reader, which ANC §6.2 requires to perform the chain-integrity check. It holds the participant's root for each epoch it can read (its keyring, KEYS §1.10.5), and each case states which epochs it holds. The roots are public 64-byte test values, published in `testKeys.roots`; they control 1-satoshi entries on the synthetic chain only."
+    },
+    {
+      "id": "stand-in-records",
+      "kind": "Laboratory test-construction choice",
+      "text": "Records are stand-ins: deterministic CBOR maps {proto: \"tpnil-sdx-lab-stand-in@0.1.0\", hdr: {aid, ep}, body} that carry in clear the two header members ANC §6.2 step 3 reads. A v0.1 record keeps them inside its outer wrap (ENV §6.1), and a reader obtains them by decrypting it (ENV §14). The stand-in's decode replaces that step: a stand-in decodes when it is a map with that proto and a header whose `aid` has ULID grammar and whose `ep` is an unsigned integer. The stand-in proto is not the profile's format identifier, so no stand-in is an SDX record envelope. Envelopes are the subject of VA-ENV (not yet authored)."
+    },
+    {
+      "id": "reference-encoding",
+      "kind": "Laboratory test-construction choice",
+      "text": "SDX v0.1 publishes no byte encoding for a reference and its proof (the `utxo-chaining` and `cross-domain-refs` suites are not yet published). The suite carries a reference as the deterministic CBOR map {v: 1, aid, tx, out, beef}: `beef` is BEEF V1 or Atomic BEEF holding the referenced transaction with its merkle path, `tx` and `out` cite that transaction and output (ANC §6.1 steps 4 and 5), and `aid` is the action the citation claims. The map is decoded strictly, beyond the semantic decoder ENV §3 requires, and a map with missing or additional members is refused. VA-ANC is re-based on the SDX suites when SDX publishes them."
+    },
+    {
+      "id": "reference-steps",
+      "kind": "Rests on the cited text",
+      "text": "verifyReference runs the steps of ANC §6.1 in order. Step 1 takes the transaction the proof carries (the Atomic BEEF subject, or the last transaction of BEEF V1) and its BUMP; step 2 computes the Bitcoin SHA-256d merkle root for the transaction's computed txid; step 3 confirms the root against the verifier's header source; step 4 confirms the cited txid equals the computed one; step 5 confirms the cited output exists and has the container shape of ANC §2.1 and §2.2. A transaction of exactly 64 bytes is not accepted as proved mined (CVE-2017-12842). Any failure is the dead-letter class `cross-ref-invalid` (ANC §6.1, §7.5). The BRC-74 client-txid flag (0x02) is informational, as in @bsv/sdk, so it is the one bit of a BUMP leaf a proof does not bind."
+    },
+    {
+      "id": "header-source",
+      "kind": "Rests on the cited text",
+      "text": "ANC §6.1 step 3 names two causes for a root the verifier cannot confirm. A block height its header source does not hold is a configuration fault: the outcome is INCONCLUSIVE, with label `header-range-unknown`. A root that differs from the header the source holds at that height names a non-canonical chain: the reference is refused, and in a walk the row is refused."
+    },
+    {
+      "id": "honest-citation",
+      "kind": "Rests on the cited text",
+      "text": "A verifier that is a recipient of the referenced record SHOULD decode it and confirm its header declares the chain and action the citation claims (ANC §6.1). Cases with `recipient: true` run that guard and compare the referenced record's `aid` with the claimed `aid`. A verifier that is not a recipient cannot run it and accepts any valid container at the cited position, which the paired cases show. The chain half of the guard is not checked: the ENV §6.1 header declares no chain (coverage source finding ANC-6)."
+    },
+    {
+      "id": "walk",
+      "kind": "Rests on the cited text",
+      "text": "walkChain starts from the origin outpoint the operator published (ANC §4.1) or from the entry of the last processed action (ANC §7.1). It proves each retrieved transaction through its merkle path against its header source (ANC §12.6, §16) and does not use a refused one. It then repeats ANC §7.1: find the transaction that consumes the current entry; require exactly one of its inputs to consume a tip of this chain (ANC §4.2); scan every output, decode each container (ANC §2.1, §2.2) and its record, derive the expected commitment key for the action and epoch the record declares, and keep the output whose key matches (ANC §2.3, §6.2); move to it. An origin start first checks the origin entry the same way (ANC §4.1). Canonical order is spend order (ANC §7.2): two actions in one block are ordered by their spend."
+    },
+    {
+      "id": "spend-recheck",
+      "kind": "Rests on the cited text",
+      "text": "The consuming input is rechecked as defence in depth: `<record> DROP <key> CHECKSIG` with a SIGHASH_FORKID signature (BIP 143 preimage), verified as secp256k1 ECDSA over SHA-256d. Either S is accepted (KEYS §1.8.3). The transaction is proved mined, so a recheck that does not pass is the checker's limit: the walk stops INCONCLUSIVE, and never reports a chain verdict from it."
+    },
+    {
+      "id": "dead-letter-classes",
+      "kind": "Rests on the cited text",
+      "text": "Outcomes name the ANC §7.5 dead-letter reason as a class: `integrity-fail` (no output matches, ANC §6.2 and §7.1 step 4; or an origin entry that is not the participant's derivation), `decode-fail` (a record that does not decode), `key-missing` (a record that declares an epoch whose root the reader does not hold; KEYS §1.10.4 has it halt rather than skip), `cross-ref-invalid` (a reference that fails ANC §6.1), and `chain-break-timeout`. ANC §7.5 says the fixed set includes these five and lists no others, so a failure the text names no reason for, such as an action that consumes two tips (ANC §4.2), is the class `unlisted`: the action is dead-lettered and any reason is accepted. An implementation under test must match the result, the dispatched actions, the tip, the class of each dead-lettered transaction and the set of refused transactions. Every `label` is the laboratory's own detail and is informative only."
+    },
+    {
+      "id": "walk-halts",
+      "kind": "Laboratory interpretation",
+      "text": "The walk halts at the first dead-lettered action and dispatches nothing after it. ANC §6.1 forbids dispatching a partially verified action; v0.1 does not say whether a reader walks past a dead-lettered one."
+    },
+    {
+      "id": "no-match-reason",
+      "kind": "Laboratory interpretation",
+      "text": "When no output of the consuming transaction matches, ANC §7.1 step 4 names `integrity-fail`. Where a candidate's derivation could not be attempted, the walk reports the reason that stopped it instead: `key-missing` first (KEYS §1.10.4), then `decode-fail`."
+    },
+    {
+      "id": "unlinked-entries",
+      "kind": "Laboratory interpretation",
+      "text": "An entry of the chain that no walk from the start reaches waits for a chain link that does not arrive. A reader with a clock dead-letters it as `chain-break-timeout` when its wait ends (ANC §7.5); the suite's verifier has no clock, so it reports each such entry once the walk over the retrieved rows ends normally. Entries the start descends from count as processed."
+    },
+    {
+      "id": "origin",
+      "kind": "Rests on the cited text",
+      "text": "The walk does not read an origin marker. ANC §4.1 places one in the origin's envelope header, but the ENV §6.1 header defines no such member (coverage source finding ANC-4). A consumer follows a chain from the origin identifier the operator published out of band (ANC §4.1), so a competing entry elsewhere does not change the walk. The forged origin in this suite carries the participant's origin record under a key from another root."
+    },
+    {
+      "id": "byte-order",
+      "kind": "Laboratory test-construction choice",
+      "text": "Inside proofs, BEEF and BUMPs, every txid and merkle node is in internal byte order (the raw SHA-256d output). Outpoints and txids in the JSON fields `txidDisplay`, `tip` and `deadLetters` use display order, the reverse, as transaction identifiers are written in index answers; ANC §12.2 writes only `<hex>`."
+    },
+    {
+      "id": "synthetic-chain",
+      "kind": "Laboratory test-construction choice",
+      "text": "The pinned list of synthetic 80-byte block headers in `chain.headers` is the header source. Each header meets its own regtest-difficulty bits (0x207fffff) and links to its predecessor. Height 0 holds the synthetic genesis coinbase that funds every transaction; heights 1-100 hold coinbase-only blocks so that the genesis coinbase is mature when it is spent at height 101. A case with `headersThrough` gives the verifier the list up to that height only. Every transaction is valid; none is broadcast or touches any network."
+    },
+    {
+      "id": "beef-profile",
+      "kind": "Laboratory test-construction choice",
+      "text": "Proof BEEF is BEEF V1 (BRC-62) or Atomic BEEF (BRC-95) wrapping V1. Every transaction appears once and after any in-BEEF parent; each BUMP reference names a BUMP that holds the txid at level 0; an Atomic BEEF holds its subject and only the subject's in-BEEF ancestors. BEEF V2 is recognised and reported INCONCLUSIVE."
+    },
+    {
+      "id": "scope",
+      "kind": "Rests on the cited text",
+      "text": "Outside this suite: the write path (ANC §5), rotation (ANC §4.3; VA-ROT is not yet authored), reorganisation (ANC §7.4), and admission and the per-topic index (ANC §10-§16). ANC §2.4 is a writer obligation: every entry here carries the profile's value floor of one satoshi, and no verifier check rests on it."
+    }
+  ],
+  "outcomeClasses": [
+    "integrity-fail",
+    "decode-fail",
+    "key-missing",
+    "cross-ref-invalid",
+    "chain-break-timeout",
+    "unlisted"
+  ],
+  "testKeys": {
+    "warning": "Public LAB_SELF_TEST_ONLY keys and roots. They control value only on the synthetic chain in this file.",
+    "keys": {
+      "coinbase": {
+        "privateKey": "4b9be503fc7912795362e52b26bc17b2830714094306586be1bed9ba581aaa19",
+        "publicKey": "020dceba7916c0696948bc32cdda012cdf11c7eb235c871560d73227db9f6e6bfe",
+        "derivedFrom": "SHA-256(\"TPNIL LAB_SELF_TEST_ONLY public test key: coinbase\")",
+        "use": "Receives every synthetic coinbase output."
+      },
+      "funding": {
+        "privateKey": "01ded4eb0cdeb68dfb0075847efb55a8d47f75eaadc9683581b518066585d107",
+        "publicKey": "0323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940a",
+        "derivedFrom": "SHA-256(\"TPNIL LAB_SELF_TEST_ONLY public test key: funding\")",
+        "use": "P2PKH funding outputs for every action and the change of the master distribution."
+      },
+      "handoffRecipient": {
+        "privateKey": "980f888482e480b8f716e95a8a5b3be46938b9979687b6c9c9bff4c579fca9fc",
+        "publicKey": "023fa084af9d9de4f4c81c3e3e4daaf21fc26663c8977ca8fd126cb05a6db25796",
+        "derivedFrom": "SHA-256(\"TPNIL LAB_SELF_TEST_ONLY public test key: handoffRecipient\")",
+        "use": "The counterparty of the handoff entry in the transaction of action M3 (ANC §3.4); it holds no root in this suite."
+      }
+    },
+    "roots": {
+      "participant": {
+        "0": {
+          "root": "35a8007a460d2cffee8f2a9aed659c6a16740c792903c54255b2fa094c4b2cbdd05532be85889f8bda89b9341e625c287b50e7203ebda48d7285ec961c5115f0",
+          "derivedFrom": "SHA-512(\"TPNIL LAB_SELF_TEST_ONLY VA-ANC public test root: participant, epoch 0\")"
+        },
+        "1": {
+          "root": "dcbae4a09c62aa28f8937426547ccb06b742de37025a01c5e6bc0c41f2c1fa1f69608b45c3e02ba352c3f12daac053bb2341191e1b7a602634abaf3d65571295",
+          "derivedFrom": "SHA-512(\"TPNIL LAB_SELF_TEST_ONLY VA-ANC public test root: participant, epoch 1\")"
+        },
+        "2": {
+          "root": "0ba5bb992e1e4cacd7882fb60a83c274ac667e771e6cd43791650b18b97461f964b5cfba3ac369bc13879f3386930d6487da4d98fc74d2f5f6b93f0452d1026f",
+          "derivedFrom": "SHA-512(\"TPNIL LAB_SELF_TEST_ONLY VA-ANC public test root: participant, epoch 2\")"
+        }
+      },
+      "attacker": {
+        "0": {
+          "root": "af00de709c84db19c6b3ae2bdb29e7ccd3e25bc6db7490031fb58147c99042015e994564be4a9e154e3167e116d144cd2c0d1f5ced8baa100554c3437f97c406",
+          "derivedFrom": "SHA-512(\"TPNIL LAB_SELF_TEST_ONLY VA-ANC public test root: attacker, epoch 0\")"
+        }
+      }
+    },
+    "rootDerivation": "Each root is SHA-512 of its label, which starts \"TPNIL LAB_SELF_TEST_ONLY VA-ANC public test root: \". The participant holds one root per epoch; the attacker root makes the forged origin entry F.",
+    "handoff": {
+      "protocolID": [
+        2,
+        "sdx handoff"
+      ],
+      "keyID": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01KDVDNBYGE7307XVB1SZJP82J/handoff/0b0fbdd8e0f2fc35642ffe472eb7cf19",
+      "counterparty": "023fa084af9d9de4f4c81c3e3e4daaf21fc26663c8977ca8fd126cb05a6db25796",
+      "note": "The handoff entry of M3 is locked to the recipient's derived key (ANC §3.4); no reader derivation under the signing namespace matches it."
+    }
+  },
+  "chain": {
+    "description": "Synthetic chain, LAB_SELF_TEST_ONLY. It is not any real network and none of its transactions is broadcast. The header list is the verifier's header source.",
+    "bits": "207fffff",
+    "genesisTime": 1767225600,
+    "blockSpacingSeconds": 600,
+    "coinbaseLabel": "TPNIL LAB_SELF_TEST_ONLY synthetic coinbase; never broadcast",
+    "tipHeight": 106,
+    "headersSha256": "1eb004a3830bc2b1ddac06e72330d002444dc9d421ad365d63d9e952494e7ceb",
+    "headers": [
+      {
+        "height": 0,
+        "header": "000000200000000000000000000000000000000000000000000000000000000000000000f4a3a914ef6e83ccf226226416b9baa4ff69ed96675ca216d678e1b954bc096900b95569ffff7f2004000000"
+      },
+      {
+        "height": 1,
+        "header": "0000002048d94384dbc596c23368b2d29a60c619ca8733f53635cc78417908658f9dad486b229a8db8fc7ddd1630ed83a22c58d2cee4bc413ec5fada8c569ddd9288132958bb5569ffff7f2002000000"
+      },
+      {
+        "height": 2,
+        "header": "0000002017b796256bae765e6e5233453e2c62950bdf5000144d3e96dd969362fb9e8008d8689122fdd0d1465b4f3a7fca60c07fc73804a4f56466409c39e14936e0c870b0bd5569ffff7f2001000000"
+      },
+      {
+        "height": 3,
+        "header": "00000020ed805f7fc0164a87bea2e6c50fafc7c87830563ad6eb429a88c0006bc226cc699964fc2bc76fd6c783bcde5c11db3d2108f88f4387c24be2fa6d887beccc912c08c05569ffff7f2000000000"
+      },
+      {
+        "height": 4,
+        "header": "00000020a2df0258547d2e2e91de5a6bb9fb126fdc1f76e691327ee70d7a3b902c86542c54fc119c1ef5a356e73d906a88d8ef103345fee87e4ca1ace48304e7962c297c60c25569ffff7f2001000000"
+      },
+      {
+        "height": 5,
+        "header": "0000002072bd1c0b66b3edc86290c4d97e6cf10269e5a7dfe80592b5567b7a687a281348afec00bfe26958023de3756f1a76d2957b52e93e47b831bb04f5a4e85a267752b8c45569ffff7f2000000000"
+      },
+      {
+        "height": 6,
+        "header": "00000020f8efec81fe8b07acf69e8de30548be12e7e681a922f14619181c0beb5790876a19571664528065337cdbb9e36b0a1c196067b5cc6b2233d3a9ba8056420fb54610c75569ffff7f2000000000"
+      },
+      {
+        "height": 7,
+        "header": "000000204106195f02580a0bc2b3416b6e766455d73c5305b78ed4ca7e80c9adc20f2d1ad718ac825121d55d078dde3e8385a563215cafe9d29f5dec98138b33f6c4798a68c95569ffff7f2000000000"
+      },
+      {
+        "height": 8,
+        "header": "00000020c7a9ca26b89484f2a29a60ccf7a21c21ee5d40d0562c69c9be1a606c7251e414b972df69862eece88118dd5d3f6d8f2b442e1199a6c5dfce98b596a2e8336047c0cb5569ffff7f2000000000"
+      },
+      {
+        "height": 9,
+        "header": "00000020702852743b6e35fe715ae71f52cf7bd6288fdc98c746e1cf241d5c1104a56f0e12629fa8de55229b9efd10c95f8fd156dd5e4e1ad20eef05d2ba32cb451fb60a18ce5569ffff7f2004000000"
+      },
+      {
+        "height": 10,
+        "header": "000000205b196ba69c8d8c64506c6bb46547f4b56974083a765438ec684cc73e35e88f32cfb8263926d2cb8edcaa4ccd28c229f5cdeaa86cc0b7fed1c951cf890b6a36bf70d05569ffff7f2001000000"
+      },
+      {
+        "height": 11,
+        "header": "000000207c366685e6a11c9ce08fb731abe6dca174d27045456f3c63a331543b2508375bf09b3ba28e7a20ce793c1eeb003f7475269f6ac71566bc1f9662c7d040bb9d0fc8d25569ffff7f2000000000"
+      },
+      {
+        "height": 12,
+        "header": "00000020db70cc8f5c7c673abbb7c89e43117f72163f74ec58a8dc0bf0e564fb883140188830601be2d68658ee4e088972b5c2ed678ed47dbbcce0d2d3f9212397d2201d20d55569ffff7f2000000000"
+      },
+      {
+        "height": 13,
+        "header": "000000203c4fb180dbfafaa652f0debb13dc1aacbdb54105aede532fee8be5240cc50d2dfc8afaf0b4458049f4b3e676e7f01ede05f4886311953852780e37fa321c0d7078d75569ffff7f2002000000"
+      },
+      {
+        "height": 14,
+        "header": "00000020ceeb769d0643ca102cd69430dbcd1cbeef20ba2a5e2710fbe8b863f6cb5f2200cc7d2ff21391c5f4a46f631a9c5492ced5fec772a55931023e83c08bae16c173d0d95569ffff7f2006000000"
+      },
+      {
+        "height": 15,
+        "header": "000000206f2184e1c2544b7bdf0ace4b736e72c4b7843450e61d1cf1feb51161128b416a24a65511a1634e2adbc38a6fc6c5df3b62aa3cf77173611276985fce7b3562a128dc5569ffff7f2000000000"
+      },
+      {
+        "height": 16,
+        "header": "00000020f527470a9ec940c5d9b4fa87dd1618d1acbc41165db8ada096ed50458dee38272827a0b789b8a61ccc7c94ab0770d7b0c7595f08047a92c4ba32e950ff9329e380de5569ffff7f2000000000"
+      },
+      {
+        "height": 17,
+        "header": "0000002049c189c77aa8b10a1938f4ed139463ef4eef1e0630d3df345b221d61290d310b4c89f24f56799375dcde7c6a55677f5ee920ba1774d635b66b9b12011cc7874fd8e05569ffff7f2000000000"
+      },
+      {
+        "height": 18,
+        "header": "00000020c7567286cda1b5880f3136bc919a04ee7e05b1dbdd43c02ffbce849544a36c7252d31af71f3b0434be1be95746f03c43b519a464dd0782636f5627a92f85cb3b30e35569ffff7f2000000000"
+      },
+      {
+        "height": 19,
+        "header": "0000002011e432abeaf2168e4ad9a0e6de8b6dca0fc84606197a5c725fe6c9e6ebc3052ef14686b21f4a178326a4e0a000472c4fc46e5fcc7e0de53614b6c477c58d465188e55569ffff7f2001000000"
+      },
+      {
+        "height": 20,
+        "header": "00000020efece70a6ed4ccdda0c333066190230175b6fbf97ce3d04753eb771254cb064255ca598da4f6bd7374c8597807372e322025161a1106114b5bfcbe6758366dcee0e75569ffff7f2000000000"
+      },
+      {
+        "height": 21,
+        "header": "000000209ea74342ca1dd21355ac3f9d12a26b0bb9f4a1fc2184feecbe8a42d63240f307cab5dca2ae432ad99e471beee625b8cdf5f4be06b8afa106b07ed552e08c720b38ea5569ffff7f2000000000"
+      },
+      {
+        "height": 22,
+        "header": "000000206faa095a385063a70e863c7452f58feaa60746c2ced0ced602ef93f715298d663d46501708eeff2e555e0e9846e66436d9be98a93f9d4cd7535794085a3561f990ec5569ffff7f2000000000"
+      },
+      {
+        "height": 23,
+        "header": "00000020d6a78f9d2c31a1a46acbc555b1fc13ec6e128d19a6b0dd73b7add425bbfa7605810e17c071592eeadb40f25bd380158d80b154f578e83d4d339d69108d01d467e8ee5569ffff7f2000000000"
+      },
+      {
+        "height": 24,
+        "header": "000000209c1da9dd323f0e74ecffd25fc283dd6e9d65aadc6695c0cbe5e47ad05370be2a7eb767f0d9291bb58e2983ce46459aaca0dc00285db52a1cd32efca14102cc9840f15569ffff7f2000000000"
+      },
+      {
+        "height": 25,
+        "header": "00000020f17ab2863dc5b03be3205ef79b3242ead37c70f652f5abde5672d0f8d1fced0746810c8fa813b6ec90ac1ef7cede003d672e9d58da257de1d2d6100e0190136498f35569ffff7f2000000000"
+      },
+      {
+        "height": 26,
+        "header": "000000200754241688f930aef66e25732e9f49dd195290995a373205d2d0730e1ba84a1ecb56e2874882e6318fdc321670119f09dddaeb65e5c3efb50617627db1d0b2c7f0f55569ffff7f2000000000"
+      },
+      {
+        "height": 27,
+        "header": "000000209b6699f187cb70ee4cbabb49c008345bebad1f9874df1d46a16ba588d330f5281a9c7ee75d4734ef6b088048d5ac2105565622447d65741b345cce19af168d7148f85569ffff7f2002000000"
+      },
+      {
+        "height": 28,
+        "header": "000000208c3d2831b603847e55916b23fef3bd5501a613208939821d5bbc5ffa1c57f67de4832c36655466fe7b45a1e377eef7cbab1cc73dd0601e3865aab07e11a2fc25a0fa5569ffff7f2001000000"
+      },
+      {
+        "height": 29,
+        "header": "000000204dbd4a291f58e05f36fe3dd251b01d726f3ea79a08b8de5951a6a56428279b5575c4c9a7db86b2e67374328ffb20087ee6c52c212795b53f6143752435ec4955f8fc5569ffff7f2001000000"
+      },
+      {
+        "height": 30,
+        "header": "000000206bac413d51e934f67fb98a89e82464bde89beed716e0a5851b7c33c0dfd949451e3cbc5ecc744e8a63b728af71346c9f7209a235cadf382dd39d075a7f02815950ff5569ffff7f2000000000"
+      },
+      {
+        "height": 31,
+        "header": "000000209ea1ea97b7e84989664446707e7b03e0dcc6449b8b98735fee9fda96a549f84a9ac2ab4c33ce81ad465911a8f14207cc804eb5f16ff237a77355583b33e5ab80a8015669ffff7f2000000000"
+      },
+      {
+        "height": 32,
+        "header": "000000201d4d8f68c0730cc8bc70b2bf840dd93ce1e7aa97ae93a9945796f101b1ae050026d0caa1624e7f6f67d88ffc4de586770c1945d3c53c9f68b5c44fee6320189900045669ffff7f2002000000"
+      },
+      {
+        "height": 33,
+        "header": "0000002022ed88d2576f186cea1692f052a13f7c3afecc3453b1c20603e64453ee24327c0835d0dd5b27cdba7c6be67fcb4441ec22bf3afa2c14c99d08d961e15341a30f58065669ffff7f2002000000"
+      },
+      {
+        "height": 34,
+        "header": "000000204b1b26bef0d685ef30c6af34a72f3af3d6dc655fcaf3b05178b42cee86b3240f42583fb1f4dc8b0780a976316d5b1565c050bfe87ecb872c976c2e8e82ef3bf0b0085669ffff7f2001000000"
+      },
+      {
+        "height": 35,
+        "header": "000000204ae6066b26cd504b78df4055622a890c664d94628c1725c29df1074f4d62db398235be6db5b9f7106d236642ef6f2e61e64cf17888245f640942ac3cac9a43ca080b5669ffff7f2001000000"
+      },
+      {
+        "height": 36,
+        "header": "00000020c67aefbc1357268a76fa5f3dc4f1f5db0b35abaed881b2aca96adb577f0e471be0ffcf70fb396cb19b1859aefea9c74651c1f5b7aa2110faad581f4ed1695378600d5669ffff7f2000000000"
+      },
+      {
+        "height": 37,
+        "header": "00000020c5c201b240c6077730b2e0953bccb5865d9a71d576ed8d19267c352090ac5b0d697ea93a0384336f428ee16c886ce78669d332f080ddd6c20e2d2919fd017106b80f5669ffff7f2000000000"
+      },
+      {
+        "height": 38,
+        "header": "0000002062066e758e51e5478e395f4e93cced0a710b6f07321852d41cae1cd9fc6ba06123dc3fc0f6c4b202acb37de11fb9f9854f829ad7f8a1900394a58eb5a5665b3810125669ffff7f2002000000"
+      },
+      {
+        "height": 39,
+        "header": "00000020bcf0cefa04b728bc31cdc01ebc7c8fdec833e92cb0497607b179e51fcbb31e5314bdc336e6a710bf3f104ad23702bdb99baf639e1a505818aa131a9d6a9cdc1268145669ffff7f2001000000"
+      },
+      {
+        "height": 40,
+        "header": "0000002080a32a5df68fdce31fce6415c9e21277d017085f88ab543016f379951f079a59ce4144b9df54327b0e175141d7c26a6b562f4fcd58aac4d75b855a0ea6317803c0165669ffff7f2003000000"
+      },
+      {
+        "height": 41,
+        "header": "00000020f5a6694dfc816279ba1d4e347711c752ea62680e1a08e34ac3c53d8ee2a6607fd10d5b7846ab0621c2886a794e14b59dff879618d5543e9f066ab4fbc47c284318195669ffff7f2000000000"
+      },
+      {
+        "height": 42,
+        "header": "0000002072e059a6d70e5e71d0a04940486542ffef6472edb75da74bc0b7faa33436955d84764382943d774e3f206c4c1e3d297bce02dd789273ff48129a3c95cc5b3286701b5669ffff7f2002000000"
+      },
+      {
+        "height": 43,
+        "header": "00000020808e301889e751e876e9d0050df03eadf9674f940365ac12d9ac502dc381780cce8e484f1a50e566533e7cd15480720e9f178bffe24dcffbdc9221348e5ea1a2c81d5669ffff7f2001000000"
+      },
+      {
+        "height": 44,
+        "header": "00000020a666ab0faaa2049cf7900405930b36ea4a789d7af460d7bb0d5a6cf47578547916ff29ebb22de12ff6893e9098238af4d4789acc031f6a961f08fd955a6e4f8020205669ffff7f2001000000"
+      },
+      {
+        "height": 45,
+        "header": "0000002033d4990485a54cba7b9df20f77d97d794df60ad47ed43d06d6e5886f9ab8184b13ed29cae47d64d48ddb2e36a463e76ccf557a6ef88be198ab1891f329d3c93478225669ffff7f2000000000"
+      },
+      {
+        "height": 46,
+        "header": "000000208ed34d02610ed239c92e44bbcb21270003881bf34a70d46adaa979a77daffa0d1c558b48402b081d858b52c4d30f494ec53dcf7a4501feb170dce46474b5ee9cd0245669ffff7f2001000000"
+      },
+      {
+        "height": 47,
+        "header": "0000002007dab60254b9cbb0c8f2750b946616c86cc1ebf762712bdd2a35b7d9f9ad7231fc697bd97a91574c52b3e5acbe4783fc0333d11e65201dba379593390bb51cad28275669ffff7f2001000000"
+      },
+      {
+        "height": 48,
+        "header": "00000020029e34bd0756234e42feacd8118029be2517c5bfb13688ee43ea3a34cd592c335153577ea8041ab0b960e02444cc994de298aeccd04f514768132dd88bea4bfb80295669ffff7f2001000000"
+      },
+      {
+        "height": 49,
+        "header": "00000020289fcf7c7c0cccabff04f4dabe8f427a29184f2dbdee94ed7ad3a5c1c749e34cfbcee78d78744a4262d7adc6bef1ddf0c91751a9740e19927f12013e25514f39d82b5669ffff7f2000000000"
+      },
+      {
+        "height": 50,
+        "header": "0000002049790f078c7dd824352c2913f94d46bd2e91dfb95237485367d66ee096580459051d3b18f68d2b2dc9e284b828ba2a9b0ee779a37d8a23b8d60bfee647ca7aa5302e5669ffff7f2009000000"
+      },
+      {
+        "height": 51,
+        "header": "0000002039c37a4f2155dc79f378dbbbec8512d273f6eb3c771d2163976ea15a9ec73254a5057f2a20581dc94440cebcb8092dd4748d1d03ca05294d38fc121ff7a7038c88305669ffff7f2001000000"
+      },
+      {
+        "height": 52,
+        "header": "00000020125e175a08179b7a7fa1d892fea2aae8289e27535481e11c000d48565f15ab6c115e00de543e1dc92e729eb0ab025558ec659605bb2a112e916989fc07e0d718e0325669ffff7f2001000000"
+      },
+      {
+        "height": 53,
+        "header": "00000020e46736555fe2409821067b4ab6c499c1db3c219e8b036304dc5df642a70442391009745d52d0cf561809c8a226e0658ae781cf29b0736c0104a8be74b10de63938355669ffff7f2006000000"
+      },
+      {
+        "height": 54,
+        "header": "00000020f1802a3de72c12aed29d4bf52b6718b929596e95959edd276eb65384057dc6114f80947cf108f69b8fd069d237ac3e5182ce582842dce67d041f24858da3eb0a90375669ffff7f2001000000"
+      },
+      {
+        "height": 55,
+        "header": "00000020983539f19a715d5f93167fc79a06709b39e58bc601ab34cbf7bf169157b9084de11e6ae455790bb39e774df1bf6477216a5ee31703443471291dd7ff0d7e62c9e8395669ffff7f2001000000"
+      },
+      {
+        "height": 56,
+        "header": "0000002037280734aff7ecfc02e971f98779c4dfa1b2677abebec03cc94a8e9323cc455ffcdb447ca5c965efaedc374a9d1330535b9f13adcf17af11c93aa345942ae332403c5669ffff7f2001000000"
+      },
+      {
+        "height": 57,
+        "header": "000000208873a148aeaf996aa6b1329f46caa5e27f6ec0ca22c9bfabb77587f5c85c61309d6e4b9a4e9308281b64a05e76a9ab70b3500fb0ca2d700720a0fb7646d70f04983e5669ffff7f2000000000"
+      },
+      {
+        "height": 58,
+        "header": "00000020ce0b018539aa8bfbdf4bd1ecf0c5d2262f1baf7d0e860ca27b77e3364e4d4c4e82abf6dd0c7268ef727113d2b9a0e1a017ca72c17e32ebda4d11c0a1aa17309af0405669ffff7f2000000000"
+      },
+      {
+        "height": 59,
+        "header": "00000020338078e3f8a6418f961fd0e136050d7a8f00bb7bdb7a4f24f5cb2a42c45805262d5ecc3efec4c860d010b6bcbd8756e5c5d8078dbfee59ea23eb1476124a9e3a48435669ffff7f2000000000"
+      },
+      {
+        "height": 60,
+        "header": "00000020c41e45b25154dc0ef930d1292278a7868bc4be5ea6032012f0fd11c11ebc4b58d0612dbc9fcf2da14ce4ae36504dc1356dec47888b8856dc9e698f7e78c878eca0455669ffff7f2002000000"
+      },
+      {
+        "height": 61,
+        "header": "00000020aca49a677bb9632261e7036e54ed2d922b1fed300a33df272782797345cd1e1c03cbc629c3e35dd7b655a86c6922366bb69a4898ae3609d83b76b49f266a3530f8475669ffff7f2001000000"
+      },
+      {
+        "height": 62,
+        "header": "00000020a58f394fd2ff7d4503f81375cc7636df7a9959b28be6ca5294e1e91df80a3a79fcc97226f39c884db7ec9f5542e302eeee5b01d2227d9aeb41da3f9de0871dbe504a5669ffff7f2001000000"
+      },
+      {
+        "height": 63,
+        "header": "000000206ccb68e9bf6adf09b7584e78bc6bb36026dc297be1520871b932f83a1f13155332164fb71fc8dc21a3af18f3af0008e9096566726f961b2765edd730c451d9fda84c5669ffff7f2000000000"
+      },
+      {
+        "height": 64,
+        "header": "000000200015d7a96a370014fe77edd2b6aa96e965f699ef06a8d41f9781679b0e50eb6c72e70769fd088e962b11529560fa600b4802bd3d02890958807fa7c96e2392b4004f5669ffff7f2000000000"
+      },
+      {
+        "height": 65,
+        "header": "00000020c57d153c184428246c33596be6f76a46bad1574e09e5dd670a80b9b47f940d7c223423aea61208c8e845902f9652ffe423e35b8c4c7b51968d98de84a587046e58515669ffff7f2001000000"
+      },
+      {
+        "height": 66,
+        "header": "00000020630c9eeee8320b0e2e12ea31d749f14cdeb95b13457a5ec437e82126d0c91f5e47f8e91e3858295600337e36eec90291a4ef5f82d02c85e4ed9c793fd65a9b61b0535669ffff7f2003000000"
+      },
+      {
+        "height": 67,
+        "header": "000000201ae918b7e2b7b15735badd388b3f5df1b5bf73e051cdf330abfba68fe31031782865d4ab65eed195b5fc419b16f2130b393f44a40e1ab1ef016498cbcaa1131608565669ffff7f2000000000"
+      },
+      {
+        "height": 68,
+        "header": "000000201f10fa4311beff31d10871ee2875152cdae8c81981bf87af877a2872bc673b218b8749ce706e7b5195931546b2d3c8df4a0f8a50fd5a30839bfd6ab44295aaa560585669ffff7f2003000000"
+      },
+      {
+        "height": 69,
+        "header": "0000002010e5839be23a3bf123fea54eac51e3a9e06701a76514394a0e7eb47506d5293557536ac49ca2fb3931fa24ee05d6694a084c953db5c2bc6ac202a32d618eb0d4b85a5669ffff7f2000000000"
+      },
+      {
+        "height": 70,
+        "header": "00000020292820c127fba0cf6eade71e0fb098a474d2bad5c35533967625f734f49a3607e1f55ce09b8edc5b183725f7ddaf8f164fa4f1ba098f62af05561e4f876b58f6105d5669ffff7f2000000000"
+      },
+      {
+        "height": 71,
+        "header": "0000002034939adb8f5b5f8ad44f080d8fd34822dd354d02937b54f671cf6a6d656e795938727ee35964d842441aff37ee689936864686b4ec42b0fe9838330829e14705685f5669ffff7f2000000000"
+      },
+      {
+        "height": 72,
+        "header": "00000020cc249a2ff2e7723059705818fc339b525ae1012ce52a95064f3845cbcd71ef61e6f6aacd65e7bdc47ac5f695f317e9c03f067b1da12b11ac23832a9c17e929b0c0615669ffff7f2002000000"
+      },
+      {
+        "height": 73,
+        "header": "000000200176ac6aa1f01eee8e3e6da0c2296448b6c803f678ce32f54fa4dab23d39156397f2c48eeb4bc74fc6db0027fad0143e4fda81fc9b5f357e2dbb8b5a1878428318645669ffff7f2000000000"
+      },
+      {
+        "height": 74,
+        "header": "00000020de912d6ff3ff7cf6c02b61f3ff3c6f02706bc3d261c36a34b6fccc6b278ef057298ebd812f2f9abcdf524fd1ccdc57ddcd0fa85e2f431bd42681074445adbe3b70665669ffff7f2000000000"
+      },
+      {
+        "height": 75,
+        "header": "000000200f920d28c4b459fed274693741849fd55c9889ebc64314aa0d8dc1b604aa8755b531137f12a3eda1fb4a4e9aa8370a5275ecf8771c12bfd51dc66921403f2cabc8685669ffff7f2000000000"
+      },
+      {
+        "height": 76,
+        "header": "00000020aec04bfa9c83a204d4bcfd60cb32731f9b89bdaa63ba28b5ee0f48f4505e353a6a3ab067d488c3fa60ddb6a4de5e51b998ac87ef2bdcf6288fc49c4f54a5ea37206b5669ffff7f2000000000"
+      },
+      {
+        "height": 77,
+        "header": "0000002041f0f9f1b7189baa9eda6303db9f6c5600370abdb69c291fe9a596f03827fc74834614e1a7eaa6b6f9abded9e143afda56d47267ea38efed60531468ed73fa71786d5669ffff7f2002000000"
+      },
+      {
+        "height": 78,
+        "header": "00000020790c48e870113f04c5721a4aa8082915539a788c319e1f194ec2c542e7f5776aa33e6cb7918765e82f48613f680af2984224443a0c7d7eda7fbaa48911ee757cd06f5669ffff7f2000000000"
+      },
+      {
+        "height": 79,
+        "header": "00000020cec8f01d7bbb522fe4f18496fdc1c0d05820e7800dfa70f971b586087b0d384ae40373c482989d1e7fa250c09505a262d1151ea3c38b842832671093859752fe28725669ffff7f2000000000"
+      },
+      {
+        "height": 80,
+        "header": "000000204febfd3e1eca9a0a5c40ee9702f144d08b9624686c951acc1cf433212c707b0b8c7274613eeaf8842bfc9bc536e8aae597a7c0fe7c5a13c2f7ee152e940bb9b480745669ffff7f2001000000"
+      },
+      {
+        "height": 81,
+        "header": "00000020df6501ab8a179b76d613fd6e5ea05ed8316ed948f06f881e2c8414009fdcb571c603386ca11372d6338aecd1388d3b07865958aed0243243a7b03eb289b70393d8765669ffff7f2003000000"
+      },
+      {
+        "height": 82,
+        "header": "00000020b024d704200a9629adc3926eb9aedd9ccdbd55cce15399a9c434cc66e558c729e22922ef75d68695abfc371870cc283dfd7ba449504bb75a96672ef0d49020c330795669ffff7f2000000000"
+      },
+      {
+        "height": 83,
+        "header": "000000208ae9ffc81f5d0256f0aa900dc9351c968ea8291460947692c9e1ebf49030822fe0e48476460afbf65ebc6351d6412634a9c84a969e47356e13fe41bb1dc0b1ef887b5669ffff7f2002000000"
+      },
+      {
+        "height": 84,
+        "header": "000000209b697801687b60c9be4ee49c5613f905e9d11883a16338d699c1aaea941f4b52b8a6b8b7d90c6aab984095245e5bf75dff8f7e42e4ed035803b33e2d828df37be07d5669ffff7f2001000000"
+      },
+      {
+        "height": 85,
+        "header": "0000002040ecc9f4841943346c99fa08feb5e1c3295278780bafc4977af266d2335a5c74fb6dc44f009fb2c9d25e862ba5c48f707dcc8b402f3ad0fe53d5cffb9e0f5c0638805669ffff7f2000000000"
+      },
+      {
+        "height": 86,
+        "header": "000000200dd00f9e067d681f23e29392c5bb953d7000e8370cdd753dd9fcd0e19a84815538d55d2ff32959b9984b96a888c7b587e39642d7f8f3e6eed79ed7f1c7861bf090825669ffff7f2001000000"
+      },
+      {
+        "height": 87,
+        "header": "00000020333e6b9c6a063f01c8a0c1c9cfb378ab5c04003ba2141e3cebdd8ec13fb43548c56009674b1adbe4a3c6a658370681a56c05589c15623653e3636f763de7eefde8845669ffff7f2001000000"
+      },
+      {
+        "height": 88,
+        "header": "0000002081e010a9622e7af7fd279733d6b7432c2bf80d2266bbea0eb6c7adeeed547e27251fe4b2f12a416de4b886cfa38099b69e258e5b2e912c5587ae0efbc6c236ce40875669ffff7f2000000000"
+      },
+      {
+        "height": 89,
+        "header": "00000020dc25d274dce157c2b1a14ff40df36b06f77a613a3d57d3ed4a7df0ff0c1f9822f7816af912460f7f2822cfec884d4e7058350f6ac0f1ee4eac0673b19359f68898895669ffff7f2002000000"
+      },
+      {
+        "height": 90,
+        "header": "000000201aaf5f72176e4d135101b8c54d32cd70ba89ed99b76d02428805b28d9dc20e5e6c20aefcf09dd3fce7651a73c50180c493fefd16a363bfad9464b7931e5515bbf08b5669ffff7f2000000000"
+      },
+      {
+        "height": 91,
+        "header": "00000020d47deed7f0fec84d04b470a82f0a33b790d05870913f68625bf076528368c56384a376328fb70438aefea8d16a32d35d3a790733bcdb0fd92cc30c301a1b6b06488e5669ffff7f2002000000"
+      },
+      {
+        "height": 92,
+        "header": "000000200eee8a6c238e66664e32f3e055413f8315bff6675fcdf12c52fdf19e0f3a500da2f5e80d06e5608c9c55e926e7bef306ba1c92119d99a269f6ede36767597358a0905669ffff7f2002000000"
+      },
+      {
+        "height": 93,
+        "header": "00000020ce54a0ed7450acc3f9c4381a158c7e6958059df52236a24c16475423c932337f9260c8834d8abbdaac2c63226931699557b3bf82612efa5479fa8d1bdbe32a14f8925669ffff7f2001000000"
+      },
+      {
+        "height": 94,
+        "header": "0000002012fb2b8c9a585b12befdf80d2045f722bad9c87507ebd6bbd77be46e0a2d307a3aa0c971c29be7322d22bb0316de4c4e0418c82e026f2d1fc52b8f47174cbae550955669ffff7f2001000000"
+      },
+      {
+        "height": 95,
+        "header": "0000002023ccb1e9715c65cf2d0ea086aa1201b526e74c654107db1fb758558cc5da437aa7444de12a9a1e2cb7b9407b8056a7a57f4b1cf2e537726c256b6b892ccb109aa8975669ffff7f2001000000"
+      },
+      {
+        "height": 96,
+        "header": "000000207ec785a8529350b10efa93309e10a14151aaa75d4290a694d9fcafb8b728d50a8eae6db1772fa22ca724520703914c8f4f230785ecaa2ab2dc25394ecd9047c2009a5669ffff7f2003000000"
+      },
+      {
+        "height": 97,
+        "header": "00000020351aa5e8a2afb4989ebbfc0d5025a4b2a55d9ec742fd5d8417759dc74dbd07447d0c2ff437c9a87747eeb4b1a8f5e9b5dd652464fd6ced95183481f61be58e80589c5669ffff7f2000000000"
+      },
+      {
+        "height": 98,
+        "header": "00000020f7e273ce10c639f3947d939c84fe5bf1d82060ee7a93f98b0e84a5113d8878149c6b5167ea0990f51c871bd43428b6cc88d99c372aa299cb9742fe7ce9920c9eb09e5669ffff7f2001000000"
+      },
+      {
+        "height": 99,
+        "header": "000000201f33349fe450b6890e9da18f6d30ec6af838b8c632dbfb3acedb7d5ce4ef3e3397246f103b9f4c97190920c7f51b3f979b4776a3b45e8984bba8d40b062037c308a15669ffff7f2001000000"
+      },
+      {
+        "height": 100,
+        "header": "00000020fe8a441d8a3f627703294b9403bfb97f82b1a890829e4167874a1d2f45a28e402a9a3b282d6c36f009d11aeb20258b14cd1b462274dc7a5d1b47a615b0990c4d60a35669ffff7f2000000000"
+      },
+      {
+        "height": 101,
+        "header": "000000203d82b11e49048f00788fd484a768e17ccff35d01a4d48080b80acda96ce0a32346e6b865d3e858d9163a841085179bac66740c0c89c4f93ce11d8495ed75e18db8a55669ffff7f2000000000"
+      },
+      {
+        "height": 102,
+        "header": "00000020d8b64cdc92d8adf0ea15662dc253e5c81217846c45dd5b98d3c79cc99b78a21d83101c8b32f9afd3fb7f3fc4b41fc4ace423986d2efc3b97540bb678a40b839710a85669ffff7f2004000000"
+      },
+      {
+        "height": 103,
+        "header": "0000002047ee8ed51b7039ae1a78d657470e583b291eec40dd015e5db7a548179381fb550e9a26293a62b3075c2d464a1931ca64ec41ff8bc3f51a243753ad81b7beb4ca68aa5669ffff7f2007000000"
+      },
+      {
+        "height": 104,
+        "header": "0000002050cd493ce6c1cdce9aae668a2c6d84ce4ebf4b43f9a2d1bdfbbe85940fe6e937b61e7d8adc2fb1ffc6d8c00113a78e820096857ed041b76b6822954a036c1b58c0ac5669ffff7f2000000000"
+      },
+      {
+        "height": 105,
+        "header": "00000020275eee8d78a9c697e82012b9613f8953197a7a10b89810653e34c1e0db3fb04788084e222743eefc511116a15da3e2f05a38d3aa2caa988d6503120965a5c7c218af5669ffff7f2000000000"
+      },
+      {
+        "height": 106,
+        "header": "00000020344e5d2cd7bb2306203f8a92230543ed4f1b6334b0f2d3ce1d62c9e80b79f85ea78a26f2fdf68f1a3363dc5ffff519ddedc431f60c647ce1c43e718060ed080970b15669ffff7f2002000000"
+      }
+    ],
+    "payloadBlocks": [
+      {
+        "height": 101,
+        "blockHashDisplay": "1da2789bc99cc7d3985bdd456c841712c8e553c22d6615eaf0add892dc4cb6d8",
+        "merkleRootDisplay": "8de175ed95841de13cf9c4890c0c7466ac9b178510843a16d958e8d365b8e646",
+        "txidsDisplay": [
+          "940aa8f58733fa6f7d07d14f8cb150a5f2f6a3f80f4f1221d514d325107ad9cf",
+          "7c74b31b5590f4ebf20445a73e69bb28015600d58c97d9dcc6b792713f25eb65"
+        ]
+      },
+      {
+        "height": 102,
+        "blockHashDisplay": "55fb81931748a5b75d5e01dd40ec1e293b580e4757d6781aae39701bd58eee47",
+        "merkleRootDisplay": "97830ba478b60b54973bfc2e6d9823e4acc41fb4c43f7ffbd3aff9328b1c1083",
+        "txidsDisplay": [
+          "3aab3316938a125872bd7240b783d26f539d411bf1d6b95ce4b906850d3cfe14",
+          "8d102256fafc3a1227fe3cb7d174f660a9d9af60d951a171a9f164371a68c023"
+        ]
+      },
+      {
+        "height": 103,
+        "blockHashDisplay": "37e9e60f9485befbbdd1a2f9434bbf4ece846d2c8a66ae9acecdc1e63c49cd50",
+        "merkleRootDisplay": "cab4beb781ad5337241af5c38bff41ec64ca31194a462d5c07b3623a29269a0e",
+        "txidsDisplay": [
+          "b42a13332366917ef0290990f6b7da093080d575a77c6766b662d7324e00f5be",
+          "6cb741b48134bbd4ba8ba741d1487a5128024c336552dced98b2599b8c70d0bf",
+          "e2c829b878780b3a60a6251e4cd95f0067892da71d80adf4f364f87aeb581305",
+          "58fe94c06b2e8277cb01c4f9c8c225f9875c4ba912bc5374553656372f30d627",
+          "50a73cc46d1525508eaff69d93943971973a2f50b656b5ea63bccebe9d6ea41a",
+          "f9e54a0141f8a1284140318a673c8078500eecb01843bc3dd5b875dd01ee9f62",
+          "4e3208ec36b2dbb99902decc303eb79da873dd14e6b535683540ea08df1a2c20",
+          "caaf922751941f03e74bf043fc9284d3f75302f5e7a2e00143fbe6710c4683a0",
+          "aa4976c448537c2378d20ece159fcef38710674831df437518f23dd73f1d09b0",
+          "632c7c3e235d80dedf92c19783b12e84d2fc1ba2f28a5975f6db51da833e4336",
+          "926e4321103a2cf5727931afdb8edde6c64ce50268be7b2d61d5bb2e62f2e5ee"
+        ]
+      },
+      {
+        "height": 104,
+        "blockHashDisplay": "47b03fdbe0c1343e651098b8107a7a1953893f61b91220e897c6a9788dee5e27",
+        "merkleRootDisplay": "581b6c034a9522686bb741d07e859600828ea71301c0d8c6ffb12fdc8a7d1eb6",
+        "txidsDisplay": [
+          "76a5b5f6181be1b6b4c9a9fd7d202f04729df08f0b17b5439d16537524d320fd",
+          "1864d0ad1b1fdd107663af5cea95ae2ca339e611df0cc508d91bd94ce5f0d8a1",
+          "dfab9a0584606be4b74e98b8bdd57f4976b6e6c7c8b66175f61b851b22eb4d73",
+          "a96f42484b543a536d2efadfb752b3408df4c7caff6361f1fe9ba662735e9ba2",
+          "347ab8e1988a8ec7f0a81f708004596830186994a7d591dbcae3595af60d98d2",
+          "d6bc4c2756371dbf21e3341183af8481fe25e52b3923c3954e5fa875d1d23c4a",
+          "fd664e0fb1ff2b02acca4983ae20637eceb28218b1ada34de4e08b8fac6ed69a",
+          "9d4522f96f716b3bbd3b51442871d4a72412a72a9b77435f8cab76f4abe34245"
+        ]
+      },
+      {
+        "height": 105,
+        "blockHashDisplay": "5ef8790be8c9621dced3f2b034631b4fed430523928a3f200623bbd72c5d4e34",
+        "merkleRootDisplay": "c2c7a565091203658d98aa2caad3385af0e2a35da1161151fcee4327224e0888",
+        "txidsDisplay": [
+          "d718c521bca96d42cecc3a0c940ad785af9d60a4b3541449b89ad778e4d540a1",
+          "9a904e666f9a813bf3cb645289d1dd58fc8b7ba7ad13e81f7c59edf301c8fdce",
+          "c03a2e1f1d3a7ac64e02ddaa2440b0103e21a16d697be9a1313ca4d87ff66b41",
+          "994b1828de5bb03ae82bcda5e10b64912272d6cacc858a19947923a335b8ca7b"
+        ]
+      },
+      {
+        "height": 106,
+        "blockHashDisplay": "4468fe20271893b7397da6128245424d7ff4c97745a353bff1c260f0b08729d3",
+        "merkleRootDisplay": "0908ed6080713ec4e17c640cf631c4eddd19f5ff5fdc63331a8ff6fdf2268aa7",
+        "txidsDisplay": [
+          "b5c796b5a0ffbcba3619c5e78474aabf23d6dca3458fa8ae93626f9a3d48faca",
+          "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+          "a99eba435a31b0b60e269e835c12ecd6d833550ae195bdd46f7d0a625533e6a7"
+        ]
+      }
+    ]
+  },
+  "chains": {
+    "M": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "8kRt2wVbZq",
+      "use": "The main chain: five actions from the origin",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/<actionId>"
+    },
+    "S": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "Sb2Mx7QkTd",
+      "use": "Substitution: a record lifted from chain M into an entry committed for this chain",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/Sb2Mx7QkTd/action/<actionId>"
+    },
+    "W": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "Wa4Nc8RpLe",
+      "use": "Wrong action identifier",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/Wa4Nc8RpLe/action/<actionId>"
+    },
+    "E": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "Ep6Hd9SqMf",
+      "use": "Wrong epoch",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/Ep6Hd9SqMf/action/<actionId>"
+    },
+    "K": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "Km3Je5TrNg",
+      "use": "An action at epoch 2",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/Km3Je5TrNg/action/<actionId>"
+    },
+    "D": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "Dc7Kf2UsPh",
+      "use": "A record that does not decode",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/Dc7Kf2UsPh/action/<actionId>"
+    },
+    "N": {
+      "accountId": "3MNQpxFAsp",
+      "runtimeId": "Nt8Lg3VtQj",
+      "use": "An action that consumes no tip, and one that consumes two",
+      "commitmentKeyPath": "account/3MNQpxFAsp/runtime/Nt8Lg3VtQj/action/<actionId>"
+    }
+  },
+  "actions": {
+    "M0": {
+      "aid": "01JB8ZK3QN7T4YVX2C9M5RDPWA",
+      "ep": 0
+    },
+    "M1": {
+      "aid": "01KDVDNA00E6JTPR3QZ2WDVTG1",
+      "ep": 0
+    },
+    "M2": {
+      "aid": "01KDVDNAZ8DJ4BDB5WCWGWNX0X",
+      "ep": 0
+    },
+    "M3": {
+      "aid": "01KDVDNBYGE7307XVB1SZJP82J",
+      "ep": 0
+    },
+    "M4": {
+      "aid": "01KDVDNCXRPH2AKG8QYBFJHQYM",
+      "ep": 0
+    },
+    "M3-handoff": {
+      "aid": "01KDVDNDX0QV4V9DJ4K3ZX4WP9",
+      "ep": 0
+    },
+    "S0": {
+      "aid": "01KDVDNEW8WE2TB30ENJ00PSRD",
+      "ep": 0
+    },
+    "W0": {
+      "aid": "01KDVDNFVGBXVCAFDYGKAAKZ9B",
+      "ep": 0
+    },
+    "E0": {
+      "aid": "01KDVDNGTR6FKEP0EBNC9NEZNT",
+      "ep": 0
+    },
+    "K0": {
+      "aid": "01KDVDNHT0H3G3V5BXVCJJ3J1V",
+      "ep": 0
+    },
+    "D0": {
+      "aid": "01KDVDNJS86DFNW5FJSKXEGSTY",
+      "ep": 0
+    },
+    "N0": {
+      "aid": "01KDVDNKRGXQ55CY97QTEPPQFF",
+      "ep": 0
+    },
+    "NM": {
+      "aid": "01KDVDNMQRXNQED30K7QKME6AE",
+      "ep": 0
+    },
+    "TF": {
+      "aid": "01KDVDNNQ04TYGH91YFZY19XQD",
+      "ep": 0
+    },
+    "S1": {
+      "aid": "01KDVDNPP8XQFNX38ZWNKRDQ0F",
+      "ep": 0
+    },
+    "W1": {
+      "aid": "01KDVDNQNGNQWM332ECJG3VNA2",
+      "ep": 0
+    },
+    "W1-declared": {
+      "aid": "01KDVDNRMR0EB8TZF76WHRRCGN",
+      "ep": 0
+    },
+    "E1": {
+      "aid": "01KDVDNSM0ZTC2H6R7JTHVJBBM",
+      "ep": 0
+    },
+    "K1": {
+      "aid": "01KDVDNTK89W5DJEBDVCC2R50S",
+      "ep": 2
+    },
+    "D1": {
+      "aid": "01KDVDNVJG9CGJ4P26BDK3J48X",
+      "ep": 0
+    },
+    "N1": {
+      "aid": "01KDVDNWHR030MD6E5QPHYW1V0",
+      "ep": 0
+    },
+    "N2x": {
+      "aid": "01KDVDNXH07JPXEAPM6G2K3H7F",
+      "ep": 0
+    },
+    "N3": {
+      "aid": "01KDVDNYG8WS3F792RJ4ZGH8BH",
+      "ep": 0
+    }
+  },
+  "standIn": {
+    "proto": "tpnil-sdx-lab-stand-in@0.1.0",
+    "body": "LAB_SELF_TEST_ONLY stand-in for an SDX v0.1 record: it carries hdr.aid and hdr.ep in clear and is not a record envelope"
+  },
+  "transactions": {
+    "M0": {
+      "txidDisplay": "6cb741b48134bbd4ba8ba741d1487a5128024c336552dced98b2599b8c70d0bf",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101bfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0100beef016704020000bef5004e32d762b666677ca775d5803009dab7f6900929f07e91662333132ab40102bfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c010100b8d8050ed31859a0dbe32b983960d5795b30efd2f0948f00832558dbd7ecd954010100f7766a7e4c7dc7eac7e402151fed78f0eef01e1d2bfa05ae7f680ea9c2fe08f401010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d000000006a473044022076f14e12107e77df0a2a142e2fa043e9c94b54b6d7291a5108c3a718422e106f022044b5e189bea39e8c0c6fbfa377f6fd65d1dde2bbd1401b362c112b6f6731fb1b41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314a42385a4b33514e3754345956583243394d35524450574164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103b68a7292f165a35c3f772f9418e58c81bdcfb99bf5de8f64207fdaac9ac2f41cac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "M1": {
+      "txidDisplay": "1864d0ad1b1fdd107663af5cea95ae2ca339e611df0cc508d91bd94ce5f0d8a1",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "01010101a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180100beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "M2": {
+      "txidDisplay": "9a904e666f9a813bf3cb645289d1dd58fc8b7ba7ad13e81f7c59edf301c8fdce",
+      "height": 105,
+      "entryOutput": 1,
+      "beef": "01010101cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a0100beef016902020000a140d5e478d79ab8491454b3a4609daf85d70a940c3accce426da9bc21c518d70102cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a010100e0db70a8869687badf1d5ccf0a97a21412999ac60e0215011c599c422da82d7801010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d110000006a47304402206a34723aa933dde328664abb4a18cef63b6e7409ff746a005f68b7af8cc0644702203c8e6e74ede4f56ba9fbc6e9eff2c2e45fef08030e4a215856f4dffcfe5d6f8f41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffa1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180000000049483045022100ec19a7a37d32fa5bd8a813c92045185a6f7600a008067bf37cb745eccfc6078e02204dd7b67ca2ac0427e7ef7cd17d407c65b4c58c4c421ac603a43dff2dc65a961e41ffffffff0228230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e415a38444a344244423557435747574e58305864626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103f019a469ee14181eaea85637083484b181e3f758ccd862994194bae030d24b0aac000000000100"
+    },
+    "M3": {
+      "txidDisplay": "c03a2e1f1d3a7ac64e02ddaa2440b0103e21a16d697be9a1313ca4d87ff66b41",
+      "height": 105,
+      "entryOutput": 1,
+      "beef": "01010101416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac00100beef016902020202416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac003007bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100009499543499089cf10a0d77947ebba6c84a03351d3c1b94c28e8d97af0dac5ec5010100000002cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a01000000484730440220687c67560bd228f14f12ec2881c92956c612ef0b3f41348f2cc5ff9614fe086302205b668bd24cd2c92f1e2db1ea6de89095533df457e36956760d6048d7e4a18fb941ffffffff23c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d120000006a4730440220401aebc5f85bde9b6ad262c6a724b7e509fdb1e2e54930d7f3804ef7012999cc02207fa6dbc1d124c2772a5eaef12a39de1ecef6aee212d1d421e2ba3e11c71d7f3841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff030100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4458305156345639444a344b335a583457503964626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521028ed8d430601294e2b0bf9afce95d75575640f4d1d98ae597e871b6eb3f3069c5ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e425947453733303758564231535a4a5038324a64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103e901b864a6e329cc81a6d5b2ce0284620b10edf0c984cf1f79c8c37f9537c70dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "M4": {
+      "txidDisplay": "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+      "height": 106,
+      "entryOutput": 0,
+      "beef": "01010101c837a5aeec887ba67767878fa01d86e247e698c36af432e26fb44c4d2200fda70100beef016a02020000cafa483d9a6f6293aea88f45a3dcd623bfaa7484e7c51936babcffa0b596c7b50102c837a5aeec887ba67767878fa01d86e247e698c36af432e26fb44c4d2200fda701010081874a4dfccbe2f3ad46809a7a3824dc490d2ed725e781cdb243fed7e91540b401020000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d140000006b483045022100846e40930143e0831d33c88c0f534f43a6cd5945823bc45c6b51499c454c45c30220075219fa0525fdb29d1fa085b15c63a109397ecbb305946834bfa6eb042a7c0c41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac00100000049483045022004dab8811d88e8635d92c518e080a9ec72b66a441005f7d956436da92759885a022100937dfc2c7c88625dd68881090e8f877bb288fb42ff4bb1a669f45dd51e6aae9e41ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e435852504832414b4738515942464a4851594d64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103009bf500d569132f673759f74b006559ed218db9a899477995bfd060a3c9db3fac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "S0": {
+      "txidDisplay": "e2c829b878780b3a60a6251e4cd95f0067892da71d80adf4f364f87aeb581305",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101051358eb7af864f3f4ad801da72d8967005fd94c1e25a6603a0b7878b829c8e20100beef016704020202051358eb7af864f3f4ad801da72d8967005fd94c1e25a6603a0b7878b829c8e2030027d6302f375636557453bc12a94b5c87f925c2c8f9c401cb77822e6bc094fe5801000058815d69cc83bc6996f0618261bd9a069e3ec024a4d22f6c20b86857a79d7ab1010100f7766a7e4c7dc7eac7e402151fed78f0eef01e1d2bfa05ae7f680ea9c2fe08f401010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d010000006a473044022044f8a16d3257e57bd48eccbbfd030a6cc2edc11818a10c9544cb8565fc968fc802206a991b3439b2741b86153e01fd024dfa3b321344d62848af8be52f9c026fba1841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e45573857453254423330454e4a30305053524464626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103aaec6ba9193ff4578414049bc95e8828dbe0472c5f8b6d2e3e968dde28ac429cac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "S1": {
+      "txidDisplay": "dfab9a0584606be4b74e98b8bdd57f4976b6e6c7c8b66175f61b851b22eb4d73",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "01010101734deb221b851bf67561b6c8c7e6b676497fd5bdb8984eb7e46b6084059aabdf0100beef016803020202734deb221b851bf67561b6c8c7e6b676497fd5bdb8984eb7e46b6084059aabdf0300a29b5e7362a69bfef16163ffcac7f48d40b352b7dffa2e6d533a544b48426fa90100004c0dc181c4598784c429fb4ccef5575c8789811add70c376fe5a62cfbff97b610101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0b0000006a47304402205553b8990412214cabfc73b5979b0a8a6a68a79528f883a77dcca110fe61472c02202cb66f7d73e57d40f51d530001511490d197dade284782ee2a4760e3f72e87f041210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff051358eb7af864f3f4ad801da72d8967005fd94c1e25a6603a0b7878b829c8e20000000049483045022100820910260a3a0458e331ad84af3cf9731f9e7e569e00102f707063fe10ca2171022037712e1cfaa5d7090f474c430495bf8f050c1321071276ef0ca7da9527d7773541ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103248ae84ee8a2525aed6efff479867af00dd008fca02c3895715867c2c71f4141ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "W0": {
+      "txidDisplay": "58fe94c06b2e8277cb01c4f9c8c225f9875c4ba912bc5374553656372f30d627",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "0101010127d6302f375636557453bc12a94b5c87f925c2c8f9c401cb77822e6bc094fe580100beef016704020200051358eb7af864f3f4ad801da72d8967005fd94c1e25a6603a0b7878b829c8e2030227d6302f375636557453bc12a94b5c87f925c2c8f9c401cb77822e6bc094fe5801000058815d69cc83bc6996f0618261bd9a069e3ec024a4d22f6c20b86857a79d7ab1010100f7766a7e4c7dc7eac7e402151fed78f0eef01e1d2bfa05ae7f680ea9c2fe08f401010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d020000006b483045022100abe3e7a24984a53cca96874488c9604aa62a08e4a551ec37a9db3d430c7cf5a702207c6f2f0285366b9eabdd16b0bb44fcb092bee375538263843b9a6c8910e69b4941210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4656474258564341464459474b41414b5a394264626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e3075210302f55bf70f471f6ac7c00e26938a2932f24eee9040c1d7e9cd0b58ae732f72a1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "W1": {
+      "txidDisplay": "a96f42484b543a536d2efadfb752b3408df4c7caff6361f1fe9ba662735e9ba2",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "01010101a29b5e7362a69bfef16163ffcac7f48d40b352b7dffa2e6d533a544b48426fa90100beef016803020200734deb221b851bf67561b6c8c7e6b676497fd5bdb8984eb7e46b6084059aabdf0302a29b5e7362a69bfef16163ffcac7f48d40b352b7dffa2e6d533a544b48426fa90100004c0dc181c4598784c429fb4ccef5575c8789811add70c376fe5a62cfbff97b610101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0c0000006a473044022023fb2b7dcab442a4ff49d17afdc79969288d69322fac4df5f9f0a5f435cd5c23022055af24e70f87a2c432251e371cf489adde907e1385bf9fb76ff2119ef570378641210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff27d6302f375636557453bc12a94b5c87f925c2c8f9c401cb77822e6bc094fe580000000049483045022100de3356ccb9131faae2b1db07a422f57f629498f7033884b5b0b7d4d8d9c1a9f4022044204518ff51e41be2b15a6cf436f24b0bafba8bee08a28e8d58cce2cf97d97e41ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e524d5230454238545a4637365748525243474e64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e3075210214f168cce832c63b5fc96ae9bee63e04532ee6561be3adb67f82a763091ee3c5ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "E0": {
+      "txidDisplay": "50a73cc46d1525508eaff69d93943971973a2f50b656b5ea63bccebe9d6ea41a",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "010101011aa46e9dbecebc63eab556b6502f3a97713994939df6af8e5025156dc43ca7500100beef0167040204021aa46e9dbecebc63eab556b6502f3a97713994939df6af8e5025156dc43ca7500500629fee01dd75b8d53dbc4318b0ec0e5078803c678a31404128a1f841014ae5f9010300f1b8b604732db81b0f3d9b0070bd6daf265cdd0fd59fdfd9c9e9ad0ba3865b0a010000ea8ff8439257b3b23e8b452d855aff7142fec1b0c3521f49884acc379152336801010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d030000006b4830450221008957b9b2e421cf5bf487b49b908d010dec3de720dd8f27ccf5e3ba160cc8cccb02207542320e6d4bde6d6527f850324ba6f18a18cb475cd4c25c0273305bd37c333e41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e47545236464b45503045424e43394e455a4e5464626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521039ae0cab7ed3256b2d522b28e497f74e7a7a8261be5bae92757e1289465b39a2eac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "E1": {
+      "txidDisplay": "347ab8e1988a8ec7f0a81f708004596830186994a7d591dbcae3595af60d98d2",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "01010101d2980df65a59e3cadb91d5a79469183068590480701fa8f0c78e8a98e1b87a340100beef016803020402d2980df65a59e3cadb91d5a79469183068590480701fa8f0c78e8a98e1b87a3405004a3cd2d175a85f4e95c323392be525fe8184af831134e321bf1d3756274cbcd6010300bbbfd12e4f56afd3b269f979667c3771f0e0b6e3020d8431e9268dcedd981f24010000deaceb51befe4dc085e66df8990b2e0f68868c7275f057a2c51a44b24ae1dd6a01010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0d0000006b483045022100c46bc35292e9af177b77c96b5f7eae0b214e6a802eed4e5176c22456a7526178022049b110e540067d90d6b586fed6c5eef26e378022e2f7d0667ec82764607c0bb241210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff1aa46e9dbecebc63eab556b6502f3a97713994939df6af8e5025156dc43ca75000000000484730440220646c2eb640a4693836444a287b6f3fb403d65d329ad3a0265138e919955d836c022046e4a82c78d1fe6c17667107505b27e6f11d9b141c38e3c75fd90d62420fa07441ffffffff020100000000000000f24ccca363686472a26265700163616964781a30314b4456444e534d305a544332483652374a5448564a42424d64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521023e79fb15df67d41a7251fbc6af69ad9449c085143c3d3d4b854f70eda2039448ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "K0": {
+      "txidDisplay": "f9e54a0141f8a1284140318a673c8078500eecb01843bc3dd5b875dd01ee9f62",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101629fee01dd75b8d53dbc4318b0ec0e5078803c678a31404128a1f841014ae5f90100beef0167040204001aa46e9dbecebc63eab556b6502f3a97713994939df6af8e5025156dc43ca7500502629fee01dd75b8d53dbc4318b0ec0e5078803c678a31404128a1f841014ae5f9010300f1b8b604732db81b0f3d9b0070bd6daf265cdd0fd59fdfd9c9e9ad0ba3865b0a010000ea8ff8439257b3b23e8b452d855aff7142fec1b0c3521f49884acc379152336801010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d040000006b4830450221008cfcc4af6be342257adb3a87b42e76124ad2fc7d4665685e751e8d3ad521a908022002cfc2f505a6a3c41046ff43cde6091e1b0d92363aba5d7850360541f7975b7b41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e485430483347335635425856434a4a334a315664626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103edd23fc7e2d7ff08e66d2bb13d1cb59deafa272a0fdfb219f5f0df0d268c643fac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "K1": {
+      "txidDisplay": "d6bc4c2756371dbf21e3341183af8481fe25e52b3923c3954e5fa875d1d23c4a",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "010101014a3cd2d175a85f4e95c323392be525fe8184af831134e321bf1d3756274cbcd60100beef016803020400d2980df65a59e3cadb91d5a79469183068590480701fa8f0c78e8a98e1b87a3405024a3cd2d175a85f4e95c323392be525fe8184af831134e321bf1d3756274cbcd6010300bbbfd12e4f56afd3b269f979667c3771f0e0b6e3020d8431e9268dcedd981f24010000deaceb51befe4dc085e66df8990b2e0f68868c7275f057a2c51a44b24ae1dd6a01010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0e0000006a473044022053f3a1300da2684503c69686846adf829de7ad960e815833724006e22b60ad7c022028ce820e5b694940812d9d7ec196419687422b71519ca8423592c2f08a67750b41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff629fee01dd75b8d53dbc4318b0ec0e5078803c678a31404128a1f841014ae5f90000000049483045022100f8cb323def76e7ddb3f6aba4692f08f1eb7ff66a342da07ff2eba66013c638e20220780dbe99bd4831c59ff0d91c32b66de43081dbbfcf03783e77063c227b426cc541ffffffff020100000000000000f24ccca363686472a26265700263616964781a30314b4456444e544b38395735444a454244564343325235305364626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521021cc0454a369ee3a9a7467a2eb3d6f944fc342ed38da5e45ba0f99507dcfaef62ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "D0": {
+      "txidDisplay": "4e3208ec36b2dbb99902decc303eb79da873dd14e6b535683540ea08df1a2c20",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101202c1adf08ea40356835b5e614dd73a89db73e30ccde0299b9dbb236ec08324e0100beef016704020602202c1adf08ea40356835b5e614dd73a89db73e30ccde0299b9dbb236ec08324e0700a083460c71e6fb4301e0a2e7f50253f7d38492fc43f04be7031f94512792afca010200f50b9a405e78e6f8d6e85bc2b5e5957fe35a4c962d80260725eee4bd3f091109010000ea8ff8439257b3b23e8b452d855aff7142fec1b0c3521f49884acc379152336801010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d050000006b483045022100a687daaccbd1db00a0b7b39c4f4573cd178650250c06e6eb0d13ae808ee028e60220358df34a84cdc9cf52666f2f86066c905294e197087168f28ad6ca3e9f1a081f41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4a53383644464e5735464a534b58454753545964626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102520706ec596c7968d94736fb087b17b8908685f2b5d086af4f1c93fea887ecb4ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "D1": {
+      "txidDisplay": "fd664e0fb1ff2b02acca4983ae20637eceb28218b1ada34de4e08b8fac6ed69a",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "010101019ad66eac8f8be0e44da3adb11882b2ce7e6320ae8349caac022bffb10f4e66fd0100beef0168030206029ad66eac8f8be0e44da3adb11882b2ce7e6320ae8349caac022bffb10f4e66fd07004542e3abf476ab8c5f43779b2aa71224a7d4712844513bbd3b6b716ff922459d0102007f24fd3a11f4799878be40369997567dbae9aef32f532ee47a64c7a0b8065415010000deaceb51befe4dc085e66df8990b2e0f68868c7275f057a2c51a44b24ae1dd6a01010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0f0000006a47304402206146fa3a842232e7a25028f7837a8ee10d6ab3c5c1a4f4abf388bfd2ffab936102206e30e06ed9487ac5491ae2e64cf3f1db14bc4775ccc685e8996ad5310696438441210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff202c1adf08ea40356835b5e614dd73a89db73e30ccde0299b9dbb236ec08324e0000000049483045022100bcf402d5e658631eb855ea8518eeeb9e36b5ed604705977438d9708fd5fbf35b02201c26bf0d8582227afa3e5778577242b6891a95ba8cfcbdfa4f05a59900a219a041ffffffff0201000000000000005d38ff4c41425f53454c465f544553545f4f4e4c59206279746573207468617420646f206e6f74206465636f64652061732061207265636f7264752102db14a059913f29bf835ef944a44850567f039bb888f1661e267341086f25f73fac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "N0": {
+      "txidDisplay": "caaf922751941f03e74bf043fc9284d3f75302f5e7a2e00143fbe6710c4683a0",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101a083460c71e6fb4301e0a2e7f50253f7d38492fc43f04be7031f94512792afca0100beef016704020600202c1adf08ea40356835b5e614dd73a89db73e30ccde0299b9dbb236ec08324e0702a083460c71e6fb4301e0a2e7f50253f7d38492fc43f04be7031f94512792afca010200f50b9a405e78e6f8d6e85bc2b5e5957fe35a4c962d80260725eee4bd3f091109010000ea8ff8439257b3b23e8b452d855aff7142fec1b0c3521f49884acc379152336801010078da812b6ad6d6ac07ca24ea9e34ffff2b5197b8339f935f8d2532ecbdffc2b401010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d060000006b483045022100991cde32ec9be4c2363223e85b76942aca8fa346cf295ae228d99056ebf3ace302204b79fb01cfb5665e58eecdc64a15467aea1200e163616a42c647c2c72084621741210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4b52475851353543593937515445505051464664626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102e40fca991c7a6202e5ea2854ac7a0e23cc797497fd46546ad8cb1c0e487d47e5ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "N1": {
+      "txidDisplay": "9d4522f96f716b3bbd3b51442871d4a72412a72a9b77435f8cab76f4abe34245",
+      "height": 104,
+      "entryOutput": 0,
+      "beef": "010101014542e3abf476ab8c5f43779b2aa71224a7d4712844513bbd3b6b716ff922459d0100beef0168030206009ad66eac8f8be0e44da3adb11882b2ce7e6320ae8349caac022bffb10f4e66fd07024542e3abf476ab8c5f43779b2aa71224a7d4712844513bbd3b6b716ff922459d0102007f24fd3a11f4799878be40369997567dbae9aef32f532ee47a64c7a0b8065415010000deaceb51befe4dc085e66df8990b2e0f68868c7275f057a2c51a44b24ae1dd6a01010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d100000006a47304402204b5d50dd9ff85d721b7072a1a1fe57a32c96dd8785ef6554447a49ff50a9b0740220631641ca5e0ac7d540c5c48fb6d1354552a766f62b9cf210b38eb8072c0d9d2841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffa083460c71e6fb4301e0a2e7f50253f7d38492fc43f04be7031f94512792afca0000000049483045022100ddfca87a4d283317a95f79bbe7911c77dd166352643cc44cb1a0234e9570662c02206eeecbf98bbcfc6c6465d80206fbb29dbf6fdbd12ec5ce68fadf3e3822514bf041ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e5748523033304d44364535515048595731563064626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102de806d439d26539539130dfb2e32bb2b2aee45486ae171e81de2aaf1fe0f10c9ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "N2x": {
+      "txidDisplay": "994b1828de5bb03ae82bcda5e10b64912272d6cacc858a19947923a335b8ca7b",
+      "height": 105,
+      "entryOutput": 0,
+      "beef": "010101017bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100beef016902020200416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac003027bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100009499543499089cf10a0d77947ebba6c84a03351d3c1b94c28e8d97af0dac5ec501010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d130000006b4830450221009afc9b166257325e7b5d899c67c1c521c78c3aa23720bd835deaf02bd6bf4c9e02200698c8dc739ae2fb011672aa01d9e7c95537345a04ddfb2bcd25df644cdf2ab841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e584830374a50584541504d3647324b3348374664626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102e19c716f61e209629b7afe3413698f827b35d464ca17f6e5097635408cf64e4fac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "N3": {
+      "txidDisplay": "a99eba435a31b0b60e269e835c12ecd6d833550ae195bdd46f7d0a625533e6a7",
+      "height": 106,
+      "entryOutput": 0,
+      "beef": "01010101a7e63355620a7d6fd4bd95e10a5533d8d6ec125c839e260eb6b0315a43ba9ea90100beef016a02020202a7e63355620a7d6fd4bd95e10a5533d8d6ec125c839e260eb6b0315a43ba9ea90301010000192c69413da8f21f8b9d278f646078f41e0e26c2cd3c8b266be355038a6e477901010000000323c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d150000006a47304402207c9e3a0a82c7ba6b20731c33e08bdd897061c1703d9267f05eb569aa317aa6c10220487ae7f7f6b5abd2fc841f3495fe5ffa20be60406cf87f693070611c73ca43e241210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff4542e3abf476ab8c5f43779b2aa71224a7d4712844513bbd3b6b716ff922459d0000000049483045022100d9346a4519535ef9af9cbd9dd296c871492590171c2db283b6a2c760388f4e71022047bdd194ee2c99a5084da8485188e6772845b3d8a8294dd356d67e359cfc307a41ffffffff7bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b99000000004847304402207d011760e15e75e8e5cd479804c89c4fa66c46d4ccb8c79b29cbe53106cb40c202204cdf4004183be681d4b41db1ecdff0f980fc2475ecbe5d5155ea2b499685d99d41ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e59473857533346373932524a345a474838424864626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e3075210310dd0a08832e9a648f564f12106647d0da2c79709fbf25e3ec3510a4ee5bc895ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "F": {
+      "txidDisplay": "aa4976c448537c2378d20ece159fcef38710674831df437518f23dd73f1d09b0",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101b0091d3fd73df2187543df3148671087f3ce9f15ce0ed278237c5348c47649aa0100beef016704020802b0091d3fd73df2187543df3148671087f3ce9f15ce0ed278237c5348c47649aa090036433e83da51dbf675598af2a21bfcd2842eb18397c192dfde805d233e7c2c63010500b02be96b28606d64e124424bc04b02a442a77e10e8569f66f098d4052cad489701030101000006c7b649e3a05ea85b82c7753ffff83a0467ceb2ae83daa685180c634ba8466d01010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d070000006b483045022100a7a83e271de4ca67ec1639a7ce42177632a773c03c906f447db9f59a8b0cb62002205e7f78c6873dbb1d0aa312d26c368ef0a606c7e5b03c8eda8a8b7c503ea958e141210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000f24ccca363686472a26265700063616964781a30314a42385a4b33514e3754345956583243394d35524450574164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103b64578fc67a5f1b3769014248b2760041d19da008df0a62f4e02bbea0baabd01ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "NM": {
+      "txidDisplay": "632c7c3e235d80dedf92c19783b12e84d2fc1ba2f28a5975f6db51da833e4336",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "0101010136433e83da51dbf675598af2a21bfcd2842eb18397c192dfde805d233e7c2c630100beef016704020800b0091d3fd73df2187543df3148671087f3ce9f15ce0ed278237c5348c47649aa090236433e83da51dbf675598af2a21bfcd2842eb18397c192dfde805d233e7c2c63010500b02be96b28606d64e124424bc04b02a442a77e10e8569f66f098d4052cad489701030101000006c7b649e3a05ea85b82c7753ffff83a0467ceb2ae83daa685180c634ba8466d01010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d080000006a4730440220716c52c44f772f558b81bcb498b674849ad54744f5f61a5cf104d63c7e901cf60220473b6560f9084e6cb3cf20e467a6e9b874dd731ba31c818eaca6cc26bc0fb67a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000584c32a2646e6f7465781f4c41425f53454c465f544553545f4f4e4c592073686f7274207265636f72646973796e746865746963f5752102c30f42bd0d28768a2a1da12227eda0423f4cc5a4202f0f54a751ac284c478e4aac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "TF": {
+      "txidDisplay": "926e4321103a2cf5727931afdb8edde6c64ce50268be7b2d61d5bb2e62f2e5ee",
+      "height": 103,
+      "entryOutput": 0,
+      "beef": "01010101eee5f2622ebbd5612d7bbe6802e54cc6e6dd8edbaf317972f52c3a1021436e920100beef016704020a02eee5f2622ebbd5612d7bbe6802e54cc6e6dd8edbaf317972f52c3a1021436e920b010104004531b43fec06ec35f9dcb7eb8674b3c5d52f7cf993cd75204a73490d7a1ea05901030101000006c7b649e3a05ea85b82c7753ffff83a0467ceb2ae83daa685180c634ba8466d01010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d090000006a47304402200735711f99a02d2386a3bfbe944524e6c167dcdf5677b8eb26f6aefbb68beedf0220207e8d90f1efeeb0b1cc9350629518a7eafa8b8c63da9dba81422c70c60e91b241210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000fd04014ccca363686472a26265700063616964781a30314b4456444e4e51303454594748393159465a59313958514464626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30117365636f6e642064617461206669656c646d2103faa5b43d22e93a75ddac05879d97cd611075371a64e01733d1c23463dfcfed7dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    },
+    "M3-bump-altered": {
+      "txidDisplay": "c03a2e1f1d3a7ac64e02ddaa2440b0103e21a16d697be9a1313ca4d87ff66b41",
+      "height": 105,
+      "entryOutput": 1,
+      "beef": "01010101416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac00100beef016902020202416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac003007bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100009499543499089cf10a0d77947ebba6c84a03351d3c1b94c28e8d97af0dac5ec4010100000002cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a01000000484730440220687c67560bd228f14f12ec2881c92956c612ef0b3f41348f2cc5ff9614fe086302205b668bd24cd2c92f1e2db1ea6de89095533df457e36956760d6048d7e4a18fb941ffffffff23c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d120000006a4730440220401aebc5f85bde9b6ad262c6a724b7e509fdb1e2e54930d7f3804ef7012999cc02207fa6dbc1d124c2772a5eaef12a39de1ecef6aee212d1d421e2ba3e11c71d7f3841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff030100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4458305156345639444a344b335a583457503964626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521028ed8d430601294e2b0bf9afce95d75575640f4d1d98ae597e871b6eb3f3069c5ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e425947453733303758564231535a4a5038324a64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103e901b864a6e329cc81a6d5b2ce0284620b10edf0c984cf1f79c8c37f9537c70dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100"
+    }
+  },
+  "generator": {
+    "component": "components/sdx/proof",
+    "command": "npm run generate --prefix components/sdx/proof",
+    "check": "npm run check --prefix components/sdx/proof",
+    "dependencies": {
+      "@bsv/sdk": "4.0.1",
+      "cborg": "6.2.1"
+    },
+    "lockfile": "components/sdx/proof/package-lock.json",
+    "deterministic": "Fixed public test keys and roots, RFC 6979 signatures, fixed synthetic header times and a proof-of-work nonce search from zero; two runs produce identical files."
+  },
+  "oracles": {
+    "checker": {
+      "modules": [
+        "src/sdx/cbor-det.mjs",
+        "src/sdx/tx.mjs",
+        "src/sdx/anc.mjs"
+      ],
+      "dependencies": "Node.js builtins only (node:crypto for SHA-256, RIPEMD-160, HMAC, HKDF, secp256k1 ECDH and ECDSA verification)",
+      "tests": [
+        "test/sdx-anc.test.mjs"
+      ],
+      "agreement": "The generator declares each expected outcome from the case's construction; the checker reproduces every one, or generation stops."
+    },
+    "pythonChecker": {
+      "modules": [
+        "test/sdx_anc.py"
+      ],
+      "tests": [
+        "test/test_sdx_anc.py"
+      ],
+      "dependencies": "Python standard library only (hashlib, hmac and integer arithmetic for secp256k1)",
+      "agreement": "An independent implementation that reads only this file and the deployment profile, and reproduces every expected outcome."
+    },
+    "@bsv/sdk": {
+      "version": "4.0.1",
+      "spendValidate": "Spend.validate() accepts all 36 inputs of the 24 payload transactions, including the high-S input of M4.",
+      "merklePath": "MerklePath.computeRoot and MerklePath.verify confirm all 24 payload transactions against the header roots.",
+      "beef": "Beef.fromBinary(...).isValid() and Beef.verify(tracker) accept the BEEF of every walk row except the altered one, and of every accepted reference (26); Transaction.fromAtomicBEEF reads every Atomic BEEF among them (25).",
+      "commitmentKeys": "KeyDeriver (through ProtoWallet and PushDrop) and the checker's node:crypto derivation give the same commitment key for all 19 participant entries."
+    },
+    "cborg": {
+      "version": "6.2.1",
+      "encode": "cborg.encode with rfc8949EncodeOptions and src/sdx/cbor-det.mjs produce identical bytes for all 35 records and references the generator encodes.",
+      "decode": "cborg.decode (strict, useMaps, rejectDuplicateMapKeys) reads every accepted reference (4)."
+    },
+    "rustParticipant": "When TPNIL_RUST_PARTICIPANT names the binary of components/rust (bsv-blockchain/rs-sdk), components/sdx/proof/test/rust-oracle.test.mjs recomputes the merkle root of every accepted reference's transaction and requires agreement with the header list."
+  },
+  "cases": [
+    {
+      "id": "VA-ANC-001",
+      "requirement": "SDX-A-07",
+      "description": "A reference to action M1 in Atomic BEEF, checked by a verifier that is not a recipient of M1: steps 1-5 of ANC §6.1 hold.",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd0641863616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740064626565665902e601010101a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180100beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "ACCEPT"
+      }
+    },
+    {
+      "id": "VA-ANC-002",
+      "requirement": "SDX-A-07",
+      "description": "A reference to action M2 in BEEF V1, checked by a recipient: M2's entry is output 1 (ANC §2.3), and its record declares the action the citation claims.",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a63616964781a30314b4456444e415a38444a344244423557435747574e583058636f757401646265656659029e0100beef016902020000a140d5e478d79ab8491454b3a4609daf85d70a940c3accce426da9bc21c518d70102cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a010100e0db70a8869687badf1d5ccf0a97a21412999ac60e0215011c599c422da82d7801010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d110000006a47304402206a34723aa933dde328664abb4a18cef63b6e7409ff746a005f68b7af8cc0644702203c8e6e74ede4f56ba9fbc6e9eff2c2e45fef08030e4a215856f4dffcfe5d6f8f41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffa1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180000000049483045022100ec19a7a37d32fa5bd8a813c92045185a6f7600a008067bf37cb745eccfc6078e02204dd7b67ca2ac0427e7ef7cd17d407c65b4c58c4c421ac603a43dff2dc65a961e41ffffffff0228230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e415a38444a344244423557435747574e58305864626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103f019a469ee14181eaea85637083484b181e3f758ccd862994194bae030d24b0aac000000000100",
+        "recipient": true
+      },
+      "expected": {
+        "result": "ACCEPT"
+      }
+    },
+    {
+      "id": "VA-ANC-003",
+      "requirement": "SDX-A-07",
+      "description": "A reference to action M3, whose transaction also carries a handoff entry (ANC §3.4) at output 0, checked by a recipient.",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac063616964781a30314b4456444e425947453733303758564231535a4a5038324a636f75740164626565665903bc01010101416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac00100beef016902020202416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac003007bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100009499543499089cf10a0d77947ebba6c84a03351d3c1b94c28e8d97af0dac5ec5010100000002cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a01000000484730440220687c67560bd228f14f12ec2881c92956c612ef0b3f41348f2cc5ff9614fe086302205b668bd24cd2c92f1e2db1ea6de89095533df457e36956760d6048d7e4a18fb941ffffffff23c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d120000006a4730440220401aebc5f85bde9b6ad262c6a724b7e509fdb1e2e54930d7f3804ef7012999cc02207fa6dbc1d124c2772a5eaef12a39de1ecef6aee212d1d421e2ba3e11c71d7f3841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff030100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4458305156345639444a344b335a583457503964626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521028ed8d430601294e2b0bf9afce95d75575640f4d1d98ae597e871b6eb3f3069c5ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e425947453733303758564231535a4a5038324a64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103e901b864a6e329cc81a6d5b2ce0284620b10edf0c984cf1f79c8c37f9537c70dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": true
+      },
+      "expected": {
+        "result": "ACCEPT"
+      }
+    },
+    {
+      "id": "VA-ANC-004",
+      "requirement": "SDX-A-07",
+      "description": "A citation that labels M3's handoff entry (output 0) as action M3, checked by a recipient: the record there declares another action (honest-citation guard, ANC §6.1).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac063616964781a30314b4456444e425947453733303758564231535a4a5038324a636f75740064626565665903bc01010101416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac00100beef016902020202416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac003007bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100009499543499089cf10a0d77947ebba6c84a03351d3c1b94c28e8d97af0dac5ec5010100000002cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a01000000484730440220687c67560bd228f14f12ec2881c92956c612ef0b3f41348f2cc5ff9614fe086302205b668bd24cd2c92f1e2db1ea6de89095533df457e36956760d6048d7e4a18fb941ffffffff23c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d120000006a4730440220401aebc5f85bde9b6ad262c6a724b7e509fdb1e2e54930d7f3804ef7012999cc02207fa6dbc1d124c2772a5eaef12a39de1ecef6aee212d1d421e2ba3e11c71d7f3841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff030100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4458305156345639444a344b335a583457503964626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521028ed8d430601294e2b0bf9afce95d75575640f4d1d98ae597e871b6eb3f3069c5ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e425947453733303758564231535a4a5038324a64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103e901b864a6e329cc81a6d5b2ce0284620b10edf0c984cf1f79c8c37f9537c70dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": true
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "citation-mismatch"
+      }
+    },
+    {
+      "id": "VA-ANC-005",
+      "requirement": "SDX-A-07",
+      "description": "The citation of VA-ANC-004 checked by a verifier that is not a recipient: it can confirm only that a valid container exists at the cited position, so it accepts (ANC §6.1).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac063616964781a30314b4456444e425947453733303758564231535a4a5038324a636f75740064626565665903bc01010101416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac00100beef016902020202416bf67fd8a43c31a1e97b696da1213e10b04024aadd024ec67a3a1d1f2e3ac003007bcab835a3237994198a85cccad6722291640be1a5cd2be83ab05bde28184b990100009499543499089cf10a0d77947ebba6c84a03351d3c1b94c28e8d97af0dac5ec5010100000002cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a01000000484730440220687c67560bd228f14f12ec2881c92956c612ef0b3f41348f2cc5ff9614fe086302205b668bd24cd2c92f1e2db1ea6de89095533df457e36956760d6048d7e4a18fb941ffffffff23c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d120000006a4730440220401aebc5f85bde9b6ad262c6a724b7e509fdb1e2e54930d7f3804ef7012999cc02207fa6dbc1d124c2772a5eaef12a39de1ecef6aee212d1d421e2ba3e11c71d7f3841210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff030100000000000000f24ccca363686472a26265700063616964781a30314b4456444e4458305156345639444a344b335a583457503964626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e307521028ed8d430601294e2b0bf9afce95d75575640f4d1d98ae597e871b6eb3f3069c5ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e425947453733303758564231535a4a5038324a64626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103e901b864a6e329cc81a6d5b2ce0284620b10edf0c984cf1f79c8c37f9537c70dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "ACCEPT"
+      }
+    },
+    {
+      "id": "VA-ANC-006",
+      "requirement": "SDX-A-07",
+      "description": "BUMP for the wrong root: one bit of the highest stored sibling hash changed. The header source holds that height with a different root, so the proof names a non-canonical chain (ANC §6.1 step 3).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a63616964781a30314b4456444e415a38444a344244423557435747574e583058636f757401646265656659029e0100beef016902020000a140d5e478d79ab8491454b3a4609daf85d70a940c3accce426da9bc21c518d70102cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a010100e0db70a8869687badf1d5ccf0a97a21412999ac60e0215011c599c422da82d7901010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d110000006a47304402206a34723aa933dde328664abb4a18cef63b6e7409ff746a005f68b7af8cc0644702203c8e6e74ede4f56ba9fbc6e9eff2c2e45fef08030e4a215856f4dffcfe5d6f8f41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffa1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180000000049483045022100ec19a7a37d32fa5bd8a813c92045185a6f7600a008067bf37cb745eccfc6078e02204dd7b67ca2ac0427e7ef7cd17d407c65b4c58c4c421ac603a43dff2dc65a961e41ffffffff0228230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e415a38444a344244423557435747574e58305864626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103f019a469ee14181eaea85637083484b181e3f758ccd862994194bae030d24b0aac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "block-root-mismatch"
+      }
+    },
+    {
+      "id": "VA-ANC-007",
+      "requirement": "SDX-A-07",
+      "description": "M1's BUMP with its block height changed from 104 to 103: the header source holds height 103, and its root differs (ANC §6.1 step 3).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd0641863616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740064626565665902c20100beef016703020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "block-root-mismatch"
+      }
+    },
+    {
+      "id": "VA-ANC-008",
+      "requirement": "SDX-A-07",
+      "description": "A reference to M1 checked by a verifier whose header source ends at height 103: the range is unknown to it, a configuration fault rather than an attack (ANC §6.1 step 3).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd0641863616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740064626565665902e601010101a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180100beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false,
+        "headersThrough": 103
+      },
+      "expected": {
+        "result": "INCONCLUSIVE",
+        "label": "header-range-unknown"
+      }
+    },
+    {
+      "id": "VA-ANC-009",
+      "requirement": "SDX-A-07",
+      "description": "A reference whose cited txid is M2's while the BEEF carries M1: the cited identifier is not the one computed from the supplied bytes (ANC §6.1 step 4).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a63616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740064626565665902e601010101a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180100beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "txid-mismatch"
+      }
+    },
+    {
+      "id": "VA-ANC-010",
+      "requirement": "SDX-A-07",
+      "description": "A reference whose BEEF carries M1 without a merkle path (ANC §6.1 step 1).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd0641863616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740064626565665902340100beef0001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac0000000000",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "block-no-merkle-path"
+      }
+    },
+    {
+      "id": "VA-ANC-011",
+      "requirement": "SDX-A-07",
+      "description": "A reference whose proof is BEEF version 2 (0200BEEF, BRC-96), written by @bsv/sdk. This checker reads BEEF V1 and Atomic BEEF only.",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd0641863616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740064626565665902c20200beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb0010100010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac00000000",
+        "recipient": false
+      },
+      "expected": {
+        "result": "INCONCLUSIVE",
+        "label": "beef-v2-unsupported"
+      }
+    },
+    {
+      "id": "VA-ANC-012",
+      "requirement": "SDX-A-07",
+      "description": "A reference citing output 2 of M1, which has two outputs (ANC §6.1 step 5).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd0641863616964781a30314b4456444e41303045364a54505233515a32574456544731636f75740264626565665902e601010101a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180100beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "output-missing"
+      }
+    },
+    {
+      "id": "VA-ANC-013",
+      "requirement": "SDX-A-07",
+      "description": "A reference citing output 0 of M2, its P2PKH change, which does not have the container shape (ANC §6.1 step 5, ANC §2.1).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a63616964781a30314b4456444e415a38444a344244423557435747574e583058636f75740064626565665902c201010101cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a0100beef016902020000a140d5e478d79ab8491454b3a4609daf85d70a940c3accce426da9bc21c518d70102cefdc801f3ed597c1fe813ada77b8bfc58ddd1895264cbf33b819a6f664e909a010100e0db70a8869687badf1d5ccf0a97a21412999ac60e0215011c599c422da82d7801010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d110000006a47304402206a34723aa933dde328664abb4a18cef63b6e7409ff746a005f68b7af8cc0644702203c8e6e74ede4f56ba9fbc6e9eff2c2e45fef08030e4a215856f4dffcfe5d6f8f41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffa1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180000000049483045022100ec19a7a37d32fa5bd8a813c92045185a6f7600a008067bf37cb745eccfc6078e02204dd7b67ca2ac0427e7ef7cd17d407c65b4c58c4c421ac603a43dff2dc65a961e41ffffffff0228230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac0100000000000000f24ccca363686472a26265700063616964781a30314b4456444e415a38444a344244423557435747574e58305864626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752103f019a469ee14181eaea85637083484b181e3f758ccd862994194bae030d24b0aac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "container-template"
+      }
+    },
+    {
+      "id": "VA-ANC-014",
+      "requirement": "SDX-A-07",
+      "description": "A reference to a mined container whose record push uses OP_PUSHDATA1 where a direct push is the minimal opcode (ANC §2.1).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a5617601627478582036433e83da51dbf675598af2a21bfcd2842eb18397c192dfde805d233e7c2c6363616964781a30314b4456444e4d5152584e51454433304b37514b4d45364145636f75740064626565665901dc0101010136433e83da51dbf675598af2a21bfcd2842eb18397c192dfde805d233e7c2c630100beef016704020800b0091d3fd73df2187543df3148671087f3ce9f15ce0ed278237c5348c47649aa090236433e83da51dbf675598af2a21bfcd2842eb18397c192dfde805d233e7c2c63010500b02be96b28606d64e124424bc04b02a442a77e10e8569f66f098d4052cad489701030101000006c7b649e3a05ea85b82c7753ffff83a0467ceb2ae83daa685180c634ba8466d01010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d080000006a4730440220716c52c44f772f558b81bcb498b674849ad54744f5f61a5cf104d63c7e901cf60220473b6560f9084e6cb3cf20e467a6e9b874dd731ba31c818eaca6cc26bc0fb67a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000584c32a2646e6f7465781f4c41425f53454c465f544553545f4f4e4c592073686f7274207265636f72646973796e746865746963f5752102c30f42bd0d28768a2a1da12227eda0423f4cc5a4202f0f54a751ac284c478e4aac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "container-push-not-minimal"
+      }
+    },
+    {
+      "id": "VA-ANC-015",
+      "requirement": "SDX-A-07",
+      "description": "A reference to a mined container with two data fields, `<record> <extra> 2DROP <key> CHECKSIG`; ANC §2.2 requires exactly one.",
+      "verifier": "reference",
+      "input": {
+        "reference": "a56176016274785820eee5f2622ebbd5612d7bbe6802e54cc6e6dd8edbaf317972f52c3a1021436e9263616964781a30314b4456444e4e51303454594748393159465a593139585144636f757400646265656659026a01010101eee5f2622ebbd5612d7bbe6802e54cc6e6dd8edbaf317972f52c3a1021436e920100beef016704020a02eee5f2622ebbd5612d7bbe6802e54cc6e6dd8edbaf317972f52c3a1021436e920b010104004531b43fec06ec35f9dcb7eb8674b3c5d52f7cf993cd75204a73490d7a1ea05901030101000006c7b649e3a05ea85b82c7753ffff83a0467ceb2ae83daa685180c634ba8466d01010000000123c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d090000006a47304402200735711f99a02d2386a3bfbe944524e6c167dcdf5677b8eb26f6aefbb68beedf0220207e8d90f1efeeb0b1cc9350629518a7eafa8b8c63da9dba81422c70c60e91b241210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffff020100000000000000fd04014ccca363686472a26265700063616964781a30314b4456444e4e51303454594748393159465a59313958514464626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30117365636f6e642064617461206669656c646d2103faa5b43d22e93a75ddac05879d97cd611075371a64e01733d1c23463dfcfed7dac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "container-field-count"
+      }
+    },
+    {
+      "id": "VA-ANC-016",
+      "requirement": "SDX-A-07",
+      "description": "The reference of VA-ANC-001 with its map members in insertion order (v, aid, tx, out, beef) rather than the deterministic order. Refusing it is a laboratory choice (decision reference-encoding).",
+      "verifier": "reference",
+      "input": {
+        "reference": "a561760163616964781a30314b4456444e41303045364a54505233515a325744565447316274785820a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418636f75740064626565665902e601010101a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd064180100beef016803020000fd20d3247553169d43b5170b8ff09d72042f207dfda9c9b4b6e11b18f6b5a5760102a1d8f0e54cd91bd908c50cdf11e639a32cae95ea5caf637610dd1f1badd06418010100d992851aea6d5d736b15b4b36275031d7e80dce7dfbff4587bf1e7d0e10f45820101006e5c4a329ac425ac46c6bad8e6a2fed80fe798d4a2209dd3b905df9500538cb001010000000223c0681a3764f1a971a151d960afd9a960f674d1b73cfe27123afcfa5622108d0a0000006b483045022100e5ac6d29c8e23179f652b60c620711f53f0ef62c05e3b528f0a70320fc74af2c0220435a6b191333015a993c844b5166a3bcede0b9d04c4d915b815088142cb37a5a41210323335094a8b314b3cc2a88ea04baf32461fb5d522e2b403c0a0819679c8b940affffffffbfd0708c9b59b298eddc5265334c0228517a48d141a78bbad4bb3481b441b76c0000000049483045022100b99796e0577495a2100d805983aabbdc5322b94932fa84a31af5ab7366a3df4602202edfed16bc2b2c98ed09832d8549dcfeaeb64a6ed4b6a4f666e1a665f6fcf82441ffffffff020100000000000000f24ccca363686472a26265700063616964781a30314b4456444e41303045364a54505233515a3257445654473164626f647978774c41425f53454c465f544553545f4f4e4c59207374616e642d696e20666f7220616e205344582076302e31207265636f72643a2069742063617272696573206864722e61696420616e64206864722e657020696e20636c65617220616e64206973206e6f742061207265636f726420656e76656c6f70656570726f746f781c74706e696c2d7364782d6c61622d7374616e642d696e40302e312e30752102b949f4cefb78949728c9cdabb92aaa614bbfc7aa892f59f5487bef6e611c4cb1ac28230000000000001976a91453f064d259976e684fc796c27ffa3ca3fc0b58f388ac000000000100",
+        "recipient": false
+      },
+      "expected": {
+        "result": "REJECT",
+        "class": "cross-ref-invalid",
+        "label": "reference-not-deterministic"
+      }
+    },
+    {
+      "id": "VA-ANC-017",
+      "requirement": "SDX-A-07",
+      "description": "Chain M walked from its origin. M2's entry is output 1; M2 and M3 share a block and are ordered by spend (ANC §7.2); M3 consumes the tip with input 0 and carries a handoff entry before its own (ANC §2.3, §3.4); M4 is a version-2 transaction whose consuming signature is high-S (KEYS §1.8.3).",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "M0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ]
+      },
+      "expected": {
+        "result": "COMPLETE",
+        "dispatched": [
+          "01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "01KDVDNA00E6JTPR3QZ2WDVTG1",
+          "01KDVDNAZ8DJ4BDB5WCWGWNX0X",
+          "01KDVDNBYGE7307XVB1SZJP82J",
+          "01KDVDNCXRPH2AKG8QYBFJHQYM"
+        ],
+        "tip": {
+          "txid": "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+          "outputIndex": 0
+        },
+        "deadLetters": [],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-018",
+      "requirement": "SDX-A-07",
+      "description": "Chain M walked from the entry of M2, the last action the reader processed (ANC §7.1).",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "last-processed",
+          "transaction": "M2",
+          "outputIndex": 1
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ]
+      },
+      "expected": {
+        "result": "COMPLETE",
+        "dispatched": [
+          "01KDVDNBYGE7307XVB1SZJP82J",
+          "01KDVDNCXRPH2AKG8QYBFJHQYM"
+        ],
+        "tip": {
+          "txid": "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+          "outputIndex": 0
+        },
+        "deadLetters": [],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-019",
+      "requirement": "SDX-A-07",
+      "description": "Chain M walked from the entry of M4, the tip: nothing new to dispatch.",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "last-processed",
+          "transaction": "M4",
+          "outputIndex": 0
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ]
+      },
+      "expected": {
+        "result": "COMPLETE",
+        "dispatched": [],
+        "tip": {
+          "txid": "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+          "outputIndex": 0
+        },
+        "deadLetters": [],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-020",
+      "requirement": "SDX-A-07",
+      "description": "Chain M from its origin, with a competing origin entry among the rows: the participant's origin record committed under a key from another root. The walk follows the published origin, and the competing entry is not an entry of this chain (ANC §4.1, §9).",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "M0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "F"
+        ]
+      },
+      "expected": {
+        "result": "COMPLETE",
+        "dispatched": [
+          "01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "01KDVDNA00E6JTPR3QZ2WDVTG1",
+          "01KDVDNAZ8DJ4BDB5WCWGWNX0X",
+          "01KDVDNBYGE7307XVB1SZJP82J",
+          "01KDVDNCXRPH2AKG8QYBFJHQYM"
+        ],
+        "tip": {
+          "txid": "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+          "outputIndex": 0
+        },
+        "deadLetters": [],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-021",
+      "requirement": "SDX-A-07",
+      "description": "A walk started from the forged origin entry: its key is not the participant's derivation for the action its record declares (ANC §4.1, §6.2).",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "F",
+          "outputIndex": 0
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "F"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [],
+        "tip": null,
+        "deadLetters": [
+          {
+            "txid": "aa4976c448537c2378d20ece159fcef38710674831df437518f23dd73f1d09b0",
+            "class": "integrity-fail",
+            "label": "origin-not-derived"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-022",
+      "requirement": "SDX-A-07",
+      "description": "Chain M from its origin for a verifier whose header source ends at height 105: M4, mined at height 106, cannot be proved, so the walk stops INCONCLUSIVE after M3 (ANC §6.1 step 3, configuration fault).",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "M0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3",
+          "M4"
+        ],
+        "headersThrough": 105
+      },
+      "expected": {
+        "result": "INCONCLUSIVE",
+        "reason": "header-range-unknown",
+        "dispatched": [
+          "01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "01KDVDNA00E6JTPR3QZ2WDVTG1",
+          "01KDVDNAZ8DJ4BDB5WCWGWNX0X",
+          "01KDVDNBYGE7307XVB1SZJP82J"
+        ],
+        "tip": {
+          "txid": "c03a2e1f1d3a7ac64e02ddaa2440b0103e21a16d697be9a1313ca4d87ff66b41",
+          "outputIndex": 1
+        },
+        "deadLetters": [],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-023",
+      "requirement": "SDX-A-07",
+      "description": "Chain M from its origin, with M3 answered by a BEEF whose BUMP resolves to a root the header source does not hold at that height. The row is refused (ANC §16), the walk ends at M2, and M4 is an entry of the chain that no walk reaches (decision unlinked-entries).",
+      "verifier": "walk",
+      "input": {
+        "chain": "M",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "M0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "M0",
+          "M1",
+          "M2",
+          "M3-bump-altered",
+          "M4"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01JB8ZK3QN7T4YVX2C9M5RDPWA",
+          "01KDVDNA00E6JTPR3QZ2WDVTG1",
+          "01KDVDNAZ8DJ4BDB5WCWGWNX0X"
+        ],
+        "tip": {
+          "txid": "9a904e666f9a813bf3cb645289d1dd58fc8b7ba7ad13e81f7c59edf301c8fdce",
+          "outputIndex": 1
+        },
+        "deadLetters": [
+          {
+            "txid": "a7fd00224d4cb46fe232f46ac398e647e2861da08f876777a67b88ecaea537c8",
+            "class": "chain-break-timeout",
+            "label": "entry-not-linked"
+          }
+        ],
+        "refused": [
+          {
+            "txid": "c03a2e1f1d3a7ac64e02ddaa2440b0103e21a16d697be9a1313ca4d87ff66b41",
+            "label": "block-root-mismatch"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VA-ANC-024",
+      "requirement": "SDX-A-07",
+      "description": "Substitution: S1 consumes S0 and carries the record of M1, lifted from chain M, in an entry committed for its own action. The record declares M1's action, whose derivation does not match the entry (ANC §6.2).",
+      "verifier": "walk",
+      "input": {
+        "chain": "S",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "S0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "S0",
+          "S1"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNEW8WE2TB30ENJ00PSRD"
+        ],
+        "tip": {
+          "txid": "e2c829b878780b3a60a6251e4cd95f0067892da71d80adf4f364f87aeb581305",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "dfab9a0584606be4b74e98b8bdd57f4976b6e6c7c8b66175f61b851b22eb4d73",
+            "class": "integrity-fail",
+            "label": "no-output-matches"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-025",
+      "requirement": "SDX-A-07",
+      "description": "Wrong action identifier: W1's record declares an action other than the one its commitment key is derived for (ANC §6.2 steps 3-5).",
+      "verifier": "walk",
+      "input": {
+        "chain": "W",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "W0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "W0",
+          "W1"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNFVGBXVCAFDYGKAAKZ9B"
+        ],
+        "tip": {
+          "txid": "58fe94c06b2e8277cb01c4f9c8c225f9875c4ba912bc5374553656372f30d627",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "a96f42484b543a536d2efadfb752b3408df4c7caff6361f1fe9ba662735e9ba2",
+            "class": "integrity-fail",
+            "label": "no-output-matches"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-026",
+      "requirement": "SDX-A-07",
+      "description": "Wrong epoch: E1's record declares epoch 1, and its key is derived for the same action under the epoch-0 root. The reader holds both roots (ANC §3.1, §6.2 step 4).",
+      "verifier": "walk",
+      "input": {
+        "chain": "E",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "E0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "E0",
+          "E1"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNGTR6FKEP0EBNC9NEZNT"
+        ],
+        "tip": {
+          "txid": "50a73cc46d1525508eaff69d93943971973a2f50b656b5ea63bccebe9d6ea41a",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "347ab8e1988a8ec7f0a81f708004596830186994a7d591dbcae3595af60d98d2",
+            "class": "integrity-fail",
+            "label": "no-output-matches"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-027",
+      "requirement": "SDX-A-07",
+      "description": "K1 is an action at epoch 2, committed under the epoch-2 root. A reader that holds only epochs 0 and 1 cannot derive its key (KEYS §1.10.4).",
+      "verifier": "walk",
+      "input": {
+        "chain": "K",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "K0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "K0",
+          "K1"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNHT0H3G3V5BXVCJJ3J1V"
+        ],
+        "tip": {
+          "txid": "f9e54a0141f8a1284140318a673c8078500eecb01843bc3dd5b875dd01ee9f62",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "d6bc4c2756371dbf21e3341183af8481fe25e52b3923c3954e5fa875d1d23c4a",
+            "class": "key-missing",
+            "label": "epoch-root-not-held"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-028",
+      "requirement": "SDX-A-07",
+      "description": "The chain of VA-ANC-027 for a reader that holds epochs 0, 1 and 2: K1 matches.",
+      "verifier": "walk",
+      "input": {
+        "chain": "K",
+        "keyring": [
+          0,
+          1,
+          2
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "K0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "K0",
+          "K1"
+        ]
+      },
+      "expected": {
+        "result": "COMPLETE",
+        "dispatched": [
+          "01KDVDNHT0H3G3V5BXVCJJ3J1V",
+          "01KDVDNTK89W5DJEBDVCC2R50S"
+        ],
+        "tip": {
+          "txid": "d6bc4c2756371dbf21e3341183af8481fe25e52b3923c3954e5fa875d1d23c4a",
+          "outputIndex": 0
+        },
+        "deadLetters": [],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-029",
+      "requirement": "SDX-A-07",
+      "description": "D1's container carries bytes that do not decode as a record.",
+      "verifier": "walk",
+      "input": {
+        "chain": "D",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "D0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "D0",
+          "D1"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNJS86DFNW5FJSKXEGSTY"
+        ],
+        "tip": {
+          "txid": "4e3208ec36b2dbb99902decc303eb79da873dd14e6b535683540ea08df1a2c20",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "fd664e0fb1ff2b02acca4983ae20637eceb28218b1ada34de4e08b8fac6ed69a",
+            "class": "decode-fail",
+            "label": "record-not-decodable"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-030",
+      "requirement": "SDX-A-07",
+      "description": "An action that consumes no tip: N2x is committed for chain N but spends only a funding entry (ANC §4.2). The walk ends at N1, and N2x is an entry no walk reaches (decision unlinked-entries).",
+      "verifier": "walk",
+      "input": {
+        "chain": "N",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "N0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "N0",
+          "N1",
+          "N2x"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNKRGXQ55CY97QTEPPQFF",
+          "01KDVDNWHR030MD6E5QPHYW1V0"
+        ],
+        "tip": {
+          "txid": "9d4522f96f716b3bbd3b51442871d4a72412a72a9b77435f8cab76f4abe34245",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "994b1828de5bb03ae82bcda5e10b64912272d6cacc858a19947923a335b8ca7b",
+            "class": "chain-break-timeout",
+            "label": "entry-not-linked"
+          }
+        ],
+        "refused": []
+      }
+    },
+    {
+      "id": "VA-ANC-031",
+      "requirement": "SDX-A-07",
+      "description": "An action that consumes two tips: N3 spends N1's entry and N2x's entry. ANC §4.2 makes it a malformed action; ANC §7.5 names no reason for it (class `unlisted`).",
+      "verifier": "walk",
+      "input": {
+        "chain": "N",
+        "keyring": [
+          0,
+          1
+        ],
+        "start": {
+          "kind": "origin",
+          "transaction": "N0",
+          "outputIndex": 0
+        },
+        "rows": [
+          "N0",
+          "N1",
+          "N2x",
+          "N3"
+        ]
+      },
+      "expected": {
+        "result": "DEAD-LETTERED",
+        "dispatched": [
+          "01KDVDNKRGXQ55CY97QTEPPQFF",
+          "01KDVDNWHR030MD6E5QPHYW1V0"
+        ],
+        "tip": {
+          "txid": "9d4522f96f716b3bbd3b51442871d4a72412a72a9b77435f8cab76f4abe34245",
+          "outputIndex": 0
+        },
+        "deadLetters": [
+          {
+            "txid": "a99eba435a31b0b60e269e835c12ecd6d833550ae195bdd46f7d0a625533e6a7",
+            "class": "unlisted",
+            "label": "two-tips-consumed"
+          }
+        ],
+        "refused": []
+      }
+    }
+  ]
+}

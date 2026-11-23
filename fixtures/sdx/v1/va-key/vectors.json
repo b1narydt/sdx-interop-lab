@@ -1,0 +1,3409 @@
+{
+ "schema": "tpnil-sdx-vectors@0.1.0",
+ "suite": "VA-KEY",
+ "claim": "LAB_SELF_TEST_ONLY",
+ "status": "BASELINE-v0.1",
+ "requirements": [
+  "SDX-A-08"
+ ],
+ "profile": {
+  "id": "tpnil-sdx-lab:v1",
+  "path": "fixtures/sdx/v1/deployment-profile.json",
+  "sha256": "2b5d3746178d85f878d212c3320a96e33185d0b3738ed8252f010a73a41e7c7c"
+ },
+ "driverContract": "programs/proposals/sdx-data-sharing/0.1.0/driver-contract.md",
+ "citations": [
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.3"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.3.1"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.4.1"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.4.2"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.4.3"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.6.1"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.6.2"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.7"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.8.1"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.8.2"
+  },
+  {
+   "path": "fixtures/sdx/v1/standards/text/keys.md",
+   "clause": "KEYS §1.12"
+  }
+ ],
+ "items": {
+  "1": "Root split: five roots, a 32-byte root refused, and a found root whose P-256 seed is out of range",
+  "2": "secp256k1 derivation and the symmetric field key, each equal to @bsv/sdk 4.0.1 (BRC-42, BRC-2)",
+  "3": "P-256 derivation: private scalar and public key for three identifiers",
+  "4": "ES256 round trip: exercised on record signatures by VA-SIG (verification, tampered signatures and a wrong signer's key)",
+  "5": "Counterparty symmetry on both curves",
+  "6": "Curve independence over ten roots",
+  "7": "Scalar rejection: a found P-256 identifier, and injected offsets 0, 1, n - 1, n, n + 1 and 2^256 - 1 on both curves through the `offset` hook",
+  "8": "NFC normalisation on both curves",
+  "9": "Derivation-identifier assembly: the KEYS §1.8.1 worked example",
+  "10": "Key-path grammar: every registered purpose and variant accepted; an unregistered purpose, a foreign keyword, an empty segment, an extra segment and an over-long path refused; namespaces outside the profile refused",
+  "11": "Profile conformance: the laboratory profile and ten non-conforming variants"
+ },
+ "roots": {
+  "K1": {
+   "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+   "derivedFrom": "SHA-512(\"TPNIL SDX v1 LAB_SELF_TEST_ONLY public test root: VA-KEY 1\")"
+  },
+  "K2": {
+   "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+   "derivedFrom": "SHA-512(\"TPNIL SDX v1 LAB_SELF_TEST_ONLY public test root: VA-KEY 2\")"
+  },
+  "K3": {
+   "rootIkm": "fe7b27f6be8c780c64cc465435849106d3dc6d727d8e4772d7305b719cd527398192226941d8c811f5681f68f86afc57334b72d3297bf202728be9fcbcfd9d75",
+   "derivedFrom": "SHA-512(\"TPNIL SDX v1 LAB_SELF_TEST_ONLY public test root: VA-KEY 3\")"
+  },
+  "SEQ": {
+   "rootIkm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+   "derivedFrom": "bytes 0x00 to 0x3f"
+  },
+  "HIGH": {
+   "rootIkm": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+   "derivedFrom": "64 bytes 0xff"
+  }
+ },
+ "found": {
+  "seed": {
+   "rootIkm": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000005cdbada9",
+   "by": "components/sdx/p256/grind (seed): ikm = 0xff * 56 || uint64be(1557900713); its P-256 seed is at least n"
+  },
+  "path": {
+   "root": "SEQ",
+   "identifier": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN0000000005KCMQQD",
+   "by": "components/sdx/p256/grind (path): the record identifier's last 16 characters are the Crockford base32 of 6019505901; the HMAC offset is at least n"
+  }
+ },
+ "decisions": [
+  {
+   "id": "deployment-profile",
+   "kind": "Rests on the cited text",
+   "text": "Every value is computed under the laboratory profile `tpnil-sdx-lab:v1`: its labels, namespaces and key-path vocabulary are SDX's example values, used in the laboratory only, so the KEYS §1.8.1 worked example is also a laboratory known answer. Basis: KEYS §1.3.1, §1.12."
+  },
+  {
+   "id": "scalar-rejection",
+   "kind": "Laboratory interpretation",
+   "text": "An HMAC offset of 0 or at least n is refused before any reduction, and the value is never reduced. Source finding: KEYS §1.8.2 both reduces the HMAC output modulo n and requires failure at or above n; KEYS §1.12 item 7 tests the rejection, which assumes the check comes first. Injected offsets travel through the optional `offset` hook, because no search can find 0 or n; an implementation without the hook is BLOCKED on those cases. Basis: KEYS §1.8.2, §1.12 item 7."
+  },
+  {
+   "id": "symmetric-key",
+   "kind": "Laboratory interpretation",
+   "text": "The secp256k1 symmetric key is the 32-byte x-coordinate of the shared point between the deriver's derived private key and the counterparty's derived public key, as BRC-2 and @bsv/sdk define it. Source finding: KEYS §1.8.2 says only that \"the resulting shared material\" is the key. Basis: KEYS §1.8.2, §1.8.4, §1.12 item 2."
+  },
+  {
+   "id": "symmetry-form",
+   "kind": "Rests on the cited text",
+   "text": "Counterparty symmetry is tested in the KEYS §1.12 item 5 form: one side's derived public key equals the other side's derived private key's public key. Source finding: KEYS §1.8.4 and §2.14.1 say both sides derive the same private key, which the §1.8.2 algorithm does not give (coverage KEYS-1.8)."
+  },
+  {
+   "id": "grammar",
+   "kind": "Laboratory test-construction choice",
+   "text": "The `validate` operation applies the profile's five-level structure: keyword segments in their positions followed by one identifier each, level 4 only with a registered purpose, the session and delegation variants, no empty segment, and at most 1033 bytes; field names are bounded at 256 bytes (`labChoice`). Basis: KEYS §1.3, §1.6.1, §1.6.2, §1.12 item 10."
+  },
+  {
+   "id": "reserved-rotation",
+   "kind": "Laboratory test-construction choice",
+   "text": "The laboratory profile reserves the rotation namespace and does not derive under it; a derivation request under it is refused (`labChoice`: KEYS §1.7 lets a profile reserve a role). Basis: KEYS §1.7, §1.10.3 step 5."
+  },
+  {
+   "id": "item-4",
+   "kind": "Laboratory test-construction choice",
+   "text": "KEYS §1.12 item 4, the ES256 round trip, is exercised on record signatures by VA-SIG, which verifies signatures under a JOSE implementation in its generator and refuses tampered signatures and a wrong signer's key."
+  }
+ ],
+ "generator": {
+  "component": "components/sdx/key",
+  "command": "npm run generate --prefix components/sdx/key",
+  "check": "npm run check --prefix components/sdx/key",
+  "dependencies": {
+   "@bsv/sdk": "4.0.1",
+   "@noble/curves": "2.4.0",
+   "@noble/hashes": "2.4.0"
+  },
+  "lockfile": "components/sdx/key/package-lock.json",
+  "deterministic": "Every value is a function of the published roots and the profile."
+ },
+ "oracles": {
+  "generatorWitness": "@bsv/sdk 4.0.1 KeyDeriver equals every secp256k1 derivation and the symmetric key.",
+  "node": {
+   "modules": [
+    "src/sdx/keys.mjs",
+    "src/sdx/ec-p256.mjs"
+   ],
+   "kind": "oracle",
+   "dependencies": "Node.js built-ins only (HKDF and HMAC by node:crypto, scalar multiplication by OpenSSL)",
+   "tests": [
+    "test/sdx-key.test.mjs"
+   ]
+  },
+  "python": {
+   "modules": [
+    "test/sdx_key.py",
+    "test/sdx_ec.py"
+   ],
+   "kind": "oracle",
+   "dependencies": "Python standard library only",
+   "tests": [
+    "test/test_sdx_key.py"
+   ]
+  }
+ },
+ "caseCount": 69,
+ "cases": [
+  {
+   "id": "VA-KEY-001",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Root split of root K1: both 32-byte seeds from the full 64 bytes, HKDF-SHA-256 with an empty salt and the profile's labels",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.2",
+    "KEYS §1.4.3",
+    "KEYS §1.12 item 1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865"
+   },
+   "expect": {
+    "secp256k1Seed": "4bbcad6b3218e2ccdfad57622256de911108a26e36b05a2bc093722794e5c776",
+    "p256Seed": "5bd3f4028c7690589da818cf07db013c7c257a53ded9a513c1a958128a889b50"
+   }
+  },
+  {
+   "id": "VA-KEY-002",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Root split of root K2: both 32-byte seeds from the full 64 bytes, HKDF-SHA-256 with an empty salt and the profile's labels",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.2",
+    "KEYS §1.4.3",
+    "KEYS §1.12 item 1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30"
+   },
+   "expect": {
+    "secp256k1Seed": "b635558db3f3f6cbe21784f6775aec592b5f072d32dfbb2dd4a370d8387a12ca",
+    "p256Seed": "46665ffacbf386b481428876f3764fa7adc4b950131845795a354ce329c71740"
+   }
+  },
+  {
+   "id": "VA-KEY-003",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Root split of root K3: both 32-byte seeds from the full 64 bytes, HKDF-SHA-256 with an empty salt and the profile's labels",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.2",
+    "KEYS §1.4.3",
+    "KEYS §1.12 item 1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "fe7b27f6be8c780c64cc465435849106d3dc6d727d8e4772d7305b719cd527398192226941d8c811f5681f68f86afc57334b72d3297bf202728be9fcbcfd9d75"
+   },
+   "expect": {
+    "secp256k1Seed": "d7afa39b251173738da46f1614531416d21428d71dbdc185cef344f892f4f6ee",
+    "p256Seed": "ccdd1ee99e3bc87f566226c9573d60377afc1666c15ac43f3b9f94e77cc04407"
+   }
+  },
+  {
+   "id": "VA-KEY-004",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Root split of root SEQ: both 32-byte seeds from the full 64 bytes, HKDF-SHA-256 with an empty salt and the profile's labels",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.2",
+    "KEYS §1.4.3",
+    "KEYS §1.12 item 1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
+   },
+   "expect": {
+    "secp256k1Seed": "47fff5ba7cfed35386a38793328e5a3009f50bc84099ecf42bc6b3181ad25259",
+    "p256Seed": "2518246f999df8d7528d76aedea51a3bff120c901b23246a53bbc4811f8550da"
+   }
+  },
+  {
+   "id": "VA-KEY-005",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Root split of root HIGH: both 32-byte seeds from the full 64 bytes, HKDF-SHA-256 with an empty salt and the profile's labels",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.2",
+    "KEYS §1.4.3",
+    "KEYS §1.12 item 1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+   },
+   "expect": {
+    "secp256k1Seed": "f808eb9de43caeb1c4cf42d34ffedeb38a8e92392f39109cc6b2df35849a6f23",
+    "p256Seed": "1c9bc9f2d972785eb7442cae3462f7fc61ec20e5db8687d26cec2667d26d5a2b"
+   }
+  },
+  {
+   "id": "VA-KEY-006",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Root keying material of 32 bytes is refused: the root must be exactly 64 bytes, and truncation would halve its entropy",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.1",
+    "KEYS §1.4.2"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "root-length"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-007",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A root whose P-256 seed is at least n (found by search) is refused as unusable, and is never clamped; the secp256k1 seed of the same root is in range, and neither seed is returned",
+   "item": 1,
+   "basis": [
+    "KEYS §1.4.3"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000005cdbada9"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "seed-out-of-range"
+    }
+   },
+   "oracle": {
+    "p256Seed": "ffffffff5595dfc4ed291cbedaf6002bda9cdf43a6bb30260396fa0a73a9d25f",
+    "n": "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551",
+    "found": "components/sdx/p256/grind: ikm = 0xff * 56 || uint64be(1557900713)"
+   }
+  },
+  {
+   "id": "VA-KEY-008",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Derivation identifier assembly: the KEYS §1.8.1 worked example, `<securityLevel>-<namespace>-<keyPath>` with literal hyphens, and the P-256 field-encryption key it gives on root K1",
+   "item": 9,
+   "basis": [
+    "KEYS §1.8.1",
+    "KEYS §1.12 item 9"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "publicKey": "02cf590c970f28059fcb868433c47cb75d27a49ce88e8e433f22c5c785743c6553",
+    "privateKey": "02b0ac141b5285df0b1fbcbbc6be18ae162e263fbdc79cc2c341163a7a281715"
+   },
+   "oracle": {
+    "sharedPoint": "036214ee050a1fa6608d0b773039ca3fa866a01edd971109f62b08fabbd1e2a170",
+    "hmac": "a6dcb8108edbf5876d77a3ecbee3177156efa69986059633f55188eaec02a116"
+   }
+  },
+  {
+   "id": "VA-KEY-009",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "P-256 derivation on root K2: the per-record signing key (ENV §8.5), private scalar and SEC1-compressed public key, at counterparty self",
+   "item": 3,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 3"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+    "namespace": "sdx sign",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "publicKey": "03d636948837a2a2c3e932d7b91f2151af9dae4341db7c9a48c2912fe3b4df9220",
+    "privateKey": "41f1604f1f8c498b72a9db6037c3d8bf70074c6973f3de1547dca75f3170fd2e"
+   },
+   "oracle": {
+    "sharedPoint": "02384a9e5cabf9c4eed078a0c686569339b4fb0863f346fa1b436c94c5fe3d7666",
+    "hmac": "fb8b00535398c2d7f16752e9444d89177f298dc707f33720e161253f040d0b3f"
+   }
+  },
+  {
+   "id": "VA-KEY-010",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "P-256 derivation on root K2: the writer self-recipient key (ENV §8.6), private scalar and SEC1-compressed public key, at counterparty self",
+   "item": 3,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 3"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "publicKey": "02532cd4faa05ca016433b3c88e0a2075163836310c7071fcd09de1078d5a01b44",
+    "privateKey": "8acf3b5a7252d7e5a6bf33e9ea166c73335bfab16f371b2fe6c601bc64495fb6"
+   },
+   "oracle": {
+    "sharedPoint": "02384a9e5cabf9c4eed078a0c686569339b4fb0863f346fa1b436c94c5fe3d7666",
+    "hmac": "4468db5fa65f5131257cab72f6a01ccb859741615c1ed5b68c90b4d93a824876"
+   }
+  },
+  {
+   "id": "VA-KEY-011",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "P-256 derivation on root K2: a session key (KEYS §2.14.2), private scalar and SEC1-compressed public key, at counterparty self",
+   "item": 3,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 3"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+    "namespace": "sdx delegate",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/session/ffeeddccbbaa99887766554433221100",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx delegate-account/3MNQpxFAsp/runtime/8kRt2wVbZq/session/ffeeddccbbaa99887766554433221100",
+    "publicKey": "03f26906b8ee410ce8384d0216c4889c858db2e7cb045a689aa59dd55b4279c4f0",
+    "privateKey": "884d1cf5749f813da207354202e47c79d78fcb076d8381a3e59bc6f1a863f048"
+   },
+   "oracle": {
+    "sharedPoint": "02384a9e5cabf9c4eed078a0c686569339b4fb0863f346fa1b436c94c5fe3d7666",
+    "hmac": "41e6bcfaa8abfa8920c4accb0f6e2cd229cb11b75a6b3c2a8b667a0e7e9cd908"
+   }
+  },
+  {
+   "id": "VA-KEY-012",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "secp256k1 derivation on root K2: the ANC §3.1 commitment key, the same identifier as the P-256 signing key on the other tree, equal to @bsv/sdk BRC-42",
+   "item": 2,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.11.2",
+    "KEYS §1.12 item 2",
+    "ANC §3.1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "secp256k1",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+    "namespace": "sdx sign",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "publicKey": "0277ddded460180f0b6c629b19946290d3dd218bec6c6640699732ec2a95cd1b8a",
+    "privateKey": "a2b4cd70ea6811a9aa5c07bdc03afb58ea81d63b64d8e5c946110e0549bc57e1"
+   },
+   "oracle": {
+    "sharedPoint": "034d18886e38d0b3e936cfa7c4a0049097a92c72f5a81c3e7a7dd5bd846e00ccb7",
+    "hmac": "ec7f77e336741addc84482c748e00efe79d1abf4e141cad7313ffbb9e1788658"
+   }
+  },
+  {
+   "id": "VA-KEY-013",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "secp256k1 derivation of a `topup` output lock on root K2, equal to @bsv/sdk BRC-42",
+   "item": 2,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 2"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "secp256k1",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+    "namespace": "sdx sign",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx sign-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0",
+    "publicKey": "0273b378c49c4181fb2a68cf0f043a8c833dea5f1640031fb917f1426272f523a8",
+    "privateKey": "7f2fa9cd179f00bad357642db4832149f358f13bc7516c0915f3b89eac7094b2"
+   },
+   "oracle": {
+    "sharedPoint": "034d18886e38d0b3e936cfa7c4a0049097a92c72f5a81c3e7a7dd5bd846e00ccb7",
+    "hmac": "c8fa543f63ab09eef13fdf373d2834ef82a8c6f543ba51170122a653442cc329"
+   }
+  },
+  {
+   "id": "VA-KEY-014",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "secp256k1 symmetric field key at counterparty self on root K2: the x-coordinate of the derived private key times the counterparty's derived public key (BRC-2), equal to @bsv/sdk deriveSymmetricKey",
+   "item": 2,
+   "basis": [
+    "KEYS §1.8.2 (Symmetric keys)",
+    "KEYS §1.8.4",
+    "KEYS §1.12 item 2"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "symmetric",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "secp256k1",
+    "rootIkm": "1ab11138d8f83557685d2613d574dda91e5f1282bbd8b8e5e5630f6445ba25d9f82a0bbc417ea6078607b576708cb079d43f87d6d4b6323d9df31547d01d4d30",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "counterparty": "self"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "key": "6bc289d8a52d9bbf42a4b66fc3dd9fe1c5b6dfa7046c8bd470479fee42430aa4"
+   }
+  },
+  {
+   "id": "VA-KEY-015",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Counterparty symmetry on p256: root K1 derives the child public key of root K3 (counterparty K3's root public key)",
+   "item": 5,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 5",
+    "ENV §8.6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "counterparty": "0226a688431dcf40494f87c21a4c729aa5b4a99c749cfe4551a5fb8b304d422c72",
+    "side": "counterparty"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "publicKey": "03521eddc2936afcafaa3d175e9610f6263dc67b3e5b593eca6e1869e7679b2515"
+   },
+   "oracle": {
+    "sharedPoint": "02904703cb910f677caa7317164aed1a38f8af845348b36c9b1c4ff1cbc117ab28",
+    "hmac": "4cf24b56ebd41ae611263e2a3b7b7a987e45209d803357da5c8161472392f2db"
+   }
+  },
+  {
+   "id": "VA-KEY-016",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Counterparty symmetry on p256: root K3 derives its own child with counterparty K1, and its public key equals the one K1 derived",
+   "item": 5,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 5"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "fe7b27f6be8c780c64cc465435849106d3dc6d727d8e4772d7305b719cd527398192226941d8c811f5681f68f86afc57334b72d3297bf202728be9fcbcfd9d75",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "counterparty": "02a9bc6f58beba0e3f86b1dabcd259e007e1e60265cae8abece86470ac6bd72c6e",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "publicKey": "03521eddc2936afcafaa3d175e9610f6263dc67b3e5b593eca6e1869e7679b2515",
+    "privateKey": "19cf6a418a0fe364678864f392b8dad03c5a3c569a767d94a4672b6ba3f01191"
+   },
+   "oracle": {
+    "sharedPoint": "02904703cb910f677caa7317164aed1a38f8af845348b36c9b1c4ff1cbc117ab28",
+    "hmac": "4cf24b56ebd41ae611263e2a3b7b7a987e45209d803357da5c8161472392f2db"
+   }
+  },
+  {
+   "id": "VA-KEY-017",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Counterparty symmetry on secp256k1: root K1 derives the child public key of root K3 (counterparty K3's root public key)",
+   "item": 5,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 5",
+    "ENV §8.6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "secp256k1",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "counterparty": "03fd66ddcd399f8f337fe1d8beb3c7254d6321dcd0d52b34f06633b45e49c9d8af",
+    "side": "counterparty"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "publicKey": "02550af8200a9b07d427b4be17d52aac4b02e3499bca29f0d8673805057ca94477"
+   },
+   "oracle": {
+    "sharedPoint": "023a6b5333b6970a71426dfe853cc82f58685617fb9d3668f1e9cc97fa147dbc2a",
+    "hmac": "0e6cb5510e4833fa08637d0fbd64d65244144663fed3d38b178271414aee3110"
+   }
+  },
+  {
+   "id": "VA-KEY-018",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Counterparty symmetry on secp256k1: root K3 derives its own child with counterparty K1, and its public key equals the one K1 derived",
+   "item": 5,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 5"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "secp256k1",
+    "rootIkm": "fe7b27f6be8c780c64cc465435849106d3dc6d727d8e4772d7305b719cd527398192226941d8c811f5681f68f86afc57334b72d3297bf202728be9fcbcfd9d75",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "counterparty": "02dc52e0b54c62c41701dcc933c3ab446718ae47e14446691cf1f5b5a46c5aa65e",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash",
+    "publicKey": "02550af8200a9b07d427b4be17d52aac4b02e3499bca29f0d8673805057ca94477",
+    "privateKey": "e61c58ec3359a76d9607ec25d1b7ea6916286f3b1c919510e675b639dde327fe"
+   },
+   "oracle": {
+    "sharedPoint": "023a6b5333b6970a71426dfe853cc82f58685617fb9d3668f1e9cc97fa147dbc2a",
+    "hmac": "0e6cb5510e4833fa08637d0fbd64d65244144663fed3d38b178271414aee3110"
+   }
+  },
+  {
+   "id": "VA-KEY-019",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Normalisation on p256: a field name given as `a` followed by U+0301 is normalised to the composed `á` before hashing",
+   "item": 8,
+   "basis": [
+    "KEYS §1.6.2",
+    "KEYS §1.12 item 8"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/á",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/á",
+    "publicKey": "027fe7bdd575d9ddb10a1a5d9a2d0210194675ea5e4d2344ba4b7740e41719b68f",
+    "privateKey": "fcb633eeb47ca0444cc8b90676ef1a2306a11f6a5b401c97ae117ccf630c9ce3"
+   },
+   "oracle": {
+    "sharedPoint": "036214ee050a1fa6608d0b773039ca3fa866a01edd971109f62b08fabbd1e2a170",
+    "hmac": "a0e23fec28060febaf20a0376f1418e68a7ba5167c667783ec6824bcd8840193"
+   }
+  },
+  {
+   "id": "VA-KEY-020",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Normalisation on secp256k1: a field name given as `a` followed by U+0301 is normalised to the composed `á` before hashing",
+   "item": 8,
+   "basis": [
+    "KEYS §1.6.2",
+    "KEYS §1.12 item 8"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "secp256k1",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx encrypt",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/á",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "identifier": "2-sdx encrypt-account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/á",
+    "publicKey": "0329a5ae5f0360420d77b413799c32efbe4639198028ff3cb3e7bb33a0285ed2e0",
+    "privateKey": "4c15b2936058117103f29bf29860d08dadc487131df83349c1d910f4da88d77b"
+   },
+   "oracle": {
+    "sharedPoint": "027a9a8b563fbdeeb341f36ea3affa8014cf6813e0d18efe9dd02a3d41a0c4381d",
+    "hmac": "005905282e3f2ea4244544907609f1fc9cbbe4a4e747d91e01459ecd45a31005"
+   }
+  },
+  {
+   "id": "VA-KEY-021",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection, found: on root SEQ the HMAC offset of this P-256 signing identifier is at least n, so the derivation fails and the value is never reduced (laboratory reading of KEYS §1.8.2)",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+    "namespace": "sdx sign",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN0000000005KCMQQD",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:p256"
+    }
+   },
+   "oracle": {
+    "sharedPoint": "02be4bdb55e891f95b60c45c0c2c53ff8b60a9a2e0a2f8d0d664d8abc67ff56d14",
+    "hmac": "ffffffff2d6516f1da0abbab422587faca10efb31539bc7c95190949c74464bf"
+   }
+  },
+  {
+   "id": "VA-KEY-022",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on p256: an HMAC output of 0 is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "p256",
+    "hmac": "0000000000000000000000000000000000000000000000000000000000000000"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:p256"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-023",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on p256: an HMAC output of 1 is accepted as the scalar",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "p256",
+    "hmac": "0000000000000000000000000000000000000000000000000000000000000001"
+   },
+   "expect": {
+    "scalar": "0000000000000000000000000000000000000000000000000000000000000001"
+   }
+  },
+  {
+   "id": "VA-KEY-024",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on p256: an HMAC output of n - 1 is accepted as the scalar",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "p256",
+    "hmac": "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550"
+   },
+   "expect": {
+    "scalar": "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550"
+   }
+  },
+  {
+   "id": "VA-KEY-025",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on p256: an HMAC output of n is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "p256",
+    "hmac": "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:p256"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-026",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on p256: an HMAC output of n + 1 is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "p256",
+    "hmac": "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:p256"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-027",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on p256: an HMAC output of 2^256 - 1 is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "p256",
+    "hmac": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:p256"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-028",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on secp256k1: an HMAC output of 0 is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "secp256k1",
+    "hmac": "0000000000000000000000000000000000000000000000000000000000000000"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:secp256k1"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-029",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on secp256k1: an HMAC output of 1 is accepted as the scalar",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "secp256k1",
+    "hmac": "0000000000000000000000000000000000000000000000000000000000000001"
+   },
+   "expect": {
+    "scalar": "0000000000000000000000000000000000000000000000000000000000000001"
+   }
+  },
+  {
+   "id": "VA-KEY-030",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on secp256k1: an HMAC output of n - 1 is accepted as the scalar",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "secp256k1",
+    "hmac": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140"
+   },
+   "expect": {
+    "scalar": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140"
+   }
+  },
+  {
+   "id": "VA-KEY-031",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on secp256k1: an HMAC output of n is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "secp256k1",
+    "hmac": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:secp256k1"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-032",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on secp256k1: an HMAC output of n + 1 is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "secp256k1",
+    "hmac": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:secp256k1"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-033",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Scalar rejection on secp256k1: an HMAC output of 2^256 - 1 is refused with a typed error naming the curve",
+   "item": 7,
+   "basis": [
+    "KEYS §1.8.2",
+    "KEYS §1.12 item 7"
+   ],
+   "tag": "required",
+   "hook": true,
+   "request": {
+    "op": "offset",
+    "curve": "secp256k1",
+    "hmac": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "offset-out-of-range:secp256k1"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-034",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 1 of 10: the two seeds differ in 119 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "71cf6d876be9e7aad82ed23de416de0403df6142311bb9ed4cd004d469c0ba41b8425a20315726eabb40cdf4356d788a518a100a2c37c6ed991450ad819af29f"
+   },
+   "expect": {
+    "secp256k1Seed": "4a2821f68b0f4dd2971282076e64cdd84d71afe59d663c0e9d4978d611468e09",
+    "p256Seed": "2ea663442823d240b21fb806dd186711cf3c8eac018a1ab58365de803ddf6cf0"
+   },
+   "oracle": {
+    "differingBits": 119
+   }
+  },
+  {
+   "id": "VA-KEY-035",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 2 of 10: the two seeds differ in 132 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ff9a8f59618673638196b784d17c6494f524c4a237cfaa7ad888db223feb0ac0735753615695e016c4fb4262dfe0f30749728e521c25e281009d627139c3aab6"
+   },
+   "expect": {
+    "secp256k1Seed": "f3bcaa7f36397f38b5dd0e805554c0bbf8948648c7fe7327eb40ea0cd21e9596",
+    "p256Seed": "8ceefafd31a2a530fda0c3596b8f583cacb199c7308c2a70f0d0736131abab12"
+   },
+   "oracle": {
+    "differingBits": 132
+   }
+  },
+  {
+   "id": "VA-KEY-036",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 3 of 10: the two seeds differ in 119 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "97a628b25f9721081baf21b7350c9c28cd9a6e4e7165cda59445024e0df3b469cbccd4548ffdd76accd020941e03543a7b7aa3247454de3e715c35839dff7c55"
+   },
+   "expect": {
+    "secp256k1Seed": "b90e3fe8b9f8b468bebba758c1653ec77efd2db25631c124b13fc54f1db9a9f3",
+    "p256Seed": "3cbe4c0db69924308bae62d110a5b3a7a6e8e6b49d0268d7ada073c1afd2a1fc"
+   },
+   "oracle": {
+    "differingBits": 119
+   }
+  },
+  {
+   "id": "VA-KEY-037",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 4 of 10: the two seeds differ in 144 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "194b0fb3abbf30df3828cc91c5778cecc37d19f612193107cf1e603d3cec3ab969b840e76460b94ee68dc9eaa6651a9f87d83b85f09584e4de24419252c47d1f"
+   },
+   "expect": {
+    "secp256k1Seed": "b69ea8279175b7d3af66b0463b26048e1f7584bf14ae3fb2118e64495a3bde01",
+    "p256Seed": "34bf4275a5b0e17fd2f90fe57d453375b80a60462a527e44f11a5335ec913928"
+   },
+   "oracle": {
+    "differingBits": 144
+   }
+  },
+  {
+   "id": "VA-KEY-038",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 5 of 10: the two seeds differ in 114 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "7a3c3da96df710a242e4359fd830b917354ccde69cd19dbe55834d7f86e6a27a9ed4058daad1d0791e02ad6c722fbcf8c308302e9b750492911286c53a66bf14"
+   },
+   "expect": {
+    "secp256k1Seed": "c4a9b0256d4d0989ba2efe1bfe3debd46cc7a8cc59188eeeb930e97db279b93c",
+    "p256Seed": "c26c998390f7379d1f97749f7eb066a36847a8f6d80154c0a7f5e0a909bf45dc"
+   },
+   "oracle": {
+    "differingBits": 114
+   }
+  },
+  {
+   "id": "VA-KEY-039",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 6 of 10: the two seeds differ in 126 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ca3618e141f43493ebd348285a7974c4c17515f129272062b88907eab33349d7fd3324c51d0d9f097a8724e7478e36c9ee8d3ba9f9e571b84b8f62aff0dca891"
+   },
+   "expect": {
+    "secp256k1Seed": "f653a4adcd037ec45dd0f859e58b24d318ce271a5204715ba43ceee517473824",
+    "p256Seed": "41e4c2d1d34dd3dfccb963095ca69ef3046284687885ac6b4ff44f0d54f47540"
+   },
+   "oracle": {
+    "differingBits": 126
+   }
+  },
+  {
+   "id": "VA-KEY-040",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 7 of 10: the two seeds differ in 129 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "fea64d649e0539916a44bc0ba6de72e00ea43bc9a0da2a69645e0bbc0d3884650f6a10c72fdc871d88aac55d3cf6fa51dd1ed465d558dd613949e8ef7f9c5f16"
+   },
+   "expect": {
+    "secp256k1Seed": "7f37bf0f3304ca7631d8f572cb7415632d05aa72a1d647c51f21e7a7484165ee",
+    "p256Seed": "17fe507623e122ddb361787bae6d2ad158c860b1b78aaa2eb784750ae549cdf0"
+   },
+   "oracle": {
+    "differingBits": 129
+   }
+  },
+  {
+   "id": "VA-KEY-041",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 8 of 10: the two seeds differ in 143 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "0bd14695926845349092049312928184b51263d8c84e3a4e0dd9117cfaf7cb14cf8c3e7a279751348648a8a8450c224a0f0ec22dbacc105a34c82320d01fd97b"
+   },
+   "expect": {
+    "secp256k1Seed": "e19c06e8212086b3c36de99bfbb8a130d9fcfac86dbddf065f9f659384b0b18b",
+    "p256Seed": "b4856ff5d21731e1a636c7b7906b5eac2f9ae0381a573e891147e22ae32b231f"
+   },
+   "oracle": {
+    "differingBits": 143
+   }
+  },
+  {
+   "id": "VA-KEY-042",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 9 of 10: the two seeds differ in 132 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "ae226cd86d08a02abca4f5d3ff7f0fe50a8c84ed93aa73c16e7c9041748b35ef8710c65d7987173185ca6e0755dc0b9a277e71febd800d970607360e8ba753f4"
+   },
+   "expect": {
+    "secp256k1Seed": "c71941b54d1f4c2a2ba4b94d1d2ebfbe943e5394e22021602aa3130ec9029b67",
+    "p256Seed": "d455991a05207b7542ebb10678da537e608895e75e6e91aab358335870dfb665"
+   },
+   "oracle": {
+    "differingBits": 132
+   }
+  },
+  {
+   "id": "VA-KEY-043",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Curve independence, root 10 of 10: the two seeds differ in 129 of 256 bits (at least 100 required)",
+   "item": 6,
+   "basis": [
+    "KEYS §1.12 item 6"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "split",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "rootIkm": "c455a8f10178a3ec4af1c45de153c89b160b4e193eabe1a0f4b7c504869a6046ebb86fc5f313d6817d8c66d7066480a2f2550dce44d7e66688258170cf38b552"
+   },
+   "expect": {
+    "secp256k1Seed": "2d5c8d865cb8d2c33fd7045655789209ec085bf736ad669f3cf96a770bf6c303",
+    "p256Seed": "dcde38041da35c0071a34b28935429c14a9c1433d75887c1acc64c54d7439b7f"
+   },
+   "oracle": {
+    "differingBits": 129
+   }
+  },
+  {
+   "id": "VA-KEY-044",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "The registered purpose `field` at level 4 is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/photoHash"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-045",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "The registered purpose `handoff` at level 4 is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/handoff/a1b2c3"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-046",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "The registered purpose `topup` at level 4 is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/topup/0"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-047",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "The session level-3 variant is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/session/ffeeddccbbaa99887766554433221100"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-048",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A level-3 action path is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-049",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A level-1 account path is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-050",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "The delegation level-3 variant is accepted",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/delegation/00112233445566778899aabbccddeeff/actor/021111111111111111111111111111111111111111111111111111111111111111"
+   },
+   "expect": {
+    "verdict": "accepted"
+   }
+  },
+  {
+   "id": "VA-KEY-051",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "An unregistered level-4 purpose is refused at the derivation boundary",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/photo/1"
+   },
+   "expect": {
+    "verdict": "refused",
+    "detail": "purpose"
+   }
+  },
+  {
+   "id": "VA-KEY-052",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A level-3 keyword the profile does not use (`record`, the ENV §8.5 example literal) is refused under this profile",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.3.1"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/record/01JB8ZK3QN7T4YVX2C9M5RDPWA"
+   },
+   "expect": {
+    "verdict": "refused",
+    "detail": "keyword"
+   }
+  },
+  {
+   "id": "VA-KEY-053",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A path with an empty segment is refused",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account//runtime/8kRt2wVbZq"
+   },
+   "expect": {
+    "verdict": "refused",
+    "detail": "segment"
+   }
+  },
+  {
+   "id": "VA-KEY-054",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A field name carrying `/` breaks the five-level structure and is refused",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.1",
+    "KEYS §1.12 item 10"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/a/b"
+   },
+   "expect": {
+    "verdict": "refused",
+    "detail": "structure"
+   }
+  },
+  {
+   "id": "VA-KEY-055",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A key path longer than 1033 bytes is refused",
+   "item": 10,
+   "basis": [
+    "KEYS §1.3"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "expect": {
+    "verdict": "refused",
+    "detail": "length"
+   }
+  },
+  {
+   "id": "VA-KEY-056",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A field name longer than 256 bytes is refused (laboratory choice: KEYS §1.6.2 bounds field names, and the validator applies it)",
+   "item": 10,
+   "basis": [
+    "KEYS §1.6.2"
+   ],
+   "tag": "labChoice",
+   "request": {
+    "op": "validate",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA/field/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "expect": {
+    "verdict": "refused",
+    "detail": "field-name"
+   }
+  },
+  {
+   "id": "VA-KEY-057",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Deriving under a namespace absent from the profile is refused",
+   "item": 10,
+   "basis": [
+    "KEYS §1.7"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx archive",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "namespace"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-058",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Deriving under the rotation namespace is refused: the laboratory profile reserves it and signs rotation records under the signing namespace",
+   "item": 10,
+   "basis": [
+    "KEYS §1.7",
+    "KEYS §1.10.3 step 5"
+   ],
+   "tag": "labChoice",
+   "request": {
+    "op": "derive",
+    "profile": "fixtures/sdx/v1/deployment-profile.json",
+    "curve": "p256",
+    "rootIkm": "ce3ad792522d185b421adfc97662a8a8a5af11bbe1c6f37578a820a3dd14a60a1aeeccf2c2d279e61de7590b3221c589aecb260bc6df7781287287bcd9fe2865",
+    "namespace": "sdx rotation",
+    "keyPath": "account/3MNQpxFAsp/runtime/8kRt2wVbZq/action/01JB8ZK3QN7T4YVX2C9M5RDPWA",
+    "counterparty": "self",
+    "side": "own"
+   },
+   "expect": {
+    "refusal": {
+     "class": "key",
+     "detail": "namespace-reserved"
+    }
+   }
+  },
+  {
+   "id": "VA-KEY-059",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "The laboratory profile conforms",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": "fixtures/sdx/v1/deployment-profile.json"
+   },
+   "expect": {
+    "verdict": "conforming",
+    "failures": []
+   }
+  },
+  {
+   "id": "VA-KEY-060",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Two roles with one namespace string do not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx sign"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "namespaces-distinct"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-061",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Equal per-curve labels do not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-secp256k1"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "labels-distinct"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-062",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A namespace ending with the word `protocol` does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff protocol"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "namespace-grammar:handoff"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-063",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A namespace with an uppercase letter does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "SDX sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "namespace-grammar:signing"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-064",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A namespace with a hyphen does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx-encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "namespace-grammar:encryption"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-065",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A namespace of 4 characters does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdxd",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "namespace-grammar:delegation"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-066",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A namespace with two consecutive spaces does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx  transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "namespace-grammar:transportAuthentication"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-067",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "A key-path keyword containing `/` does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "run/time",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "keyword:level2"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-068",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "Two registered purposes with one name do not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "sdx-secp256k1",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         },
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "purposes-distinct"
+    ]
+   }
+  },
+  {
+   "id": "VA-KEY-069",
+   "requirement": [
+    "SDX-A-08"
+   ],
+   "title": "An empty per-curve label does not conform",
+   "item": 11,
+   "basis": [
+    "KEYS §1.3",
+    "KEYS §1.3.1",
+    "KEYS §1.4.2",
+    "KEYS §1.6",
+    "KEYS §1.7",
+    "KEYS §1.12 item 11"
+   ],
+   "tag": "required",
+   "request": {
+    "op": "profile",
+    "profile": {
+     "inline": {
+      "schema": "tpnil-sdx-deployment-profile@0.1.0",
+      "profile": "tpnil-sdx-lab:v1",
+      "claim": "LAB_SELF_TEST_ONLY",
+      "status": "LABORATORY",
+      "purpose": "The deployment profile under which TPNIL computes every SDX vector suite. KEYS §1.3.1 makes the strings that enter a derivation deployment parameters, and ENV §2.1 requires a deployment to publish its format identifier, protocol identifiers and key identifier grammar before its first write. This file publishes those values for the laboratory. No live deployment uses it, and nothing written under it is anything but test material.",
+      "provenance": "The namespace strings, per-curve labels, key-path keywords, purposes and credential type are the example values of the pinned SDX text, which KEYS §1.3.1 states are not normative. The laboratory adopts them for its own use only. The format identifier is the laboratory's own value; the example profile's `sdx:record:v1` is not used (ENV §2).",
+      "formatIdentifier": {
+       "value": "tpnil-sdx-lab:v1",
+       "basis": "ENV §2 (`proto`), ENV §2.1 first item, ENV §5.2 (the outer protected header carries the same value)"
+      },
+      "derivation": {
+       "basis": "KEYS §1.3.1 items 1-4",
+       "securityLevel": 2,
+       "namespaces": {
+        "basis": "KEYS §1.3.1 item 1; KEYS §1.7 (example values)",
+        "encryption": "sdx encrypt",
+        "signing": "sdx sign",
+        "delegation": "sdx delegate",
+        "transportAuthentication": "sdx transport auth",
+        "rotation": "sdx rotation",
+        "handoff": "sdx handoff"
+       },
+       "namespaceUse": {
+        "rotation": "Reserved and not derived under. Rotation envelopes sign under the signing namespace, which KEYS §1.7 permits (last rule) and KEYS §1.10.3 step 5 states."
+       },
+       "curveLabels": {
+        "basis": "KEYS §1.3.1 item 2; KEYS §1.4.2 (example values; HKDF-SHA-256 info, empty salt, 32 bytes)",
+        "secp256k1": "",
+        "p256": "sdx-p256"
+       },
+       "keyPath": {
+        "basis": "KEYS §1.3.1 item 3; KEYS §1.6 (example vocabulary)",
+        "separator": "/",
+        "keywords": {
+         "level1": "account",
+         "level2": "runtime",
+         "level3": "action",
+         "level3Session": "session",
+         "level3Delegation": "delegation",
+         "delegationActor": "actor"
+        },
+        "levels": [
+         "account/<accountId>",
+         "account/<accountId>/runtime/<runtimeId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+         "account/<accountId>/runtime/<runtimeId>/action/<actionId>/<purpose>/<id>"
+        ],
+        "level3Variants": [
+         "account/<accountId>/runtime/<runtimeId>/session/<sessionId>",
+         "account/<accountId>/runtime/<runtimeId>/delegation/<delId>/actor/<actorPubKey>"
+        ],
+        "purposes": [
+         {
+          "purpose": "field",
+          "id": "<fieldName>",
+          "use": "Per-field envelope encryption"
+         },
+         {
+          "purpose": "handoff",
+          "id": "<refIdHex>",
+          "use": "Cross-domain handoff output lock, addressed to a named recipient"
+         },
+         {
+          "purpose": "topup",
+          "id": "<n>",
+          "use": "Funding top-up output lock; <n> is the output ordinal"
+         }
+        ],
+        "purposeSet": "closed: a derivation boundary rejects any other level-4 purpose (KEYS §1.6.1)"
+       },
+       "credentialType": {
+        "basis": "KEYS §1.3.1 item 4; KEYS §2.11 (example value)",
+        "value": "urn:sdx:Mandate:v1"
+       }
+      },
+      "recordKeyIdentifiers": {
+       "basis": "ENV §2.1 items 2 and 3; ENV §8.5, §8.6; KEYS §1.8.4; ANC §3.1",
+       "grammar": "account/<accountId>/runtime/<runtimeId>/action/<actionId>. ENV §8.5 writes this shape as account/<account-id>/<writer-scope>/<writer-id>/record/<record-id> with profile-chosen literals; under this profile <writer-scope> is `runtime` and the record segment is `action` (reading R1).",
+       "signing": {
+        "use": "ES256 envelope signatures on P-256 (ENV §8.5) and audit-layer transaction signatures on secp256k1 (KEYS §1.8.4)",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self"
+       },
+       "recipient": {
+        "use": "ECDH-ES+A256KW recipient identifiers on P-256 (ENV §8.6)",
+        "protocolID": [
+         2,
+         "sdx encrypt"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "fieldKeyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>/field/<fieldName>",
+        "counterparty": "self for the writer self-recipient, or the recipient's root public key"
+       },
+       "commitment": {
+        "use": "The per-record commitment key in the ANC §2.1 container (ANC §3.1)",
+        "curve": "secp256k1",
+        "protocolID": [
+         2,
+         "sdx sign"
+        ],
+        "keyID": "account/<accountId>/runtime/<runtimeId>/action/<actionId>",
+        "counterparty": "self",
+        "root": "the root keying material of the epoch the record's header declares in `ep` (ANC §3.1, §6.2 steps 3-4)"
+       }
+      },
+      "anchoring": {
+       "minimumEntryValue": 1,
+       "unit": "satoshi",
+       "basis": "ANC §2.4: the floor is deployment configuration; the default is one unit of the smallest denomination"
+      },
+      "readings": [
+       {
+        "id": "R1-ACTION-KEYWORD",
+        "kind": "Laboratory interpretation",
+        "reading": "One level-3 keyword, `action`, names the record in every record-level key path on both curves: the ENV §8.5 signing key identifier, the ENV §8.6 recipient key identifiers, the secp256k1 audit-layer signing key and the ANC §3.1 commitment key. ENV's <writer-scope> is the KEYS level-2 keyword `runtime`.",
+        "basis": "KEYS §1.6.1 (a profile spells each keyword the same way everywhere), KEYS §1.8.4, KEYS §1.11.2 (one grammar for both curves), ANC §3.1 (the commitment key uses the signing scope and the grammar of KEYS). ENV §8.5 and §8.6 make the segment literals profile parameters.",
+        "sourceFinding": "KEYS §1.6.1 and §1.8.4 spell the level-3 keyword `action`. ENV §8.5 and §8.6 write `record` in the same position. Both are example values, so either is a valid profile choice, but the two pinned texts show different literals for one key path."
+       },
+       {
+        "id": "R2-LAB-PROFILE",
+        "kind": "Laboratory interpretation",
+        "reading": "The laboratory publishes this one profile and computes every SDX suite under it. Its format identifier is `tpnil-sdx-lab:v1`. Its other strings are the SDX example values, used in the laboratory only. An implementation that cannot run under this profile is BLOCKED on byte-exact rows unless a vector set computed under its own published profile is admitted with an independent oracle.",
+        "basis": "KEYS §1.3.1 (a deployment fixes and publishes its profile), KEYS §1.12 (vectors are profile-relative), ENV §2 and §2.1 (no implementation should emit the example identifier)"
+       }
+      ],
+      "profileConformance": {
+       "basis": "KEYS §1.12 item 11: every string satisfies the grammar and length rules of KEYS §1.3 and §1.6, the six namespaces are mutually distinct and the two per-curve labels are distinct",
+       "checks": [
+        "each namespace is space-form: lowercase letters, digits and single spaces, 5 to 280 characters, not ending with the word `protocol`",
+        "the six namespaces are distinct",
+        "the two per-curve labels are distinct, non-empty ASCII",
+        "each key-path keyword and purpose is non-empty and contains no `/`",
+        "the purposes are distinct",
+        "the signing and encryption protocol identifiers are distinct (ENV §8.6)"
+       ],
+       "result": "PASS",
+       "checkedBy": "test/sdx-profile.test.mjs"
+      }
+     }
+    }
+   },
+   "expect": {
+    "verdict": "nonconforming",
+    "failures": [
+     "label:secp256k1"
+    ]
+   }
+  }
+ ]
+}

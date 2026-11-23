@@ -1,0 +1,27 @@
+## Specification texts and test vectors [#specification-texts-and-test-vectors]
+
+Version 1.0, 1 September 2026. This licence covers the specification texts published on sdxprotocol.org: the base protocol specification, the domain taxonomies, the reference pages, and the published test-vector suites. The reference implementation is licensed separately (see [Reference implementation](#reference-implementation) below). Licensor: mintBlue B.V.
+
+### Grant [#grant]
+
+The specification texts are published under the following open, royalty-free terms:
+
+1. **Copy and redistribute.** Anyone may copy, publish, and redistribute the specification texts, in whole or in part, in any medium and for any purpose, provided attribution to the SDX Protocol specification and its version date is preserved.
+
+2. **Implement.** Anyone may implement the specification, in full or in part, in any software or service, commercial or non-commercial, without fee, royalty, or separate permission. The published test-vector suites may be used and redistributed freely for implementing and verifying conformance.
+
+3. **Patent non-assertion.** The Licensor irrevocably covenants not to assert any of its patent claims that are necessarily infringed by a conforming implementation of a published version of the specification, against any party for making, using, selling, offering for sale, importing, or distributing that implementation. This covenant terminates, as to a given party, if that party or its affiliates assert a patent claim against any implementation of the specification. This covenant applies separately to each published version and survives the transfer of stewardship.
+
+4. **No trademark grant.** This licence conveys no rights to the SDX Protocol name or marks. Conformance claims are governed by the certification programme, separately.
+
+### Contributions [#contributions]
+
+By submitting a contribution to the specification (including a proposed domain taxonomy), the contributor licenses that contribution under the terms of this licence and extends the same patent non-assertion covenant for it, as submitted and as incorporated. Contributors retain copyright in their contributions; incorporation into the specification does not require assignment.
+
+### Derivative specifications [#derivative-specifications]
+
+Modified versions of the specification texts must be clearly labelled as modified and must not be presented as the SDX Protocol specification.
+
+### Stewardship [#stewardship]
+
+This licence binds the Licensor and any successor steward of the specification. A transfer of stewardship carries these terms with it unchanged for all versions published up to the transfer.
